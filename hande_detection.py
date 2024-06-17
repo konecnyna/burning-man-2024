@@ -4,6 +4,9 @@ import mediapipe as mp
 import argparse
 from pynput.mouse import Controller, Button
 
+from chrome_utils import open_url_in_chrome_fullscreen
+
+
 class HandTrackingModule:
     def __init__(self, mode=False, maxHands=1, detectionCon=0.7, trackCon=0.7):
         self.mode = mode
@@ -60,6 +63,12 @@ class HandTrackingModule:
         return fingers
 
 def main(enable_mouse):
+    # URL to open
+    url = "https://paveldogreat.github.io/WebGL-Fluid-Simulation/"
+    # Open the URL in Chrome fullscreen
+    open_url_in_chrome_fullscreen(url)
+
+
     cap = cv2.VideoCapture(0)
     detector = HandTrackingModule()
     mouse = Controller() if enable_mouse else None
@@ -101,7 +110,7 @@ def main(enable_mouse):
                         dragging = False
                     print("Less than 5 fingers detected, not moving the mouse")
 
-        cv2.imshow("Image", img)
+        #cv2.imshow("Image", img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
