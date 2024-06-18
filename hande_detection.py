@@ -62,7 +62,7 @@ class HandTrackingModule:
 
         return fingers
 
-def main(enable_mouse):
+def main(enable_mouse, show_cv):
     # URL to open
     url = "https://paveldogreat.github.io/WebGL-Fluid-Simulation/"
     # Open the URL in Chrome fullscreen
@@ -110,12 +110,15 @@ def main(enable_mouse):
                         dragging = False
                     print("Less than 5 fingers detected, not moving the mouse")
 
-        cv2.imshow("Image", img)
+        if show_cv:
+            cv2.imshow("Image", img)    
+        
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--enable-mouse', action='store_true', help='Enable mouse movement')
+    parser.add_argument('--show-cv', action='store_true', help='Show open cv image')
     args = parser.parse_args()
-    main(args.enable_mouse)
+    main(args.enable_mouse, args.show_cv)
