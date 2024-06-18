@@ -110,7 +110,7 @@ def main(enable_mouse):
                         dragging = False
                     print("Less than 5 fingers detected, not moving the mouse")
 
-        #cv2.imshow("Image", img)
+        cv2.imshow("Image", img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
