@@ -1,9 +1,11 @@
 import cv2
 import mediapipe as mp
 
+from pynput.mouse import Controller, Button
+
 
 class HandTrackingModule:
-    def __init__(self, mode=False, maxHands=1, detectionCon=0.5, trackCon=0.5):
+    def __init__(self, mode=False, enable_mouse=False, maxHands=1, detectionCon=0.5, trackCon=0.5):
         self.mode = mode
         self.maxHands = maxHands
         self.detectionCon = detectionCon
@@ -17,6 +19,8 @@ class HandTrackingModule:
             min_tracking_confidence=self.trackCon
         )
         self.mpDraw = mp.solutions.drawing_utils
+        self.mouse = Controller() if enable_mouse else None
+        self.dragging = False
 
     def findHands(self, img, draw=True):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -57,3 +61,34 @@ class HandTrackingModule:
 
         return fingers
 
+
+    def test(self, img):
+        img = self.findHands(img)
+        lmList = self.findPosition(img)
+        if lmList:
+            index_finger_tip = lmList[8]
+            x, y = index_finger_tip[1], index_finger_tip[2]
+
+            img_height, img_width, _ = img.shape
+            inverted_x = img_width - x
+
+            box_width, box_height = 1920, 1080
+            translated_x = int(inverted_x * (box_width / img_width))
+            translated_y = int(y * (box_height / img_height))
+
+            if self.mouse:
+                self.mouse.position = (translated_x, translated_y)
+                print(f'The current pointer position is {self.mouse.position} (dragging)')
+                fingers_count = self.countFingers(lmList)
+                print(f"Finger count: {fingers_count}")
+                if fingers_count == 1:
+                    if not self.dragging:
+                        self.mouse.press(Button.left)
+                        self.dragging = True                    
+                        print("Dragging")
+                        
+                else:
+                    if self.dragging:
+                        self.mouse.release(Button.left)
+                        self.dragging = False                    
+            
