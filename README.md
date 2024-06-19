@@ -3,7 +3,12 @@
 First make sure you follow prereqs and setup steps.
 
 1. start server: `node src/server.server.js`
-2. 
+2. site map:
+   - apps:
+      - http://localhost:3000/fluid-sim/index.html
+      - http://localhost:3000/neon-white-board/index.html
+   - pipe:
+      - http://localhost:3000/ 
 
 ## Prereqs
 
