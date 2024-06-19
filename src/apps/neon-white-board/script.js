@@ -4,9 +4,39 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let drawing = false;
-let hue = 0;
 let points = [];
+let hue = 0;
+let drawing = false;
+
+// Setup WebSocket connection
+const socket = io();
+
+// Listen for the 'hand_detect' event
+socket.on('hand_detect', (data) => {
+    const event = JSON.parse(data)
+    drawFromEvent(event.x, event.y);
+});
+
+function drawFromEvent(x, y) {
+    console.log("drawing", x, y)
+    points.push({ x, y, hue });
+
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+
+    hue++;
+    if (hue >= 360) {
+        hue = 0;
+    }
+}
 
 function startPosition(e) {
     drawing = true;
@@ -25,23 +55,7 @@ function draw(e) {
     const x = e.clientX;
     const y = e.clientY;
 
-    points.push({ x, y, hue });
-
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-
-    hue++;
-    if (hue >= 360) {
-        hue = 0;
-    }
+    drawFromEvent(x, y);
 }
 
 function removePoint() {
@@ -71,6 +85,10 @@ function redraw() {
     }
 }
 
+// Mouse event listeners
 canvas.addEventListener('mousedown', startPosition);
 canvas.addEventListener('mouseup', endPosition);
 canvas.addEventListener('mousemove', draw);
+
+// Start removing points after 3 seconds
+setTimeout(removePoint, 3000);
