@@ -32,6 +32,6 @@ server.listen(3000, () => {
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  pythonProcess.kill('SIGINT');
+  openCvEventBus.stop()
   process.exit();
 });

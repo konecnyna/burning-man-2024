@@ -53,6 +53,37 @@ googleLink.addEventListener('click', e => {
 
 // Simulation section
 
+/************************************/
+/************************************/
+/************************************/
+// MY CODE
+// Setup WebSocket connection
+const socket = io();
+// Listen for the 'hand_detect' event
+socket.on('hand_detect', (data) => {
+    
+    const event = JSON.parse(data)
+
+    let posX = scaleByPixelRatio(event.x);
+    let posY = scaleByPixelRatio(event.y);
+    let pointer = pointers.find(p => p.id == -1);
+    if (pointer == null) {
+        pointer = new pointerPrototype();
+    }
+        
+
+    if (!pointer.down){
+        updatePointerDownData(pointer, -1, posX, posY);    
+    }
+    
+    console.log(posX, posY)
+    updatePointerMoveData(pointer, posX, posY);
+});
+
+/************************************/
+/************************************/
+/************************************/
+
 const canvas = document.getElementsByTagName('canvas')[0];
 resizeCanvas();
 
@@ -1474,6 +1505,7 @@ canvas.addEventListener('mousemove', e => {
     if (!pointer.down) return;
     let posX = scaleByPixelRatio(e.offsetX);
     let posY = scaleByPixelRatio(e.offsetY);
+    console.log("real",posX, posY)
     updatePointerMoveData(pointer, posX, posY);
 });
 
