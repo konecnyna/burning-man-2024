@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 
 from pynput.mouse import Controller, Button
+from postion_translater import translate_img_coordinates
 
 
 class HandTrackingModule:
@@ -60,6 +61,7 @@ class HandTrackingModule:
                 fingers += 1
 
         return fingers
+    
 
 
     def test(self, img):
@@ -69,13 +71,12 @@ class HandTrackingModule:
             index_finger_tip = lmList[8]
             x, y = index_finger_tip[1], index_finger_tip[2]
 
-            img_height, img_width, _ = img.shape
-            inverted_x = img_width - x
-
-            box_width, box_height = 1920, 1080
-            translated_x = int(inverted_x * (box_width / img_width))
-            translated_y = int(y * (box_height / img_height))
-
+            translated_x,translated_y = translate_img_coordinates(
+                event_x=x,
+                event_y=y,
+                img=img
+            )
+            
             if self.mouse:
                 self.mouse.position = (translated_x, translated_y)
                 print(f'The current pointer position is {self.mouse.position} (dragging)')
