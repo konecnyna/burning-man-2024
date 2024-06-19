@@ -1,3 +1,4 @@
+import json
 import cv2
 import mediapipe as mp
 
@@ -6,11 +7,12 @@ from postion_translater import translate_img_coordinates
 
 
 class HandTrackingModule:
-    def __init__(self, mode=False, enable_mouse=False, maxHands=1, detectionCon=0.5, trackCon=0.5):
+    def __init__(self, mode=False, enable_mouse=False, debug=False, maxHands=1, detectionCon=0.5, trackCon=0.5):
         self.mode = mode
         self.maxHands = maxHands
         self.detectionCon = detectionCon
         self.trackCon = trackCon
+        self.debug = debug
 
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(
@@ -23,7 +25,7 @@ class HandTrackingModule:
         self.mouse = Controller() if enable_mouse else None
         self.dragging = False
 
-    def findHands(self, img, draw=True):
+    def drawHandsWireframe(self, img, draw=True):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
         if self.results.multi_hand_landmarks:
@@ -34,8 +36,11 @@ class HandTrackingModule:
 
     def findPosition(self, img, handNo=0, draw=True):
         lmList = []
-        if self.results.multi_hand_landmarks:
-            myHand = self.results.multi_hand_landmarks[handNo]
+        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        results = self.hands.process(imgRGB)
+        
+        if results.multi_hand_landmarks:
+            myHand = results.multi_hand_landmarks[handNo]
             for id, lm in enumerate(myHand.landmark):
                 h, w, c = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
@@ -62,10 +67,30 @@ class HandTrackingModule:
 
         return fingers
     
+    def subscribe(self, img):
+        lmList = self.findPosition(img)
+        if lmList:
+            index_finger_tip = lmList[8]
+            x, y = index_finger_tip[1], index_finger_tip[2]
 
+            translated_x,translated_y = translate_img_coordinates(
+                event_x=x,
+                event_y=y,
+                img=img
+            )
+            
+            print(self.makeEvent(x=translated_x, y=translated_y))
+            
+    def makeEvent(self, x,y):
+        event = {'event': 'hand_detect', 'x': x, 'y': y}
+        return json.dumps(event)        
 
+    def log(self, msg):
+        if self.debug:
+            print(msg)
+            
     def test(self, img):
-        img = self.findHands(img)
+        img = self.drawHandsWireframe(img)
         lmList = self.findPosition(img)
         if lmList:
             index_finger_tip = lmList[8]
@@ -79,14 +104,14 @@ class HandTrackingModule:
             
             if self.mouse:
                 self.mouse.position = (translated_x, translated_y)
-                print(f'The current pointer position is {self.mouse.position} (dragging)')
+                self.log(f'The current pointer position is {self.mouse.position} (dragging)')
                 fingers_count = self.countFingers(lmList)
-                print(f"Finger count: {fingers_count}")
+                self.log(f"Finger count: {fingers_count}")
                 if fingers_count == 1:
                     if not self.dragging:
                         self.mouse.press(Button.left)
                         self.dragging = True                    
-                        print("Dragging")
+                        self.log("Dragging")
                         
                 else:
                     if self.dragging:
