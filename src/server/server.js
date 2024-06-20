@@ -39,7 +39,6 @@ io.on('connection', (socket) => {
 
   socket.on('update_current_app', (data) => {
     console.log(`Current app updated to: ${JSON.stringify(data)}`);
-    // You can add more logic here to handle state updates
   });
 
   socket.on('disconnect', () => {
