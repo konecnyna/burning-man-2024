@@ -21,7 +21,6 @@ socket.on('open_cv_event', (data) => {
 });
 
 function drawFromEvent(x, y) {
-    console.log("drawing", x, y)
     points.push({ x, y, hue });
 
     ctx.lineWidth = 5;

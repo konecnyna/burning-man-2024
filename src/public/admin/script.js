@@ -1,19 +1,13 @@
 const logElement = document.getElementById('log');
 const socket = io();
 
-socket.on('pythonOutput', (data) => {
+socket.on('open_cv_event', (data) => {
   addLog(data);
 });
 
-socket.on('pythonError', (error) => {
-  addLog('ERROR: ' + error);
-});
-
-socket.on('pythonClose', (message) => {
-  addLog(message);
-});
 
 function addLog(message) {
+
   const lines = logElement.innerText.split('\n');
   lines.push(message);
   if (lines.length > 10) {
@@ -24,6 +18,7 @@ function addLog(message) {
 }
 
 document.getElementById('fluidButton').addEventListener('click', () => {
+  console.log("CLICK!!!!!!")
   socket.emit('update_current_app', { url: 'http://localhost:3000/fluid-sim/index.html' });
 });
 
