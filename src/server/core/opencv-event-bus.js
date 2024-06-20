@@ -2,18 +2,25 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 class OpenCvEventBus {
-  constructor(io) {
+  constructor(io, isMockModeFlag) {
     this.io = io;
+    this.isMockModeFlag = isMockModeFlag;
     this.pythonProcess = null;
   }
 
   start() {
-    this.pythonProcess = spawn('python3', ['main.py'], { cwd: path.join(__dirname, '../cv') })
+  const args = ['main.py']
+    if (this.isMockModeFlag) {
+      args.push("--mock-mode")
+    }
+
+
+    this.pythonProcess = spawn('python3', args, { cwd: path.join(__dirname, '../../cv') })
 
     this.pythonProcess.stdout.on('data', (data) => {
       const output = data.toString().trim();
       console.log(output);
-      this.io.emit('hand_detect', output);
+      this.io.emit('open_cv_event', output);
     });
 
     this.pythonProcess.stderr.on('data', (data) => {

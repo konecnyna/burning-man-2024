@@ -9,8 +9,14 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const OpenCvEventBus = require("./opencv-event-bus")
-const openCvEventBus = new OpenCvEventBus(io)
+
+// Flags!
+const isMockModeFlag = true
+
+
+const OpenCvEventBus = require("./core/opencv-event-bus")
+const openCvEventBus = new OpenCvEventBus(io, isMockModeFlag)
+
 
 app.use(express.static(path.join(__dirname, '../apps')));
 app.get('/', (req, res) => {
@@ -19,6 +25,21 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('a user connected');
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  socket.on('update_current_app', (data) => {
+    currentState.currentAppUrl = data.url;
+    console.log(`Current app updated to: ${currentState.currentAppUrl}`);
+    // You can add more logic here to handle state updates
+  });
+
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });

@@ -11,10 +11,13 @@ let drawing = false;
 // Setup WebSocket connection
 const socket = io();
 
-// Listen for the 'hand_detect' event
-socket.on('hand_detect', (data) => {
-    const event = JSON.parse(data)
-    drawFromEvent(event.x, event.y);
+// Listen for the 'open_cv_event' event
+socket.on('open_cv_event', (data) => {
+    const { event, payload } = JSON.parse(data)
+    if (event !== "hand_detect") {
+      return
+    }
+    drawFromEvent(payload.x, payload.y);
 });
 
 function drawFromEvent(x, y) {

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Logs</title>
+    <link href="css/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a202c;
+            color: #cbd5e0;
+        }
+        #log {
+            width: 80%;
+            max-height: 50%;
+            overflow-y: auto;
+            background-color: #2d3748;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        button {
+            background-color: #4a5568;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            margin: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <pre id="log" class="text-sm"></pre>
+    <button id="fluidButton">Fluid Hand Interaction</button>
+    <button id="neonButton">Neon Light Room</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
