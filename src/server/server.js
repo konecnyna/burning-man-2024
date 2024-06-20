@@ -4,21 +4,24 @@ const http = require('http');
 const socketIo = require('socket.io');
 const { spawn } = require('child_process');
 const path = require('path');
+const OpenCvEventBus = require("./core/opencv-event-bus")
+const State = require("./core/state")
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
 
-// Flags!
-const isMockModeFlag = true
+// Global state.
+const state = new State(
+  isMockModeFlag = true,
+  pythonDebugging = false
+)
+
+const openCvEventBus = new OpenCvEventBus(io, state)
 
 
-const OpenCvEventBus = require("./core/opencv-event-bus")
-const openCvEventBus = new OpenCvEventBus(io, isMockModeFlag)
-
-
-app.use(express.static(path.join(__dirname, '../apps')));
+app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -35,8 +38,7 @@ io.on('connection', (socket) => {
   console.log('a user connected');
 
   socket.on('update_current_app', (data) => {
-    currentState.currentAppUrl = data.url;
-    console.log(`Current app updated to: ${currentState.currentAppUrl}`);
+    console.log(`Current app updated to: ${JSON.stringify(data)}`);
     // You can add more logic here to handle state updates
   });
 

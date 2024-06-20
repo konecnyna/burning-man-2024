@@ -2,15 +2,15 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 class OpenCvEventBus {
-  constructor(io, isMockModeFlag) {
+  constructor(io, state) {
     this.io = io;
-    this.isMockModeFlag = isMockModeFlag;
+    this.state = state;
     this.pythonProcess = null;
   }
 
   start() {
-  const args = ['main.py']
-    if (this.isMockModeFlag) {
+    const args = ['main.py']
+    if (this.state.isMockMode) {
       args.push("--mock-mode")
     }
 
@@ -19,7 +19,10 @@ class OpenCvEventBus {
 
     this.pythonProcess.stdout.on('data', (data) => {
       const output = data.toString().trim();
-      console.log(output);
+      if (this.state.pythonDebugging) {
+        console.log(output);
+      }
+
       this.io.emit('open_cv_event', output);
     });
 
