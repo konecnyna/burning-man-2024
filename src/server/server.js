@@ -38,14 +38,14 @@ io.on('connection', (socket) => {
   console.log('a user connected');
 
   socket.on('admin_event', (data) => {
-    console.log(`incoming event: ${data}`)
+    console.log(`incoming event: ${JSON.stringify(data)}`)
     try {
-      const { event, payload} = data
-      io.emit(event, payload)  
+      const { event, payload } = data
+      io.emit(event, JSON.stringify(payload))
     } catch (error) {
       console.trace(error)
       console.error("Error emitting event!")
-    }    
+    }
   });
 
   socket.on('disconnect', () => {
@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
 });
 
 server.listen(3000, () => {
-  console.log('Server listening on port http://localhost:3000/app');  
+  console.log('Server listening on port http://localhost:3000/app');
   //openCvEventBus.start()
 });
 

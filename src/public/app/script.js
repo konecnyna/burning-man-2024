@@ -1,5 +1,30 @@
 const socket = io();
+let toastTimeout;
 
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  const toastMessage = document.getElementById('toast-message');
+
+  toastMessage.textContent = message;
+
+  // Clear any existing timeouts
+  if (toastTimeout) {
+    clearTimeout(toastTimeout);
+  }
+
+  // Reset classes to trigger reflow
+  toast.classList.remove('fade-in', 'fade-out', 'hidden', 'visible');
+  void toast.offsetWidth; // Trigger reflow
+
+  // Fade in
+  toast.classList.add('fade-in', 'visible');
+
+  // Set a new timeout to fade out the toast after 3 seconds
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('fade-in', 'visible');
+    toast.classList.add('fade-out', 'hidden');
+  }, 3000);
+}
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -33,8 +58,14 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPage(pages[currentPage]);
 
   socket.on('update_current_app', (data) => {
-    console.log(data, "______!!!!!!!!!")
-    const url = data.url;
-    loadPage(url)
+    try {
+      console.log(data)
+      const { name, url } = JSON.parse(data);
+      showToast(`Loading scene ${name}...`);
+      loadPage(url)
+    } catch (e) {
+      console.trace(e)
+    }
+
   });
 });

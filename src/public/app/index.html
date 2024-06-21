@@ -6,46 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dynamic Iframe Update</title>
   <link href="/css/tailwind.min.css" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background-color: black;
-    }
-
-    #content-container {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-
-    .controls {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      display: flex;
-      gap: 10px;
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-  </style>
+  <link href="./app.css" rel="stylesheet">
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -56,6 +17,9 @@
       <button id="nextBtn">Next</button>
     </div>
     <iframe id="contentFrame"></iframe>
+  </div>
+  <div id="toast" class="hidden fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg">
+    <span id="toast-message"></span>
   </div>
   <script defer src="./script.js"></script>
 </body>
