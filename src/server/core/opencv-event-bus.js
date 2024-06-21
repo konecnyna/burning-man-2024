@@ -22,7 +22,6 @@ class OpenCvEventBus {
       args.push("--url", this.state.rtspUrl)
     }
 
-    console.log(this.state)
     console.log(`Starting script: python3 ${args.join(" ")}`)
     this.pythonProcess = spawn('python3', args, { cwd: path.join(__dirname, '../../cv') })
 

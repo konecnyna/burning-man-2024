@@ -3,6 +3,7 @@
 class State {
   constructor({
     startScene = "http://localhost:3000/neon-white-board/index.html",
+    debugging = false,
     openCvState = {}
   } = {}) {
     const defaultOpenCvState = {

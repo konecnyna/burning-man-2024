@@ -17,19 +17,20 @@ function showToast(message) {
   void toast.offsetWidth; // Trigger reflow
 
   // Fade in
-  toast.classList.add('fade-in', 'visible');
+  toast.classList.add('visible');
 
   // Set a new timeout to fade out the toast after 3 seconds
-  toastTimeout = setTimeout(() => {
-    toast.classList.remove('fade-in', 'visible');
-    toast.classList.add('fade-out', 'hidden');
-  }, 3000);
+  // toastTimeout = setTimeout(() => {
+  //   toast.classList.remove('visible');
+  //   toast.classList.add('hidden');
+  // }, 3000);
 }
 
+showToast("!!!!!!!!!")
 
 document.addEventListener('DOMContentLoaded', () => {
   const pages = ['/app/scenes/fluid-sim/index.html', '/app/scenes/neon-white-board/index.html'];
-  let currentPage = 0;
+  let currentPage = 1;
 
   const contentFrame = document.getElementById('contentFrame');
   const prevBtn = document.getElementById('prevBtn');
@@ -66,6 +67,5 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.trace(e)
     }
-
   });
 });

@@ -15,7 +15,7 @@ const io = socketIo(server);
 // Global state.
 const state = new State({
   openCvState: {
-    debugging: true,
+    debugging: false,
     // rtspUrl: "rtsp://defkon:password@10.0.0.53/stream1",
     // showVideo: true
     isMockMode: true
@@ -28,13 +28,6 @@ const openCvEventBus = new OpenCvEventBus(io, state.openCvState)
 app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
 });
 
 
