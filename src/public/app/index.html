@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Iframe Update</title>
+  <link href="/css/tailwind.min.css" rel="stylesheet">
+  <link href="./app.css" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <div id="content-container">
+    <div class="controls">
+      <button id="prevBtn">Previous</button>
+      <button id="nextBtn">Next</button>
+    </div>
+    <iframe id="contentFrame"></iframe>
+  </div>
+  <div id="toast" class="toast">
+    <div class="background-animation">
+        <img src="/images/lotus-flower.png" alt="Lotus Flower">
+        <img src="/images/lotus-flower.png" alt="Lotus Flower">
+        <img src="/images/lotus-flower.png" alt="Lotus Flower">
+        <img src="/images/lotus-flower.png" alt="Lotus Flower">
+    </div>
+    <span id="toast-message"></span>
+</div>
+  <script defer src="./script.js"></script>
+</body>
+
+</html>

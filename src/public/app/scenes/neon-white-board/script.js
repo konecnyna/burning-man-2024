@@ -1,6 +1,8 @@
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
 
+const pointRemoveDelay = 15000
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -11,14 +13,19 @@ let drawing = false;
 // Setup WebSocket connection
 const socket = io();
 
-// Listen for the 'hand_detect' event
-socket.on('hand_detect', (data) => {
-    const event = JSON.parse(data)
-    drawFromEvent(event.x, event.y);
+socket.on('open_cv_event', (data) => {  
+  try {
+    const { event, payload } = JSON.parse(data)
+    if (event !== "hand_detect") {
+      return
+    }
+    drawFromEvent(payload.x, payload.y);
+  } catch (e) {
+    console.trace(e)
+  }
 });
 
 function drawFromEvent(x, y) {
-    console.log("drawing", x, y)
     points.push({ x, y, hue });
 
     ctx.lineWidth = 5;
@@ -46,7 +53,7 @@ function startPosition(e) {
 function endPosition() {
     drawing = false;
     ctx.beginPath();
-    setTimeout(removePoint, 3000); // Start removing points after 3 seconds
+    setTimeout(removePoint, pointRemoveDelay); // Start removing points after 3 seconds
 }
 
 function draw(e) {
@@ -89,6 +96,3 @@ function redraw() {
 canvas.addEventListener('mousedown', startPosition);
 canvas.addEventListener('mouseup', endPosition);
 canvas.addEventListener('mousemove', draw);
-
-// Start removing points after 3 seconds
-setTimeout(removePoint, 3000);

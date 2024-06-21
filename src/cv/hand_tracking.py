@@ -82,7 +82,7 @@ class HandTrackingModule:
             print(self.makeEvent(x=translated_x, y=translated_y), flush=True)
             
     def makeEvent(self, x,y):
-        event = {'event': 'hand_detect', 'x': x, 'y': y}
+        event = { 'event': 'hand_detect', 'payload': { 'x': x, 'y': y }}
         return json.dumps(event)        
 
     def log(self, msg):
