@@ -11,17 +11,16 @@ let drawing = false;
 // Setup WebSocket connection
 const socket = io();
 
-// Listen for the 'open_cv_event' event
-socket.on('open_cv_event', (data) => {
-    const { event, payload } = JSON.parse(data)
-    if (event !== "hand_detect") {
-      return
-    }
-    drawFromEvent(payload.x, payload.y);
+// Listen for the 'hand_detect' event
+socket.on('hand_detect', (data) => {
+    const event = JSON.parse(data);
+    drawFromEvent(event.x, event.y);
 });
 
 function drawFromEvent(x, y) {
-    points.push({ x, y, hue });
+    if (!drawing) return; // Only draw if in drawing state
+
+    points.push({ x, y, hue, isNewPath: false });
 
     ctx.lineWidth = 5;
     ctx.lineCap = 'round';
@@ -42,6 +41,10 @@ function drawFromEvent(x, y) {
 
 function startPosition(e) {
     drawing = true;
+    const x = e.clientX;
+    const y = e.clientY;
+    points.push({ x, y, hue, isNewPath: true }); // Mark as a new path
+    ctx.moveTo(x, y);
     draw(e);
 }
 
@@ -74,16 +77,14 @@ function redraw() {
     ctx.beginPath();
     for (let i = 0; i < points.length; i++) {
         const point = points[i];
-        ctx.lineWidth = 5;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = `hsl(${point.hue}, 100%, 50%)`;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = `hsl(${point.hue}, 100%, 50%)`;
-
-        ctx.lineTo(point.x, point.y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(point.x, point.y);
+        if (point.isNewPath) {
+            ctx.moveTo(point.x, point.y);
+        } else {
+            ctx.lineTo(point.x, point.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(point.x, point.y);
+        }
     }
 }
 
