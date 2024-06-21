@@ -1,30 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Iframe Update</title>
-    <link href="/css/tailwind.min.css" rel="stylesheet">
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #1a202c;
-            color: #cbd5e0;
-            margin: 0;
-        }
-        iframe {
-            width: 100%;
-            height: calc(100%);
-            border: none;
-        }
-    </style>
-    <script src="/socket.io/socket.io.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Iframe Update</title>
+  <link href="/css/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: black;
+    }
+
+    #content-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
+
 <body>
-    <iframe id="appFrame" src="http://localhost:3000/scenes/neon-white-board/index.html"></iframe>    
+  <div id="content-container">
+    <div class="controls">
+      <button id="prevBtn">Previous</button>
+      <button id="nextBtn">Next</button>
+    </div>
+    <iframe id="contentFrame"></iframe>
+  </div>
+  <script defer src="./script.js"></script>
 </body>
+
 </html>
