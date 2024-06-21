@@ -16,8 +16,9 @@ const io = socketIo(server);
 const state = new State({
   openCvState: {
     debugging: true,
-    rtspUrl: "rtsp://defkon:password@10.0.0.53/stream1",
-    showVideo: true
+    // rtspUrl: "rtsp://defkon:password@10.0.0.53/stream1",
+    // showVideo: true
+    isMockMode: true
   }
 })
 

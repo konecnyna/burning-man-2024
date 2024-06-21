@@ -12,7 +12,7 @@
 // Setup WebSocket connection
 const socket = io();
 // Listen for the 'open_cv_event' event
-socket.on('open_cv_event', (data) => {
+socket.on('open_cv_event', (data) => {  
   try {
     const { event, payload } = JSON.parse(data)
     if (event !== "hand_detect") {
@@ -31,7 +31,6 @@ socket.on('open_cv_event', (data) => {
       updatePointerDownData(pointer, -1, posX, posY);
     }
 
-    console.log(posX, posY)
     updatePointerMoveData(pointer, posX, posY);
 
   } catch (e) {
