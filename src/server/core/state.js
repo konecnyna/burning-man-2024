@@ -1,10 +1,19 @@
 
 
 class State {
-  constructor(isMockMode = false, pythonDebugging = false, url="http://localhost:3000/neon-white-board/index.html") {
-    this.isMockMode = isMockMode
-    this.currentUrl = url
-    this.pythonDebugging = pythonDebugging
+  constructor({
+    startScene = "http://localhost:3000/neon-white-board/index.html",
+    openCvState = {}
+  } = {}) {
+    const defaultOpenCvState = {
+      debugging: false,
+      active: true,
+      showVideo: true,
+      isMockMode: false,
+      rtspUrl: null,
+    }
+    this.startScene = startScene;
+    this.openCvState = { ...defaultOpenCvState, ...openCvState };
   }
 }
 

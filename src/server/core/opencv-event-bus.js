@@ -14,12 +14,21 @@ class OpenCvEventBus {
       args.push("--mock-mode")
     }
 
+    if (this.state.showVideo) {
+      args.push("--show-cv")
+    }
 
+    if (this.state.rtspUrl) {
+      args.push("--url", this.state.rtspUrl)
+    }
+
+    console.log(this.state)
+    console.log(`Starting script: python3 ${args.join(" ")}`)
     this.pythonProcess = spawn('python3', args, { cwd: path.join(__dirname, '../../cv') })
 
     this.pythonProcess.stdout.on('data', (data) => {
       const output = data.toString().trim();
-      if (this.state.pythonDebugging) {
+      if (this.state.debugging) {
         console.log(output);
       }
 

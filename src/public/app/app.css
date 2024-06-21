@@ -37,15 +37,79 @@ iframe {
   border: none;
 }
 
+.toast {
+  position: relative;
+  background: linear-gradient(135deg, #f39c12, #8e44ad);
+  color: #ffffff;
+  border: 2px solid #d35400;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
 
-/****************
-Toast CSS
-*****************/
+.toast .background-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
 
+.toast .background-animation img {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  opacity: 0.3;
+  animation: float 6s infinite;
+}
+
+.toast img:nth-child(1) {
+  top: -50px;
+  left: -50px;
+  animation-delay: 0s;
+}
+
+.toast img:nth-child(2) {
+  top: -50px;
+  right: -50px;
+  animation-delay: 2s;
+}
+
+.toast img:nth-child(3) {
+  bottom: -50px;
+  left: -50px;
+  animation-delay: 4s;
+}
+
+.toast img:nth-child(4) {
+  bottom: -50px;
+  right: -50px;
+  animation-delay: 6s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
 
 .fade-in {
   opacity: 0;
-  transition: opacity 3.5s ease-in;
+  transition: opacity 0.5s ease-in;
 }
 
 .fade-in.visible {
@@ -54,13 +118,9 @@ Toast CSS
 
 .fade-out {
   opacity: 1;
-  transition: opacity 3.5s ease-out;
+  transition: opacity 0.5s ease-out;
 }
 
 .fade-out.hidden {
   opacity: 0;
 }
-
-/****************
-END Toast CSS
-*****************/
