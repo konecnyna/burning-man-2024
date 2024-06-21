@@ -6,6 +6,7 @@ socket.on('open_cv_event', (data) => {
 });
 
 
+
 function addLog(message) {
 
   const lines = logElement.innerText.split('\n');
@@ -17,11 +18,15 @@ function addLog(message) {
   logElement.scrollTop = logElement.scrollHeight; // Scroll to the bottom
 }
 
-document.getElementById('fluidButton').addEventListener('click', () => {
-  console.log("CLICK!!!!!!")
-  socket.emit('update_current_app', { url: 'http://localhost:3000/fluid-sim/index.html' });
-});
 
-document.getElementById('neonButton').addEventListener('click', () => {
-  socket.emit('update_current_app', { url: 'http://localhost:3000/neon-white-board/index.html' });
-});
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('fluidButton').addEventListener('click', () => {
+    console.log("CLICK!!!!!!")
+    socket.emit('admin_event', { event: "update_current_app", payload: { url: '/app/scenes/fluid-sim/index.html' } });
+  });
+
+  document.getElementById('neonButton').addEventListener('click', () => {
+    socket.emit('admin_event', { event: "update_current_app", payload: { url: '/app/scenes/neon-white-board/index.html' } });
+  });
+
+})

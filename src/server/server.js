@@ -37,8 +37,15 @@ io.on('connection', (socket) => {
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  socket.on('update_current_app', (data) => {
-    console.log(`Current app updated to: ${JSON.stringify(data)}`);
+  socket.on('admin_event', (data) => {
+    console.log(`incoming event: ${data}`)
+    try {
+      const { event, payload} = data
+      io.emit(event, payload)  
+    } catch (error) {
+      console.trace(error)
+      console.error("Error emitting event!")
+    }    
   });
 
   socket.on('disconnect', () => {
@@ -47,8 +54,7 @@ io.on('connection', (socket) => {
 });
 
 server.listen(3000, () => {
-  console.log('Server listening on port http://localhost:3000');
-  console.log('Demo app http://localhost:3000/neon-white-board/index.html');
+  console.log('Server listening on port http://localhost:3000/app');  
   //openCvEventBus.start()
 });
 
