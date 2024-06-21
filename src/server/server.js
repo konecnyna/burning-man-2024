@@ -14,7 +14,7 @@ const io = socketIo(server);
 
 // Global state.
 const state = new State(
-  isMockModeFlag = true,
+  isMockModeFlag = false,
   pythonDebugging = false
 )
 
@@ -49,7 +49,7 @@ io.on('connection', (socket) => {
 server.listen(3000, () => {
   console.log('Server listening on port http://localhost:3000');
   console.log('Demo app http://localhost:3000/neon-white-board/index.html');
-  openCvEventBus.start()
+  //openCvEventBus.start()
 });
 
 // Graceful shutdown
