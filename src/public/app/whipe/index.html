@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Iframe Update</title>
+  <link href="./whipe.css" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./whipe.js"></script>
+</head>
+
+<body class="relative overflow-hidden">
+  <div id="middle-form">
+
+    <h1>Play with the parameters!</h1>
+
+    <p>Number of slices (horizontally):</p>
+    <span class="rangeValue"><span id="ix">5</span></span>
+    <input type="range" name="x" min="1" max="20" value="5" onchange="setRange(this.name,this.value)"
+      onclick="setRange(this.name,this.value)">
+
+    <p>Transition time of one slice (msec):</p>
+    <span class="rangeValue"><span id="ispeed">750</span></span>
+    <input type="range" name="speed" min="50" max="2000" value="750" step="10" onchange="setRange(this.name,this.value)"
+      onclick="setRange(this.name,this.value)">
+
+    <p>Time between transitions (msec):</p>
+    <span class="rangeValue"><span id="iseq">200</span></span>
+    <input type="range" name="seq" min="0" max="1000" value="200" step="10" onchange="setRange(this.name,this.value)"
+      onclick="setRange(this.name,this.value)">
+
+    <p>Effect:</p>
+    <select onchange="effectChange(this);">
+      <option value="1">Effect 1</option>
+      <option value="2">Effect 2</option>
+      <option value="3">Effect 3</option>
+      <option value="4">Effect 4</option>
+    </select>
+
+    <p>Drop an image (*.png, *.jpg, *.gif) (web):</p>
+    <div id="dropZone">
+      <input type="text" id="dropContainer" ondrop="drop(event)" ondragover="allowDrop(event)"
+        ondragenter="enterDrop(event)" ondragleave="leaveDrop(event)" />
+      <img id="dropImage" onload="posDropImg(this)"></img>
+    </div>
+
+    <button onclick="startAnimation()">Start the animation!</button>
+
+    <p>Remake of my previous pen <a class="ownlink" href="https://codepen.io/mesteradam/pen/EsLcC" target="_blank">Full
+        screen transition animation</a>.</p>
+  </div>
+</body>
+
+</html>

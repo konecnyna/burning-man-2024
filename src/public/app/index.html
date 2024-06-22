@@ -7,27 +7,37 @@
   <title>Dynamic Iframe Update</title>
   <link href="/css/tailwind.min.css" rel="stylesheet">
   <link href="./app.css" rel="stylesheet">
+  <link href="./whipe/whipe.css" rel="stylesheet">
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body>
-  <div id="content-container">
+<body class="relative overflow-hidden">
+  <div id="content-container" class="relative z-10">
     <div class="controls">
-      <button id="prevBtn">Previous</button>
-      <button id="nextBtn">Next</button>
+      <button id="prevBtn" class="m-2 p-2 bg-blue-500 text-white">Previous</button>
+      <button id="nextBtn" class="m-2 p-2 bg-blue-500 text-white">Next</button>
+      <button onclick="startAnimation()">Start the animation!</button>
     </div>
-    <iframe id="contentFrame"></iframe>
+    <iframe id="contentFrame" class="w-full h-screen"></iframe>
   </div>
-  <div id="toast" class="toast">
-    <div class="background-animation">
-        <img src="/images/lotus-flower.png" alt="Lotus Flower">
-        <img src="/images/lotus-flower.png" alt="Lotus Flower">
-        <img src="/images/lotus-flower.png" alt="Lotus Flower">
-        <img src="/images/lotus-flower.png" alt="Lotus Flower">
+  <div id="toast"
+    class="fixed inset-0 bg-white flex items-center justify-center z-20 opacity-0 transition-opacity duration-1000">
+    <div class="background-animation flex">
+      <img src="/images/lotus-flower.png" alt="Lotus Flower" class="w-1/4 h-auto m-2">
+      <img src="/images/lotus-flower.png" alt="Lotus Flower" class="w-1/4 h-auto m-2">
+      <img src="/images/lotus-flower.png" alt="Lotus Flower" class="w-1/4 h-auto m-2">
+      <img src="/images/lotus-flower.png" alt="Lotus Flower" class="w-1/4 h-auto m-2">
     </div>
-    <span id="toast-message"></span>
-</div>
+    <span id="toast-message" class="absolute bottom-10 text-lg font-bold text-black"></span>
+  </div>
+  <div id="overlay" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-1000">
+    <div class="relative w-full h-full">
+      <div class="absolute top-0 bottom-0 left-0 right-0 bg-white transform scale-x-0 origin-left transition-transform duration-1000 ease-out" id="overlay-left"></div>
+      <div class="absolute top-0 bottom-0 left-0 right-0 bg-white transform scale-x-0 origin-right transition-transform duration-1000 ease-out" id="overlay-right"></div>
+    </div>
+  </div>
   <script defer src="./script.js"></script>
+  <script defer src="./whipe/whipe.js"></script>
 </body>
 
 </html>

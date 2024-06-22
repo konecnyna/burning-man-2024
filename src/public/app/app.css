@@ -125,3 +125,13 @@ iframe {
       transform: translateY(-20px);
   }
 }
+
+#overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#overlay.show #overlay-left,
+#overlay.show #overlay-right {
+  transform: scaleX(1);
+}
