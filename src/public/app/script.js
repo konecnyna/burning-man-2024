@@ -20,13 +20,13 @@ function showToast(message) {
   toast.classList.add('visible');
 
   // Set a new timeout to fade out the toast after 3 seconds
-  // toastTimeout = setTimeout(() => {
-  //   toast.classList.remove('visible');
-  //   toast.classList.add('hidden');
-  // }, 3000);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('visible');
+    toast.classList.add('hidden');
+  }, 3000);
 }
 
-showToast("!!!!!!!!!")
+// showToast("!!!!!!!!!")
 
 document.addEventListener('DOMContentLoaded', () => {
   const pages = ['/app/scenes/fluid-sim/index.html', '/app/scenes/neon-white-board/index.html'];
