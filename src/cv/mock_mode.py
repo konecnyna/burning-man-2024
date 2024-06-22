@@ -10,8 +10,8 @@ def printEvent(event):
 def mockMode():
     start_x = 100
     start_y = 100
-    end_y = 350
-    end_x = 350
+    end_y = 650
+    end_x = 650
     increment = 15
     delay = .1
 

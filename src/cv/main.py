@@ -4,20 +4,25 @@ import cv2
 import argparse
 
 from hand_tracking import HandTrackingModule
-from mock_mode import mockMode
+from object_detection import ObjectDetector
 
 def main(enable_mouse, show_cv, debug, mock_mode, camera_address):
-    if (mock_mode):
-        mockMode()
+    hand_detector = HandTrackingModule(enable_mouse=enable_mouse, debug=debug) 
+    object_detector = ObjectDetector()
+    
+    
+    if (mock_mode): 
+        # hand_detector.mockMode()
+        object_detector.mockMode()
         return
     
     # cap = cv2.VideoCapture(0)
     cap = cv2.VideoCapture(camera_address)
-    hand_detector = HandTrackingModule(enable_mouse=enable_mouse, debug=debug)    
     
     while cap.isOpened():
         success, img = cap.read()
         hand_detector.subscribe(img=img)
+        #object_detector.subscribe(img=img)
         
         if show_cv:
             cv2.imshow("Image", img)
