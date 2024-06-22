@@ -25,12 +25,13 @@ function arrayRandomizer(arr) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  setImage('/images/oracle.jpeg');
-  setTimeout(function () {
-    startAnimation();
-  }, 1500);
-})
+// document.addEventListener("DOMContentLoaded", function () {
+//   setImage('/images/oracle.jpeg');
+//   console.log("sssssssssss")
+//   setTimeout(function () {
+//     startAnimation();
+//   }, 200);
+// })
 
 
 /*
@@ -50,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
    nSeq		=	50		(min:0)
 */
 
-function SquareFadeAnimation(nX, nSpeed, nSeq, bCreate) {
+function SquareFadeAnimation(nX, nSpeed, nSeq, bCreate, delay) {
 
   wvAnimation.oNegyzet = new Array();
 
@@ -81,10 +82,11 @@ function SquareFadeAnimation(nX, nSpeed, nSeq, bCreate) {
     wvAnimation.oFullFill = document.getElementById("wv-full-fill");
   }
 
-  start();
+
+  start(delay);
 }
 
-function start() {
+function start(delay) {
   var nWidth = wvAnimation.oFullFill.offsetWidth;
   var nHeight = wvAnimation.oFullFill.offsetHeight;
   var nSzelesseg = Math.round(nWidth / wvAnimation.nX + 0.5);// negyzetek szelessege
@@ -111,7 +113,7 @@ function start() {
     wvAnimation.oImg.width = nImgWidth * nArany;
     wvAnimation.oImg.height = nHeight;
   }
-
+  console.log("!!")
   var nImgXPoz = (nWidth - wvAnimation.oImg.width) / 2
   var nImgYPoz = (nHeight - wvAnimation.oImg.height) / 2
 
@@ -132,13 +134,14 @@ function start() {
       oTemp.style.top = i * nSzelesseg + "px";
       oTemp.style.backgroundPosition = (nImgXPoz - (j * nSzelesseg)) + "px " + (nImgYPoz - (i * nSzelesseg)) + "px";
       oTemp.style.transition = "all " + (wvAnimation.nSpeed / 1000) + "s";
+      oTemp.style.opacity = "0"; // Initial opacity
       wvAnimation.oNegyzet.push(oTemp);
     }
   }
 
 
   arrayRandomizer(wvAnimation.oNegyzet);
-  
+
   for (i = 0; i < wvAnimation.nSum; i++) {
     wvAnimation.oFullFill.appendChild(wvAnimation.oNegyzet[i]);
   }
@@ -146,7 +149,16 @@ function start() {
   wvAnimation.oFullFill.style.backgroundColor = "transparent";
   wvAnimation.oFullFill.style.backgroundImage = "";
 
-  linearCSSAnimation();
+  // Fade in the image
+  setTimeout(function () {
+    for (i = 0; i < wvAnimation.nSum; i++) {
+      wvAnimation.oNegyzet[i].style.opacity = "1";
+      
+    }
+    setTimeout(function () {
+      linearCSSAnimation();
+    }, delay); 
+  }, 50);
 };
 
 
@@ -192,11 +204,12 @@ function linearCSSAnimation() {
 */
 
 function startAnimation() {
-  var nX = document.getElementsByName("x")[0].value;
-  var nSpeed = document.getElementsByName("speed")[0].value;
-  var nSeq = document.getElementsByName("seq")[0].value;
+  var nX = 5;
+  var nSpeed = 750;
+  var nSeq = 200;
+  var delay = 5000;
 
-  SquareFadeAnimation(nX, nSpeed, nSeq, true);
+  SquareFadeAnimation(nX, nSpeed, nSeq, true, delay);
 }
 
 function setRange(cName, nValue) {
@@ -209,7 +222,10 @@ function setImage(cImg) {
   if (preloader == null) {
     preloader = document.createElement("div");
     preloader.setAttribute("id", "bgPreloaderDiv");
-    document.body.insertBefore(preloader, document.body.childNodes[0]);
+    
+    // document.body.insertBefore(preloader, document.body.childNodes[0]);
+    const test =document.getElementById("content-container")
+    test.insertBefore(preloader, test.childNodes[0]);
   }
   preloader.style.width = "0px";
   preloader.style.height = "0px";

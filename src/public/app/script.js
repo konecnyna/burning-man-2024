@@ -19,14 +19,12 @@ function showToast(message) {
   // Fade in
   toast.classList.add('visible');
 
-  // Set a new timeout to fade out the toast after 3 seconds
-  toastTimeout = setTimeout(() => {
-    toast.classList.remove('visible');
-    toast.classList.add('hidden');
-  }, 3000);
+  // // Set a new timeout to fade out the toast after 3 seconds
+  // toastTimeout = setTimeout(() => {
+  //   toast.classList.remove('visible');
+  //   toast.classList.add('hidden');
+  // }, 3000);
 }
-
-// showToast("!!!!!!!!!")
 
 document.addEventListener('DOMContentLoaded', () => {
   const pages = ['/app/scenes/fluid-sim/index.html', '/app/scenes/neon-white-board/index.html'];
@@ -35,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const contentFrame = document.getElementById('contentFrame');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
+  const whipeBtn = document.getElementById('whipeBtn');
 
   const loadPage = (page) => {
     console.log(`loading ${page}`);
@@ -55,6 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  whipeBtn.addEventListener('click', () => {
+
+    setImage('/images/oracle.jpeg');
+    console.log("sssssssssss")
+    setTimeout(function () {
+      console.log("startAnimation")
+      startAnimation();
+
+      showToast("Entering Interactive Mode")
+    
+    }, 500);
+  });
   // Load the first page initially
   loadPage(pages[currentPage]);
 
