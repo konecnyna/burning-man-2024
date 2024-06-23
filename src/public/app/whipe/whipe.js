@@ -207,7 +207,7 @@ function startAnimation() {
   var nX = 5;
   var nSpeed = 750;
   var nSeq = 200;
-  var delay = 5000;
+  var delay = 2000;
 
   SquareFadeAnimation(nX, nSpeed, nSeq, true, delay);
 }

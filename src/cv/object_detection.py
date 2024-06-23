@@ -65,22 +65,44 @@ class ObjectDetector:
         event = {'event': 'object_detected', 'payload': events}
         return json.dumps(event)
 
+
     def mockMode(self):
-        point = { "id": 1, "x": 480, "y": 540, "speed_x": 2}
-            
+        points = []
+
+        def create_point(point_id):
+            return {
+                "id": point_id,
+                "x": random.randint(200, 1000),
+                "y": random.randint(300, 800),
+                "speed_x": random.choice([-1, 1]) * random.uniform(1, 3)
+            }
+
+        # Initialize with a random number of points between 2 and 6
+        num_points = random.randint(2, 6)
+        for i in range(num_points):
+            points.append(create_point(i + 1))
+
+        next_id = num_points + 1
+
         while True:
-            point["x"] += point["speed_x"] * 20
-            
-            # Reverse direction if the point hits the start or end
-            if point["x"] >= 960 or point["x"] <= 480:
-                point["speed_x"] = -point["speed_x"]
+            for point in points:
+                point["x"] += point["speed_x"] * 5
 
-            
-            payload = [{ "id": 1, "x": point["x"], "y": point["y"]}]            
+            # Remove points that go off the screen
+            points = [point for point in points if 200 <= point["x"] <= 1000]
 
+            # Ensure there are between 2 and 6 points
+            while len(points) < 2:
+                points.append(create_point(next_id))
+                next_id += 1
+
+            if len(points) < 6 and random.random() < 0.1:  # 10% chance to add a new point if under 6 points
+                points.append(create_point(next_id))
+                next_id += 1
+
+            payload = [{"id": point["id"], "x": point["x"], "y": point["y"]} for point in points]
             print(self.makeEvent(payload), flush=True)
-            time.sleep(.1)
-            
+            time.sleep(0.1)        
         
     def start(self):
         while True:

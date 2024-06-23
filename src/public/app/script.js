@@ -1,7 +1,10 @@
 const socket = io();
 let toastTimeout;
 
-function showToast(message) {
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+function showToast(message, toastLength=3000) {
   const toast = document.getElementById('toast');
   const toastMessage = document.getElementById('toast-message');
 
@@ -19,11 +22,11 @@ function showToast(message) {
   // Fade in
   toast.classList.add('visible');
 
-  // // Set a new timeout to fade out the toast after 3 seconds
-  // toastTimeout = setTimeout(() => {
-  //   toast.classList.remove('visible');
-  //   toast.classList.add('hidden');
-  // }, 3000);
+  // Set a new timeout to fade out the toast after 3 seconds
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('visible');
+    toast.classList.add('hidden');
+  }, toastLength);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -54,17 +57,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  whipeBtn.addEventListener('click', () => {
+  whipeBtn.addEventListener('click', async () => {
 
     setImage('/images/oracle.jpeg');
-    console.log("sssssssssss")
-    setTimeout(function () {
-      console.log("startAnimation")
-      startAnimation();
-
-      showToast("Entering Interactive Mode")
     
-    }, 500);
+    showToast("Entering Interactive Mode", 3000)
+    await sleep(3000);
+    startAnimation();
+
+    await sleep(6000);
+    showToast("Neon blackboard", 2000)
+
+    await sleep(3000);
+
+    showToast("Use your hands to paint on the screen", 2000)
   });
   // Load the first page initially
   loadPage(pages[currentPage]);
