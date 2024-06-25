@@ -3,8 +3,8 @@ import time
 import cv2
 import argparse
 
-from cv.lib.hand_tracking import HandTrackingModule
-from cv.lib.object_detection import ObjectDetector
+from lib.hand_tracking import HandTrackingModule
+from lib.object_detection import ObjectDetector
 
 def main(enable_mouse, show_cv, debug, mock_mode, camera_address):
     hand_detector = HandTrackingModule(enable_mouse=enable_mouse, debug=debug) 
