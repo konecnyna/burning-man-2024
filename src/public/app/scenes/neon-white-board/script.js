@@ -13,12 +13,12 @@ let drawing = false;
 // Setup WebSocket connection
 const socket = io();
 
-socket.on('open_cv_event', (data) => {  
+socket.on('index_finger_detect', (data) => {  
   try {
-    const { event, payload } = JSON.parse(data)
-    if (event !== "hand_detect") {
-      return
-    }
+    
+    const payload = JSON.parse(data)
+    console.log(payload)
+    
     drawFromEvent(payload.x, payload.y);
   } catch (e) {
     console.trace(e)
