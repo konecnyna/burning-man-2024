@@ -15,11 +15,8 @@ const socket = io();
 
 socket.on('index_finger_detect', (data) => {  
   try {
-    
     const payload = JSON.parse(data)
-    console.log(payload)
-    
-    drawFromEvent(payload.x, payload.y);
+    drawFromEvent(canvas.width - payload.x_percent * canvas.width, payload.y_percent * canvas.height);
   } catch (e) {
     console.trace(e)
   }
