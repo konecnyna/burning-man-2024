@@ -31,7 +31,7 @@ function showToast(message, toastLength=3000) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const pages = ['/app/scenes/fluid-sim/index.html', '/app/scenes/neon-white-board/index.html'];
-  let currentPage = 1;
+  let currentPage = 0;
 
   const contentFrame = document.getElementById('contentFrame');
   const prevBtn = document.getElementById('prevBtn');

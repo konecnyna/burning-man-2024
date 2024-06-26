@@ -14,13 +14,16 @@ const socket = io();
 // Listen for the 'open_cv_event' event
 socket.on('open_cv_event', (data) => {  
   try {
+    console.log(data)
     const { event, payload } = JSON.parse(data)
-    if (event !== "hand_detect") {
+    const coords = payload.find(it => it.type === "wrist")
+    if (event !== "hand_detect" && coords) {
       return
     }
 
-    let posX = scaleByPixelRatio(payload.x);
-    let posY = scaleByPixelRatio(payload.y);
+    console.log(coords)
+    let posX = scaleByPixelRatio(coords.x);
+    let posY = scaleByPixelRatio(coords.y);
     let pointer = pointers.find(p => p.id == -1);
     if (pointer == null) {
       pointer = new pointerPrototype();
