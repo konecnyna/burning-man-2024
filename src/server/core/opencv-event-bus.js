@@ -27,16 +27,19 @@ class OpenCvEventBus {
 
     this.pythonProcess.stdout.on('data', (data) => {
       try {
-        const output = data.toString().trim();
-        const json = JSON.parse(output.toString().trim())
-        if (this.state.debugging) {
-          console.log(output);
-        }
-  
-        this.io.emit('open_cv_event', output);
-        this.io.emit(json.event, JSON.stringify(json.payload));
+        const lines = data.toString().split("\n").filter(it => it)
+        lines.forEach(line => {
+          const json = JSON.parse(line.trim())
+          if (this.state.debugging) {
+            console.log(line.trim());
+          }
+    
+          this.io.emit(json.event, JSON.stringify(json.payload));
+        })
+        
       } catch (e) {
-        console.error(data.toString())
+
+        console.error("ERROR", data.toString().split("\n"),data.toString())
       }
     
     });
