@@ -5,9 +5,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dynamic Iframe Update</title>
+  
   <link href="/css/tailwind.min.css" rel="stylesheet">
+  <link href="./whipe/whipe.css" rel="stylesheet">
   <link href="./app.css" rel="stylesheet">
+
   <script src="/socket.io/socket.io.js"></script>
+
+  
+  <script defer src="./whipe/whipe.js"></script>
+  <script defer src="./script.js"></script>
 </head>
 
 <body>
@@ -15,19 +22,14 @@
     <div class="controls">
       <button id="prevBtn">Previous</button>
       <button id="nextBtn">Next</button>
+      <button id="whipeBtn">whipe</button>
     </div>
     <iframe id="contentFrame"></iframe>
   </div>
-  <div id="toast" class="toast">
-    <div class="background-animation">
-        <img src="/images/lotus-flower.png" alt="Lotus Flower">
-        <img src="/images/lotus-flower.png" alt="Lotus Flower">
-        <img src="/images/lotus-flower.png" alt="Lotus Flower">
-        <img src="/images/lotus-flower.png" alt="Lotus Flower">
-    </div>
+  <div id="toast" class="toast">    
     <span id="toast-message"></span>
-</div>
-  <script defer src="./script.js"></script>
+  </div>
+
 </body>
 
 </html>

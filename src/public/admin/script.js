@@ -24,3 +24,16 @@ document.getElementById('fluidButton').addEventListener('click', () => {
 document.getElementById('neonButton').addEventListener('click', () => {
   socket.emit('admin_event', { event: "update_current_app", payload: { name: "Core Memories", url: '/app/scenes/neon-white-board/index.html' } });
 });
+
+
+document.getElementById('toggleLogButton').addEventListener('click', function () {
+  const log = document.getElementById('log');
+  const button = document.getElementById('toggleLogButton');
+  if (log.classList.contains('expanded')) {
+      log.classList.remove('expanded');
+      button.textContent = 'Show Debugging';
+  } else {
+      log.classList.add('expanded');
+      button.textContent = 'Hide Debugging';
+  }
+});

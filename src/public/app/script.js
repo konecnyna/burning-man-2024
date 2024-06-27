@@ -1,7 +1,10 @@
 const socket = io();
 let toastTimeout;
 
-function showToast(message) {
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+function showToast(message, toastLength=3000) {
   const toast = document.getElementById('toast');
   const toastMessage = document.getElementById('toast-message');
 
@@ -20,13 +23,11 @@ function showToast(message) {
   toast.classList.add('visible');
 
   // Set a new timeout to fade out the toast after 3 seconds
-  // toastTimeout = setTimeout(() => {
-  //   toast.classList.remove('visible');
-  //   toast.classList.add('hidden');
-  // }, 3000);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('visible');
+    toast.classList.add('hidden');
+  }, toastLength);
 }
-
-showToast("!!!!!!!!!")
 
 document.addEventListener('DOMContentLoaded', () => {
   const pages = ['/app/scenes/fluid-sim/index.html', '/app/scenes/neon-white-board/index.html'];
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const contentFrame = document.getElementById('contentFrame');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
+  const whipeBtn = document.getElementById('whipeBtn');
 
   const loadPage = (page) => {
     console.log(`loading ${page}`);
@@ -55,6 +57,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  whipeBtn.addEventListener('click', async () => {
+
+    setImage('/images/oracle.jpeg');
+    
+    showToast("Entering Interactive Mode", 3000)
+    await sleep(3000);
+    startAnimation();
+
+    await sleep(6000);
+    showToast("Neon blackboard", 2000)
+
+    await sleep(3000);
+
+    showToast("Use your hands to paint on the screen", 2000)
+  });
   // Load the first page initially
   loadPage(pages[currentPage]);
 
@@ -69,3 +86,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
