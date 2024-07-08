@@ -1,16 +1,21 @@
 // src/server/server.js
 const express = require('express');
+const path = require("path")
 const http = require('http');
 const socketIo = require('socket.io');
-const { spawn } = require('child_process');
-const path = require('path');
 const OpenCvEventBus = require("./core/opencv-event-bus")
 const State = require("./core/state")
+const Video = require("./core/video")
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+io.on('connection', (socket) => {
+  socket.on('video-data', (data) => {
+    socket.broadcast.emit('video-data', data);
+  });
+});
 
 // Global state.
 const state = new State({
@@ -23,7 +28,8 @@ const state = new State({
 })
 
 const openCvEventBus = new OpenCvEventBus(io, state.openCvState)
-
+const videoTransport = new Video(io, openCvEventBus)
+videoTransport.listen()
 
 app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => {
@@ -53,7 +59,7 @@ io.on('connection', (socket) => {
 server.listen(3000, () => {
   console.log('Server listening on port http://localhost:3000/app');
   if (state.openCvState.active) {
-    openCvEventBus.start()
+    //openCvEventBus.start()    
   } else {
     console.log("Not running opencv state active = false")
   }
