@@ -26,12 +26,22 @@ class OpenCvEventBus {
     this.pythonProcess = spawn('python3', args, { cwd: path.join(__dirname, '../../cv') })
 
     this.pythonProcess.stdout.on('data', (data) => {
-      const output = data.toString().trim();
-      if (this.state.debugging) {
-        console.log(output);
-      }
+      try {
+        const lines = data.toString().split("\n").filter(it => it)
+        lines.forEach(line => {
+          const json = JSON.parse(line.trim())
+          if (this.state.debugging) {
+            console.log(line.trim());
+          }
+    
+          this.io.emit(json.event, JSON.stringify(json.payload));
+        })
+        
+      } catch (e) {
 
-      this.io.emit('open_cv_event', output);
+        console.error("ERROR", data.toString().split("\n"),data.toString())
+      }
+    
     });
 
     this.pythonProcess.stderr.on('data', (data) => {

@@ -3,21 +3,26 @@ import time
 import cv2
 import argparse
 
-from hand_tracking import HandTrackingModule
-from mock_mode import mockMode
+from shared.hand_tracking import HandTrackingModule
+from shared.object_detection import ObjectDetector
 
-def main(enable_mouse, show_cv, debug, mock_mode, camera_address):
-    if (mock_mode):
-        mockMode()
+def main(show_cv, debug, mock_mode, camera_address):
+    hand_detector = HandTrackingModule(debug=debug, showCv=show_cv) 
+    object_detector = ObjectDetector()
+    
+    
+    if (mock_mode): 
+        while True:
+            hand_detector.mockMode()
+            object_detector.mockMode()
         return
     
-    # cap = cv2.VideoCapture(0)
     cap = cv2.VideoCapture(camera_address)
-    hand_detector = HandTrackingModule(enable_mouse=enable_mouse, debug=debug)    
     
     while cap.isOpened():
         success, img = cap.read()
         hand_detector.subscribe(img=img)
+        # object_detector.subscribe(img=img)
         
         if show_cv:
             cv2.imshow("Image", img)
@@ -27,7 +32,6 @@ def main(enable_mouse, show_cv, debug, mock_mode, camera_address):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--enable-mouse', action='store_true', help='Enable mouse movement')
     parser.add_argument('--show-cv', action='store_true', help='Show open cv image')
     parser.add_argument('--debug', action='store_true', help='Verbose logging')
     parser.add_argument('--mock-mode', action='store_true', help='Enable mock mode')
@@ -38,4 +42,4 @@ if __name__ == "__main__":
     print(args)
     camera_address = args.url if args.url is not None else 0
 
-    main(args.enable_mouse, args.show_cv, args.debug, args.mock_mode, camera_address)
+    main(args.show_cv, args.debug, args.mock_mode, camera_address)

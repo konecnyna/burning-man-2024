@@ -12,12 +12,9 @@
 // Setup WebSocket connection
 const socket = io();
 // Listen for the 'open_cv_event' event
-socket.on('open_cv_event', (data) => {  
+socket.on('hand_detect', (data) => {  
   try {
-    const { event, payload } = JSON.parse(data)
-    if (event !== "hand_detect") {
-      return
-    }
+    const payload = JSON.parse(data)
 
     let posX = scaleByPixelRatio(payload.x);
     let posY = scaleByPixelRatio(payload.y);

@@ -9,7 +9,7 @@ class State {
     const defaultOpenCvState = {
       debugging: false,
       active: true,
-      showVideo: true,
+      showVideo: false,
       isMockMode: false,
       rtspUrl: null,
     }

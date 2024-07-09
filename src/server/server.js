@@ -1,34 +1,39 @@
 // src/server/server.js
 const express = require('express');
+const path = require("path")
 const http = require('http');
 const socketIo = require('socket.io');
-const { spawn } = require('child_process');
-const path = require('path');
 const OpenCvEventBus = require("./core/opencv-event-bus")
 const State = require("./core/state")
+const Video = require("./core/video")
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+io.on('connection', (socket) => {
+  socket.on('video-data', (data) => {
+    socket.broadcast.emit('video-data', data);
+  });
+});
 
 // Global state.
 const state = new State({
   openCvState: {
     debugging: false,
-    // rtspUrl: "rtsp://defkon:password@10.0.0.53/stream1",
-    // showVideo: true
-    isMockMode: true
+    active: true,
+    showVideo: false,
+    isMockMode: false,
+    rtspUrl: null,
   }
 })
 
 const openCvEventBus = new OpenCvEventBus(io, state.openCvState)
-
+const videoTransport = new Video(io, openCvEventBus)
+videoTransport.listen()
 
 app.use(express.static(path.join(__dirname, '../public')));
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 
 
 io.on('connection', (socket) => {
@@ -59,7 +64,6 @@ server.listen(3000, () => {
   }
 });
 
-// Graceful shutdown
 process.on('SIGINT', () => {
   if (state.openCvState.active) {
     openCvEventBus.stop()
