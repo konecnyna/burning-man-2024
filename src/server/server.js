@@ -22,7 +22,7 @@ const state = new State({
   openCvState: {
     debugging: false,
     active: true,
-    showVideo: false,
+    showVideo: true,
     isMockMode: false,
     rtspUrl: null,
   }

@@ -47,8 +47,7 @@ class ObjectDetector:
 
                 translated_x, translated_y = translate_img_coordinates(
                     event_x=center_x,
-                    event_y=center_y,
-                    img=img
+                    event_y=center_y                    
                 )
 
                 events.append({"id": i, "x": translated_x, "y": translated_y})
