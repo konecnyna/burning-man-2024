@@ -20,7 +20,7 @@ io.on('connection', (socket) => {
 // Global state.
 const state = new State({
   openCvState: {
-    debugging: false,
+    // debugging: false,
     //rtspUrl: "rtsp://defkon:password@10.0.0.31/stream1",
     showVideo: true
     // isMockMode: true
