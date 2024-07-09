@@ -20,10 +20,11 @@ io.on('connection', (socket) => {
 // Global state.
 const state = new State({
   openCvState: {
-    // debugging: true,
-    //rtspUrl: "rtsp://defkon:password@10.0.0.31/stream1",
-    showVideo: true
-    // isMockMode: true
+    debugging: false,
+    active: true,
+    showVideo: false,
+    isMockMode: false,
+    rtspUrl: null,
   }
 })
 
@@ -57,7 +58,7 @@ io.on('connection', (socket) => {
 server.listen(3000, () => {
   console.log('Server listening on port http://localhost:3000/app');
   if (state.openCvState.active) {
-    openCvEventBus.start()    
+    openCvEventBus.start()
   } else {
     console.log("Not running opencv state active = false")
   }
