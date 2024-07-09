@@ -20,7 +20,7 @@ io.on('connection', (socket) => {
 // Global state.
 const state = new State({
   openCvState: {
-    // debugging: false,
+    debugging: true,
     //rtspUrl: "rtsp://defkon:password@10.0.0.31/stream1",
     showVideo: true
     // isMockMode: true
@@ -32,9 +32,7 @@ const videoTransport = new Video(io, openCvEventBus)
 videoTransport.listen()
 
 app.use(express.static(path.join(__dirname, '../public')));
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 
 
 io.on('connection', (socket) => {
@@ -59,13 +57,12 @@ io.on('connection', (socket) => {
 server.listen(3000, () => {
   console.log('Server listening on port http://localhost:3000/app');
   if (state.openCvState.active) {
-    //openCvEventBus.start()    
+    openCvEventBus.start()    
   } else {
     console.log("Not running opencv state active = false")
   }
 });
 
-// Graceful shutdown
 process.on('SIGINT', () => {
   if (state.openCvState.active) {
     openCvEventBus.stop()
