@@ -10,11 +10,14 @@
 /************************************/
 // MY CODE
 // Setup WebSocket connection
+let lastPoint = null;
 const socket = io();
+
 // Listen for the 'open_cv_event' event
 socket.on('hand_detect', (data) => {  
   try {
     const payload = JSON.parse(data)
+    
 
     let posX = scaleByPixelRatio(payload.x);
     let posY = scaleByPixelRatio(payload.y);
@@ -28,7 +31,24 @@ socket.on('hand_detect', (data) => {
       updatePointerDownData(pointer, -1, posX, posY);
     }
 
-    updatePointerMoveData(pointer, posX, posY);
+    if (lastPoint) {
+      // Interpolate between lastPoint and current point
+      const steps = 10;
+      const stepX = (posX - lastPoint.x) / steps;
+      const stepY = (posY - lastPoint.y) / steps;
+
+      for (let i = 1; i <= steps; i++) {
+        const interpolatedX = lastPoint.x + stepX * i;
+        const interpolatedY = lastPoint.y + stepY * i;
+        updatePointerMoveData(pointer, interpolatedX, interpolatedY);
+        drawPoints(interpolatedX, interpolatedY);
+      }
+    } else {
+      updatePointerMoveData(pointer, posX, posY);
+      drawPoints(posX, posY);
+    }
+
+    lastPoint = { x: posX, y: posY };
 
   } catch (e) {
     console.trace(e)
@@ -39,8 +59,23 @@ socket.on('hand_detect', (data) => {
 /************************************/
 /************************************/
 
-const canvas = document.getElementsByTagName('canvas')[0];
+const canvas = document.getElementById('sim');
+const pointerCanvas = document.getElementById('pointer')
+const ctxtest = pointerCanvas.getContext('2d');
 resizeCanvas();
+
+function drawPoints(posX, posY) {
+
+  // Clear the canvas for the next frame
+  ctxtest.clearRect(0, 0, pointerCanvas.width, pointerCanvas.height);
+
+  // Draw a red dot at the current position
+  ctxtest.beginPath();
+  ctxtest.arc(posX, posY, 25, 0, Math.PI * 2, true);
+  ctxtest.fillStyle = 'red';
+  ctxtest.fill();
+
+}
 
 let config = {
   SIM_RESOLUTION: 128,
@@ -1099,6 +1134,9 @@ function resizeCanvas() {
   if (canvas.width != width || canvas.height != height) {
     canvas.width = width;
     canvas.height = height;
+
+    pointerCanvas.width = width
+    pointerCanvas.height = height
     return true;
   }
   return false;

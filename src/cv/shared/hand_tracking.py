@@ -5,12 +5,13 @@ import mediapipe as mp
 
 from shared.hand_detector import HandDetector
 from shared.postion_translater import translate_img_coordinates
+from shared.postion_translater import translate_img_coordinates_scaled
 
 
 class HandTrackingModule:
     INDEX_FINGER = 8
     
-    def __init__(self, mode=False, debug=False, showCv=False, showmaxHands=1, detectionCon=0.5, trackCon=0.5):
+    def __init__(self, mode=False, debug=False, showCv=False, showmaxHands=1, detectionCon=0.4, trackCon=0.1):
         self.mode = mode
         self.maxHands = showmaxHands
         self.detectionCon = detectionCon
@@ -42,16 +43,17 @@ class HandTrackingModule:
         if result.multi_hand_landmarks:
             for hand_landmarks in result.multi_hand_landmarks:
                 distance = self.detector.calculate_distance(hand_landmarks.landmark[0], hand_landmarks.landmark[12])
-                hand_distance = '{:.2f}'.format(distance)
+                hand_distance = float('{:.2f}'.format(distance))
 
 
 
         wrist_pos = lmList[0]
         wrist_x, wrist_y = wrist_pos[1], wrist_pos[2]
         if wrist_x and wrist_y:
-            translated_wrist_x,translated_wirst_y = translate_img_coordinates(
+            translated_wrist_x,translated_wirst_y = translate_img_coordinates_scaled(
                 event_x=wrist_x,
                 event_y=wrist_y,
+                scale=hand_distance
             )
             payload = { "type": "wrist", "x": translated_wrist_x, "y": translated_wirst_y, "x_percent": self.clamp(wrist_x), "y_percent": self.clamp(wrist_y), "distance": hand_distance }
             print(self.makeEvent(event='hand_detect',payload=payload), flush=True)
