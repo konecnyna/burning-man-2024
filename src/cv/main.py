@@ -3,7 +3,7 @@ import time
 import cv2
 import argparse
 
-from shared.hand_tracking import HandTrackingModule
+from shared.hands.hand_tracking import HandTrackingModule
 from shared.object_detection import ObjectDetector
 
 def main(show_cv, debug, mock_mode, camera_address):

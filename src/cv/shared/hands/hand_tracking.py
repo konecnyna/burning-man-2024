@@ -3,9 +3,9 @@ import time
 import cv2
 import mediapipe as mp
 
-from shared.hand_detector import HandDetector
-from shared.postion_translater import translate_img_coordinates
-from shared.postion_translater import translate_img_coordinates_scaled
+from shared.hands.hand_detector import HandDetector
+from shared.util.postion_translater import translate_img_coordinates
+from shared.util.postion_translater import translate_img_coordinates_scaled
 
 
 class HandTrackingModule:

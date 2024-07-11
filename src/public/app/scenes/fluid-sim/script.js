@@ -10,14 +10,11 @@
 /************************************/
 // MY CODE
 // Setup WebSocket connection
-let lastPoint = null;
 const socket = io();
-
 // Listen for the 'open_cv_event' event
 socket.on('hand_detect', (data) => {  
   try {
     const payload = JSON.parse(data)
-    
 
     let posX = scaleByPixelRatio(payload.x);
     let posY = scaleByPixelRatio(payload.y);
@@ -31,24 +28,9 @@ socket.on('hand_detect', (data) => {
       updatePointerDownData(pointer, -1, posX, posY);
     }
 
-    if (lastPoint) {
-      // Interpolate between lastPoint and current point
-      const steps = 10;
-      const stepX = (posX - lastPoint.x) / steps;
-      const stepY = (posY - lastPoint.y) / steps;
+    updatePointerMoveData(pointer, posX, posY);
 
-      for (let i = 1; i <= steps; i++) {
-        const interpolatedX = lastPoint.x + stepX * i;
-        const interpolatedY = lastPoint.y + stepY * i;
-        updatePointerMoveData(pointer, interpolatedX, interpolatedY);
-        drawPoints(interpolatedX, interpolatedY);
-      }
-    } else {
-      updatePointerMoveData(pointer, posX, posY);
-      drawPoints(posX, posY);
-    }
-
-    lastPoint = { x: posX, y: posY };
+    drawPoints(posX, posY)
 
   } catch (e) {
     console.trace(e)

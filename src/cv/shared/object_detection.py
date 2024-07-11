@@ -3,7 +3,7 @@ import cv2
 import time
 import json
 
-from shared.postion_translater import translate_img_coordinates
+from shared.util.postion_translater import translate_img_coordinates
 
 class ObjectDetector:
     def __init__(self, draw_square=False):
