@@ -11,7 +11,7 @@ from shared.util.postion_translater import translate_img_coordinates_scaled
 class HandTrackingModule:
     INDEX_FINGER = 8
     
-    def __init__(self, mode=False, debug=False, showCv=False, showmaxHands=1, detectionCon=0.4, trackCon=0.1):
+    def __init__(self, mode=False, debug=False, showCv=False, showmaxHands=4, detectionCon=0.25, trackCon=0.25):
         self.mode = mode
         self.maxHands = showmaxHands
         self.detectionCon = detectionCon
@@ -35,46 +35,58 @@ class HandTrackingModule:
 
 
     def subscribe(self, img):
-        [result, lmList] = self.detector.find_position(image = img, draw=self.showCv)
-        if not lmList:        
+        [result, lmList] = self.detector.find_position(image=img, draw=self.showCv)
+        if not lmList:
             return
         
+        hand_distance = self.process_hands(result, lmList)
+        self.process_index_finger(lmList, hand_distance)
+
+    def process_hands(self, result, lmList):
         hand_distance = -1
         if result.multi_hand_landmarks:
             for hand_landmarks in result.multi_hand_landmarks:
                 distance = self.detector.calculate_distance(hand_landmarks.landmark[0], hand_landmarks.landmark[12])
                 hand_distance = float('{:.2f}'.format(distance))
 
-
-
-        wrist_pos = lmList[0]
-        wrist_x, wrist_y = wrist_pos[1], wrist_pos[2]
-        if wrist_x and wrist_y:
-            translated_wrist_x,translated_wirst_y = translate_img_coordinates_scaled(
-                event_x=wrist_x,
-                event_y=wrist_y,
-                scale=hand_distance
-            )
-            payload = { "type": "wrist", "x": translated_wrist_x, "y": translated_wirst_y, "x_percent": self.clamp(wrist_x), "y_percent": self.clamp(wrist_y), "distance": hand_distance }
-            print(self.makeEvent(event='hand_detect',payload=payload), flush=True)
+                wrist_pos = lmList[0]
+                wrist_x, wrist_y = wrist_pos[1], wrist_pos[2]
+                if wrist_x and wrist_y:
+                    translated_wrist_x, translated_wrist_y = translate_img_coordinates_scaled(
+                        event_x=wrist_x,
+                        event_y=wrist_y,
+                        scale=hand_distance
+                    )
+                    payload = {
+                        "type": "wrist",
+                        "x": translated_wrist_x,
+                        "y": translated_wrist_y,
+                        "x_percent": self.clamp(wrist_x),
+                        "y_percent": self.clamp(wrist_y),
+                        "distance": hand_distance
+                    }
+                    print(self.makeEvent(event='hand_detect', payload=payload), flush=True)
         
-        
-        # Index finger
+        return hand_distance
+
+    def process_index_finger(self, lmList, hand_distance):
         index_finger_tip = lmList[8]
         index_finger_x, index_finger_y = index_finger_tip[1], index_finger_tip[2]
-        translated_x,translated_y = translate_img_coordinates(
+        translated_x, translated_y = translate_img_coordinates(
             event_x=index_finger_x,
             event_y=index_finger_y,
         )
-        
+
         indexFingerDetected = self.detector.isIndexFingerUp(lst_mark=lmList)
         if indexFingerDetected:
-            payload = { "x": translated_x, "y": translated_y, "x_percent": self.clamp(index_finger_x), "y_percent": self.clamp(index_finger_y), "distance": hand_distance}
-            print(self.makeEvent(event='index_finger_detect',payload=payload), flush=True)
-            
-        
-        
-        
+            payload = {
+                "x": translated_x,
+                "y": translated_y,
+                "x_percent": self.clamp(index_finger_x),
+                "y_percent": self.clamp(index_finger_y),
+                "distance": hand_distance
+            }
+            print(self.makeEvent(event='index_finger_detect', payload=payload), flush=True)    
             
     def makeEvent(self, event, payload):
         event = { 'event': event, 'payload': payload}

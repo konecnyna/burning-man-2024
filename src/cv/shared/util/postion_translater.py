@@ -18,7 +18,7 @@ def translate_img_coordinates_scaled(event_x, event_y, scale):
 
     #print(f"x: {event_x} y: {event_y} scale : {scale}" )
     
-    normalized_scale =  1 - scale
+    normalized_scale =  1
     
     translated_x = int(event_x  * box_width)
     translated_y = int(event_y  * box_height)
