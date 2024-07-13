@@ -11,13 +11,25 @@
 // MY CODE
 // Setup WebSocket connection
 const socket = io();
+const debugPoint  = {
+  "hand_1": {
+    ctx:  document.getElementById('pointer').getContext('2d'),
+    color: "red"
+  },
+  "hand_2": {
+    ctx:  document.getElementById('pointer1').getContext('2d'),
+    color: "blue"
+  },
+  "hand_3": {
+    ctx:  document.getElementById('pointer3').getContext('2d'),
+    color: "green"
+  },
+}
 
 // Listen for the 'open_cv_event' event
 socket.on('hand_detect', (data) => {  
   try {
     const payload = JSON.parse(data);
-
-    console.log(payload);
 
     payload.forEach(hand => {
       let posX = scaleByPixelRatio(hand.x);
@@ -35,7 +47,10 @@ socket.on('hand_detect', (data) => {
       }
 
       updatePointerMoveData(pointer, posX, posY);
-      drawPoints(posX, posY);
+      if (debugPoint[hand.id]) {
+        drawPoints(debugPoint[hand.id], posX, posY);
+      }
+      
     });
 
   } catch (e) {
@@ -48,20 +63,20 @@ socket.on('hand_detect', (data) => {
 /************************************/
 
 const canvas = document.getElementById('sim');
-const pointerCanvas = document.getElementById('pointer')
-const ctxtest = pointerCanvas.getContext('2d');
+//const ctxtest = pointerCanvas.getContext('2d');
 resizeCanvas();
 
-function drawPoints(posX, posY) {
-
+function drawPoints(debugPoint, posX, posY) {
+  const { ctx, color } = debugPoint
+  console.log(color)
   // Clear the canvas for the next frame
-  ctxtest.clearRect(0, 0, pointerCanvas.width, pointerCanvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Draw a red dot at the current position
-  ctxtest.beginPath();
-  ctxtest.arc(posX, posY, 25, 0, Math.PI * 2, true);
-  ctxtest.fillStyle = 'red';
-  ctxtest.fill();
+  ctx.beginPath();
+  ctx.arc(posX, posY, 25, 0, Math.PI * 2, true);
+  ctx.fillStyle = color;
+  ctx.fill();
 
 }
 
@@ -1123,8 +1138,12 @@ function resizeCanvas() {
     canvas.width = width;
     canvas.height = height;
 
-    pointerCanvas.width = width
-    pointerCanvas.height = height
+    Object.keys(debugPoint).forEach(key => {
+        const pt = debugPoint[key]
+        pt.ctx.canvas.width = width
+        pt.ctx.canvas.height = height
+    })
+      
     return true;
   }
   return false;
