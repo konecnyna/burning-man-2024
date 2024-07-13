@@ -38,11 +38,24 @@ class HandTrackingModule:
         [result, lmList] = self.detector.find_position(image=img, draw=self.showCv)
         if not lmList:
             return
-        
-        hand_distance = self.process_hands(result, lmList)
-        self.process_index_finger(lmList, hand_distance)
 
-    def process_hands(self, result, lmList):
+        handPayloads = []
+        handCount = len(lmList) // 21
+        for i in range(0, len(lmList), 21):
+            hand_id = f"hand_{i // 21 + 1}"
+            hand_lmList = lmList[i:i + 21]
+            
+            handEvents = self.process_hands(result, hand_lmList, hand_id)
+            if handEvents:
+                handPayloads.append(handEvents)
+
+        self.printEvent(handPayloads)
+
+        indexFingerEvent = self.process_index_finger(lmList, handCount)
+        if indexFingerEvent:
+            self.printEvent(indexFingerEvent)
+
+    def process_hands(self, result, lmList, hand_id):
         hand_distance = -1
         if result.multi_hand_landmarks:
             for hand_landmarks in result.multi_hand_landmarks:
@@ -57,19 +70,20 @@ class HandTrackingModule:
                         event_y=wrist_y,
                         scale=hand_distance
                     )
-                    payload = {
+                    event = {
                         "type": "wrist",
+                        "id" : hand_id,
                         "x": translated_wrist_x,
                         "y": translated_wrist_y,
                         "x_percent": self.clamp(wrist_x),
                         "y_percent": self.clamp(wrist_y),
                         "distance": hand_distance
                     }
-                    print(self.makeEvent(event='hand_detect', payload=payload), flush=True)
+                    return event
         
         return hand_distance
 
-    def process_index_finger(self, lmList, hand_distance):
+    def process_index_finger(self, lmList, handCount):
         index_finger_tip = lmList[8]
         index_finger_x, index_finger_y = index_finger_tip[1], index_finger_tip[2]
         translated_x, translated_y = translate_img_coordinates(
@@ -79,14 +93,14 @@ class HandTrackingModule:
 
         indexFingerDetected = self.detector.isIndexFingerUp(lst_mark=lmList)
         if indexFingerDetected:
-            payload = {
+            event = {
                 "x": translated_x,
                 "y": translated_y,
+                "hands_detected": handCount,
                 "x_percent": self.clamp(index_finger_x),
-                "y_percent": self.clamp(index_finger_y),
-                "distance": hand_distance
+                "y_percent": self.clamp(index_finger_y),                
             }
-            print(self.makeEvent(event='index_finger_detect', payload=payload), flush=True)    
+            return event
             
     def makeEvent(self, event, payload):
         event = { 'event': event, 'payload': payload}
