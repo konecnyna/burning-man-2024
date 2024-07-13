@@ -49,11 +49,11 @@ class HandTrackingModule:
             if handEvents:
                 handPayloads.append(handEvents)
 
-        self.printEvent(handPayloads)
+        print(self.makeEvent("hand_detect",handPayloads), flush=True)
 
         indexFingerEvent = self.process_index_finger(lmList, handCount)
         if indexFingerEvent:
-            self.printEvent(indexFingerEvent)
+            print(self.makeEvent("index_finger_detect", indexFingerEvent), flush=True)
 
     def process_hands(self, result, lmList, hand_id):
         hand_distance = -1

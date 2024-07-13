@@ -11,29 +11,35 @@
 // MY CODE
 // Setup WebSocket connection
 const socket = io();
+
 // Listen for the 'open_cv_event' event
 socket.on('hand_detect', (data) => {  
   try {
-    const payload = JSON.parse(data)
+    const payload = JSON.parse(data);
 
-    let posX = scaleByPixelRatio(payload.x);
-    let posY = scaleByPixelRatio(payload.y);
-    let pointer = pointers.find(p => p.id == -1);
-    if (pointer == null) {
-      pointer = new pointerPrototype();
-    }
+    console.log(payload);
 
+    payload.forEach(hand => {
+      let posX = scaleByPixelRatio(hand.x);
+      let posY = scaleByPixelRatio(hand.y);
+      let pointer = pointers.find(p => p.id == hand.id);
 
-    if (!pointer.down) {
-      updatePointerDownData(pointer, -1, posX, posY);
-    }
+      if (pointer == null) {
+        pointer = new pointerPrototype();
+        pointer.id = hand.id;
+        pointers.push(pointer);
+      }
 
-    updatePointerMoveData(pointer, posX, posY);
+      if (!pointer.down) {
+        updatePointerDownData(pointer, hand.id, posX, posY);
+      }
 
-    drawPoints(posX, posY)
+      updatePointerMoveData(pointer, posX, posY);
+      drawPoints(posX, posY);
+    });
 
   } catch (e) {
-    console.trace(e)
+    console.trace(e);
   }
 });
 

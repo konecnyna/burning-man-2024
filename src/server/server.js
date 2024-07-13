@@ -20,7 +20,7 @@ io.on('connection', (socket) => {
 // Global state.
 const state = new State({
   openCvState: {
-    debugging: false,
+    debugging: true,
     active: true,
     showVideo: true,
     isMockMode: false,
