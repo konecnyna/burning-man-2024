@@ -2,17 +2,24 @@ import mediapipe as mp
 import cv2
 
 class HandDetector():
-    def __init__(self, static_mode=False, max_hands=2,
-                 model_complextiy=1, 
-                 detect_confidence=0.5, 
-                 track_confidence=0.5) -> None:
+    def __init__(self, 
+        static_mode=False, 
+        max_hands=2,
+        model_complextiy=1, 
+        detect_confidence=0.5, 
+        track_confidence=0.5,
+        focal_length=700,  # Assumed focal length in pixels
+        real_hand_width=8.0  # Assumed average real hand width in cm
+    ) -> None:
         
         self.static_mode = static_mode
         self.max_hands = max_hands
         self.model_complexity = model_complextiy
         self.detect_confidence = detect_confidence
         self.track_confidence = track_confidence
-
+        self.focal_length = focal_length
+        self.real_hand_width = real_hand_width
+        
         self.FINGURE_TIP = [4, 8, 12, 16, 20]
 
         # DELETE THESE! use ones in detector.
@@ -47,7 +54,7 @@ class HandDetector():
                     lst_position.append([id, mark.x, mark.y])
                 if draw:
                     self.mp_draw.draw_landmarks(image, hand, self.mp_hands.HAND_CONNECTIONS)
-        return lst_position
+        return [results,lst_position]
     
     def fingerUp(self, lst_mark):
         fingure_status = list()
@@ -66,3 +73,6 @@ class HandDetector():
     def isIndexFingerUp(self, lst_mark):
         result = self.fingerUp(lst_mark=lst_mark)
         return result == [0, 1, 0, 0, 0]
+
+    def calculate_distance(self, landmark1, landmark2):
+        return ((landmark1.x - landmark2.x) ** 2 + (landmark1.y - landmark2.y) ** 2) ** 0.5

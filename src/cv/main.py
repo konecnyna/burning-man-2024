@@ -3,17 +3,17 @@ import time
 import cv2
 import argparse
 
-from shared.hand_tracking import HandTrackingModule
+from shared.hands.hand_tracking import HandTrackingModule
 from shared.object_detection import ObjectDetector
 
 def main(show_cv, debug, mock_mode, camera_address):
-    hand_detector = HandTrackingModule(debug=debug, showCv=show_cv) 
+    hand_tracking = HandTrackingModule(debug=debug, showCv=show_cv) 
     object_detector = ObjectDetector()
     
     
     if (mock_mode): 
         while True:
-            hand_detector.mockMode()
+            hand_tracking.mockMode()
             object_detector.mockMode()
         return
     
@@ -21,8 +21,8 @@ def main(show_cv, debug, mock_mode, camera_address):
     
     while cap.isOpened():
         success, img = cap.read()
-        hand_detector.subscribe(img=img)
-        # object_detector.subscribe(img=img)
+        hand_tracking.subscribe(img=img)
+        #object_detector.subscribe(img=img)
         
         if show_cv:
             cv2.imshow("Image", img)

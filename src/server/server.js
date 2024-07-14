@@ -20,9 +20,9 @@ io.on('connection', (socket) => {
 // Global state.
 const state = new State({
   openCvState: {
-    debugging: false,
+    debugging: true,
     active: true,
-    showVideo: false,
+    showVideo: true,
     isMockMode: false,
     rtspUrl: null,
   }
