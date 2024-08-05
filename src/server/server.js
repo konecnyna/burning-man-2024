@@ -11,11 +11,6 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-io.on('connection', (socket) => {
-  socket.on('video-data', (data) => {
-    socket.broadcast.emit('video-data', data);
-  });
-});
 
 // Global state.
 const state = new State({
@@ -38,6 +33,14 @@ app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); }
 
 io.on('connection', (socket) => {
   console.log('a user connected');
+
+  socket.on('video-data', (data) => {
+    socket.broadcast.emit('video-data', data);
+  });
+
+  socket.on('hand_detect', (data) => {
+    socket.broadcast.emit('hand_detect', JSON.stringify(data));
+  });
 
   socket.on('admin_event', (data) => {
     console.log(`incoming event: ${JSON.stringify(data)}`)
