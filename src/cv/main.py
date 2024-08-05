@@ -3,7 +3,7 @@ import time
 import cv2
 import argparse
 
-from shared.hand_tracking import HandTrackingModule
+from shared.hands.hand_tracking import HandTrackingModule
 from shared.object_detection import ObjectDetector
 
 def main(show_cv, debug, mock_mode, camera_address):
@@ -14,8 +14,7 @@ def main(show_cv, debug, mock_mode, camera_address):
     if (mock_mode): 
         while True:
             hand_detector.mockMode()
-            object_detector.mockMode()
-        return
+            object_detector.mockMode()        
     
     cap = cv2.VideoCapture(camera_address)
     

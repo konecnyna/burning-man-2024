@@ -104,7 +104,9 @@ class ObjectDetector:
                 next_id += 1
 
             payload = [{"id": point["id"], "x": point["x"], "y": point["y"]} for point in points]
-            print(self.makeEvent(payload), flush=True)
+            ws_client.publish(event="object_detected", data=payload)
+            if self.debug:
+                print(self.makeEvent(payload), flush=True)
             time.sleep(0.1)        
         
     def start(self):

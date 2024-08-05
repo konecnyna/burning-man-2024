@@ -15,7 +15,7 @@ const io = socketIo(server);
 // Global state.
 const state = new State({
   openCvState: {
-    debugging: false,
+    debugging: true,
     active: true,
     showVideo: false,
     isMockMode: false,
@@ -24,8 +24,6 @@ const state = new State({
 })
 
 const openCvEventBus = new OpenCvEventBus(io, state.openCvState)
-const videoTransport = new Video(io, openCvEventBus)
-videoTransport.listen()
 
 app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
@@ -34,29 +32,35 @@ app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); }
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  socket.on('video-data', (data) => {
-    socket.broadcast.emit('video-data', data);
+  socket.on('hand_detect', (data) => {
+    safeBroadcast("hand_detect", data)
   });
 
-  socket.on('hand_detect', (data) => {
-    socket.broadcast.emit('hand_detect', JSON.stringify(data));
+  socket.on('index_finger_detect', (data) => {
+    safeBroadcast("index_finger_detect", data)
+  });
+
+  socket.on('object_detected', (data) => {
+    safeBroadcast("object_detected", data)
   });
 
   socket.on('admin_event', (data) => {
-    console.log(`incoming event: ${JSON.stringify(data)}`)
-    try {
-      const { event, payload } = data
-      io.emit(event, JSON.stringify(payload))
-    } catch (error) {
-      console.trace(error)
-      console.error("Error emitting event!")
-    }
+    safeBroadcast("admin_event", data)    
   });
 
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
 });
+
+function safeBroadcast(event, payloadObject) {
+  try {
+    io.emit(event, JSON.stringify(payloadObject))
+  } catch (error) {
+    console.trace(error)
+    console.error("Error emitting event!")
+  }
+}
 
 server.listen(3000, () => {
   console.log('Server listening on port http://localhost:3000/app');
