@@ -11,27 +11,49 @@
 // MY CODE
 // Setup WebSocket connection
 const socket = io();
+const debugPoint  = {
+  "hand_1": {
+    ctx:  document.getElementById('pointer').getContext('2d'),
+    color: "red"
+  },
+  "hand_2": {
+    ctx:  document.getElementById('pointer1').getContext('2d'),
+    color: "blue"
+  },
+  "hand_3": {
+    ctx:  document.getElementById('pointer3').getContext('2d'),
+    color: "green"
+  },
+}
+
 // Listen for the 'open_cv_event' event
 socket.on('hand_detect', (data) => {  
   try {
-    const payload = JSON.parse(data)
+    const payload = JSON.parse(data);
+    payload.forEach(hand => {
+      let posX = scaleByPixelRatio(hand.x);
+      let posY = scaleByPixelRatio(hand.y);
+      let pointer = pointers.find(p => p.id == hand.id);
 
-    let posX = scaleByPixelRatio(payload.x);
-    let posY = scaleByPixelRatio(payload.y);
-    let pointer = pointers.find(p => p.id == -1);
-    if (pointer == null) {
-      pointer = new pointerPrototype();
-    }
+      if (pointer == null) {
+        pointer = new pointerPrototype();
+        pointer.id = hand.id;
+        pointers.push(pointer);
+      }
 
+      if (!pointer.down) {
+        updatePointerDownData(pointer, hand.id, posX, posY);
+      }
 
-    if (!pointer.down) {
-      updatePointerDownData(pointer, -1, posX, posY);
-    }
-
-    updatePointerMoveData(pointer, posX, posY);
+      updatePointerMoveData(pointer, posX, posY);
+      if (debugPoint[hand.id]) {
+        drawPoints(debugPoint[hand.id], posX, posY);
+      }
+      
+    });
 
   } catch (e) {
-    console.trace(e)
+    console.trace(e);
   }
 });
 
@@ -39,8 +61,23 @@ socket.on('hand_detect', (data) => {
 /************************************/
 /************************************/
 
-const canvas = document.getElementsByTagName('canvas')[0];
+const canvas = document.getElementById('sim');
+//const ctxtest = pointerCanvas.getContext('2d');
 resizeCanvas();
+
+function drawPoints(debugPoint, posX, posY) {
+  const { ctx, color } = debugPoint
+  console.log(color)
+  // Clear the canvas for the next frame
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw a red dot at the current position
+  ctx.beginPath();
+  ctx.arc(posX, posY, 25, 0, Math.PI * 2, true);
+  ctx.fillStyle = color;
+  ctx.fill();
+
+}
 
 let config = {
   SIM_RESOLUTION: 128,
@@ -1099,6 +1136,13 @@ function resizeCanvas() {
   if (canvas.width != width || canvas.height != height) {
     canvas.width = width;
     canvas.height = height;
+
+    Object.keys(debugPoint).forEach(key => {
+        const pt = debugPoint[key]
+        pt.ctx.canvas.width = width
+        pt.ctx.canvas.height = height
+    })
+      
     return true;
   }
   return false;

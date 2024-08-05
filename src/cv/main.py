@@ -22,8 +22,7 @@ def main(show_cv, debug, mock_mode, camera_address):
     while cap.isOpened():
         success, img = cap.read()
         hand_detector.subscribe(img=img)
-        # object_detector.subscribe(img=img)
-        
+        # object_detector.subscribe(img=img)        
         if show_cv:
             cv2.imshow("Image", img)
 
