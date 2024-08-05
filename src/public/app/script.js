@@ -36,14 +36,15 @@ async function showToast(message, toastLength = 3000) {
 const pages = [
   {
     id: "fluid-sim", url: '/app/scenes/fluid-sim/index.html', instructions: ["Wave you hand to move the particles around."], name: "Fluid waves"
-  }, {
-    id: "white-board", url: '/app/scenes/neon-white-board/index.html', instructions: ["Raise your index finger to paint."], name: "Neon board"
-  }
+  }, 
+  // {
+  //   id: "white-board", url: '/app/scenes/neon-white-board/index.html', instructions: ["Raise your index finger to paint."], name: "Neon board"
+  // }
 ];
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  let currentPage = 1;
+  let currentPage = 0;
 
   const contentFrame = document.getElementById('contentFrame');
   const prevBtn = document.getElementById('prevBtn');
