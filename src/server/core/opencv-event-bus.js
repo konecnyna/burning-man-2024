@@ -29,12 +29,9 @@ class OpenCvEventBus {
       try {
         const lines = data.toString().split("\n").filter(it => it)
         lines.forEach(line => {
-          const json = JSON.parse(line.trim())
           if (this.state.debugging) {
-            console.log(line.trim());
+            console.log(`🐍 ${line.trim()}`);
           }
-    
-          this.io.emit(json.event, JSON.stringify(json.payload));
         })
         
       } catch (e) {
