@@ -43,7 +43,7 @@ class OpenCvEventBus {
     this.pythonProcess.stderr.on('data', (data) => {
       const error = data.toString().trim();
       console.error(`Python error: ${error}`);
-      // this.io.emit('pythonError', error);
+      this.io.emit('pythonError', error);
     });
 
     this.pythonProcess.on('close', (code) => {

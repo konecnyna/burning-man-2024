@@ -27,11 +27,8 @@ const openCvEventBus = new OpenCvEventBus(io, state.openCvState)
 
 app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
-
-
 io.on('connection', (socket) => {
   console.log('a user connected');
-
   socket.on('hand_detect', (data) => {
     safeBroadcast("hand_detect", data)
   });
