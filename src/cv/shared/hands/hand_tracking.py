@@ -19,8 +19,8 @@ class HandTrackingModule:
         debug=False,
         showCv=False,
         showmaxHands=4,
-        detectionCon=0.25,
-        trackCon=0.25,
+        detectionCon=0.75,
+        trackCon=0.75,
     ):
         self.mode = mode
         self.maxHands = showmaxHands
