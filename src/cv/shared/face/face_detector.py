@@ -1,6 +1,8 @@
 import time
 import cv2
 
+from shared.util.web_socket_client import ws_client
+
 class FaceDetector:
     def __init__(self, draw_square=False, debug=False):
         self.draw_square = draw_square
@@ -14,6 +16,9 @@ class FaceDetector:
         self.timeout = 120  # 2 minutes timeout in seconds
         
         self.detection_mode = "passive"
+        self.publishEvent(self.detection_mode)
+        
+        
 
     def calculate_distance(self, face_width):
         return (self.known_width * self.focal_length) / face_width
@@ -46,9 +51,10 @@ class FaceDetector:
                 if face["distance"] < distance:                    
                     elapsed_time = time.time() - self.start_time
                     if elapsed_time > 3 and self.detection_mode != "active":
-                        print("Face detected under 50cm for more than 3 seconds! Staying in active mode.")
+                        print("Face detected under 50cm for more than 3 seconds! Staying in active mode.")                        
                         self.detection_mode = "active"
                         self.start_time = time.time()
+                        self.publishEvent(self.detection_mode)
                 else:
                     self.detected_under_50 = False
                     self.start_time = 0.0
@@ -59,3 +65,6 @@ class FaceDetector:
                     self.detection_mode = "passive"
                     self.last_detection_time = None
                     print("No face detected for 2 minutes. Switching to passive mode.")
+
+    def publishEvent(self, mode):
+        ws_client.publish(event="detection_mode", data={ "mode": mode })
