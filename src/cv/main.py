@@ -5,10 +5,12 @@ import argparse
 
 from shared.hands.hand_tracking import HandTrackingModule
 from shared.object_detection import ObjectDetector
+from shared.face.face_detector import FaceDetector
 
 def main(show_cv, debug, mock_mode, camera_address):
     hand_detector = HandTrackingModule(debug=debug, showCv=show_cv) 
     object_detector = ObjectDetector()
+    face_detector = FaceDetector(draw_square=True)
     
     
     if (mock_mode): 
@@ -20,8 +22,16 @@ def main(show_cv, debug, mock_mode, camera_address):
     
     while cap.isOpened():
         success, img = cap.read()
-        hand_detector.subscribe(img=img)
-        object_detector.subscribe(img=img)        
+        if not success:
+            return
+        
+        face_detector.subscribe(img=img, distance=50)
+    
+        
+        #hand_detector.subscribe(img=img)
+        #object_detector.subscribe(img=img)     
+        
+           
         if show_cv:
             cv2.imshow("Image", img)
 
