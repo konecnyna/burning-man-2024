@@ -16,12 +16,12 @@ def main(show_cv, debug, mock_mode, camera_address):
             hand_detector.mockMode()
             object_detector.mockMode()        
     
-    cap = cv2.VideoCapture(camera_address)
+    cap = cv2.VideoCapture("/Users/defkon/Desktop/mode-tranisition-test.mp4")
     
     while cap.isOpened():
         success, img = cap.read()
         hand_detector.subscribe(img=img)
-        # object_detector.subscribe(img=img)        
+        object_detector.subscribe(img=img)        
         if show_cv:
             cv2.imshow("Image", img)
 
@@ -32,6 +32,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--show-cv', action='store_true', help='Show open cv image')
     parser.add_argument('--debug', action='store_true', help='Verbose logging')
+    parser.add_argument('--local', action='store_true', help='No websocket.')
     parser.add_argument('--mock-mode', action='store_true', help='Enable mock mode')
     parser.add_argument('--url', type=str, help='URL for the camera feed')
     args = parser.parse_args()

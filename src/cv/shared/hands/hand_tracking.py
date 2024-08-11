@@ -6,8 +6,8 @@ from shared.util.postion_translater import translate_img_coordinates
 from shared.util.postion_translater import translate_img_coordinates_scaled
 
 
-from shared.util.web_socket_client import WebsocketClient
-ws_client = WebsocketClient('ws://localhost:3000')
+from shared.util.web_socket_client import ws_client
+
 
 
 class HandTrackingModule:
@@ -49,31 +49,33 @@ class HandTrackingModule:
         return max(0, min(1, value))
 
     def subscribe(self, img):
-        [result, lmList] = self.detector.find_position(image=img, draw=self.showCv)
-        if not lmList:
-            return
+        try:
+            [result, lmList] = self.detector.find_position(image=img, draw=self.showCv)
+            if not lmList:
+                return
 
-        handPayloads = []
-        handCount = len(lmList) // 21
-        for i in range(0, len(lmList), 21):
-            hand_id = f"hand_{i // 21 + 1}"
-            hand_lmList = lmList[i : i + 21]
+            handPayloads = []
+            handCount = len(lmList) // 21
+            for i in range(0, len(lmList), 21):
+                hand_id = f"hand_{i // 21 + 1}"
+                hand_lmList = lmList[i : i + 21]
 
-            handEvents = self.process_hands(result, hand_lmList, hand_id)
-            if handEvents:
-                handPayloads.append(handEvents)
+                handEvents = self.process_hands(result, hand_lmList, hand_id)
+                if handEvents:
+                    handPayloads.append(handEvents)
 
-        ws_client.publish("hand_detect", handPayloads)
-        if self.debug:
-            print(self.makeEvent("hand_detect",handPayloads), flush=True)
-        
-        
-        indexFingerEvent = self.process_index_finger(lmList, handCount)
-        if indexFingerEvent:
-            ws_client.publish("index_finger_detect", indexFingerEvent)
+            ws_client.publish("hand_detect", handPayloads)
             if self.debug:
-                print(self.makeEvent("index_finger_detect", indexFingerEvent), flush=True)
+                print(self.makeEvent("hand_detect",handPayloads), flush=True)
             
+            
+            indexFingerEvent = self.process_index_finger(lmList, handCount)
+            if indexFingerEvent:
+                ws_client.publish("index_finger_detect", indexFingerEvent)
+                if self.debug:
+                    print(self.makeEvent("index_finger_detect", indexFingerEvent), flush=True)
+        except Exception as e:
+            print(e)           
 
     def process_hands(self, result, lmList, hand_id):
         hand_distance = -1

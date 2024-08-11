@@ -2,10 +2,12 @@ import socketio
 import time
 
 class WebsocketClient:
-    def __init__(self, ws_url):
+    def __init__(self, ws_url, local):
         self.ws_url = ws_url
         self.sio = socketio.Client()
-        self.connect()
+        self.local = local
+        if not local:
+            self.connect()
 
     def connect(self):
         try:
@@ -16,7 +18,7 @@ class WebsocketClient:
             self.reconnect()
         except Exception as e:
             print(f"Unexpected error: {e}")
-            self.reconnect()
+            #self.reconnect()
 
     def reconnect(self):
         print("Attempting to reconnect...")
@@ -24,6 +26,10 @@ class WebsocketClient:
         self.connect()
 
     def publish(self, event, data):
+        if self.local:
+            print(self.make_event(event=event, payload=data))
+            return
+        
         try:
             self.sio.emit(event, data)
         except socketio.exceptions.ConnectionError as e:
@@ -38,4 +44,4 @@ class WebsocketClient:
         return {'event': event, 'payload': payload}
 
 # Export a single instance of WebsocketClient
-ws_client = WebsocketClient('http://localhost:3000')
+ws_client = WebsocketClient(ws_url='http://localhost:3000', local=True)
