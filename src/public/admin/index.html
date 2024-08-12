@@ -21,20 +21,17 @@
                 <div class="bg-gray-700 p-4 rounded-md">
                     <h3 class="text-lg font-semibold mb-2">Mode</h3>
                     <p id="modeStatus" class="chip chip-passive">Passive</p>
-                </div>                
-                <div class="bg-gray-700 p-4 rounded-md">
+                </div>
+                <!-- <div class="bg-gray-700 p-4 rounded-md">
                     <h3 class="text-lg font-semibold mb-2">Live Stream</h3>
                     <video id="liveStream" class="w-full" controls>
                         <source src="rtsp://defkon:password@10.0.0.53/stream1">
                         Your browser does not support the video tag.
                     </video>
-                </div>
+                </div> -->
                 <div class="bg-gray-700 p-4 rounded-md">
                     <h3 class="text-lg font-semibold mb-2">Current Scene</h3>
                     <p id="currentScene" class="chip chip-passive">Neon Light Room</p>
-                    <h3 class="text-lg font-semibold mb-2 mt-4">Change Scene:</h3>
-                    <button id="fluidButton" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded">Fluid Hand Interaction</button>
-                    <button id="neonButton" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded">Neon Light Room</button>
                 </div>
                 <div class="bg-gray-700 p-4 rounded-md">
                     <h3 class="text-lg font-semibold mb-2">Time Until Scene Changes</h3>
@@ -42,16 +39,24 @@
                 </div>
                 <div class="bg-gray-700 p-4 rounded-md">
                     <h3 class="text-lg font-semibold mb-2">Clients Connected</h3>
-                    <p id="clientsConnected">3</p>
+                    <p id="clientsConnected" class="chip chip-passive">Passive</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-md">
+                    <h3 class="text-lg font-semibold mb-2">Change Scene:</h3>
+                    <button id="fluidButton" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded">Fluid
+                        Hand Interaction</button>
+                    <button id="neonButton" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded">Neon
+                        Light Room</button>
                 </div>
             </div>
         </section>
 
-        <button id="toggleLogButton" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded mb-4">Show Debugging</button>
+        <button id="toggleLogButton" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded mb-4">Show
+            Debugging</button>
         <pre id="log" class="text-sm w-full max-h-48 overflow-y-auto bg-gray-800 p-4 rounded-md mb-4"></pre>
     </div>
 
-    <script src="./admin.js"></script>
+    <script src="./script.js"></script>
 </body>
 
 </html>

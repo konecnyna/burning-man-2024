@@ -4,16 +4,15 @@ const path = require("path")
 const http = require('http');
 const socketIo = require('socket.io');
 const OpenCvEventBus = require("./core/opencv-event-bus")
-const State = require("./core/state")
-const Video = require("./core/video")
+const StateManager = require("./core/state-manager")
+const EventManager = require("./core/event-manager");
+
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-
-// Global state.
-const state = new State({
+const stateManager = new StateManager({
   openCvState: {
     debugging: true,
     active: true,
@@ -22,58 +21,24 @@ const state = new State({
     rtspUrl: null,
   }
 })
-
-const openCvEventBus = new OpenCvEventBus(io, state.openCvState)
+const eventManager = new EventManager(stateManager, io)
+const openCvEventBus = new OpenCvEventBus(io, stateManager.state)
 
 app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 app.get('/api/opencv-state', (req, res) => {
-  res.json(state.openCvState);
+  res.json(stateManager.state);
 });
-
 
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('hand_detect', (data) => {
-    safeBroadcast("hand_detect", data)
-  });
-
-  socket.on('index_finger_detect', (data) => {
-    safeBroadcast("index_finger_detect", data)
-  });
-
-  socket.on('object_detected', (data) => {
-    safeBroadcast("object_detected", data)
-  });
-
-  socket.on('admin_event', (data) => {
-    safeBroadcast("admin_event", data)    
-  });
-
-  socket.on("detection_mode", (data) => {
-    console.log(`detect! `, data)
-    state.updateState({ detectionMode: data.mode})
-    safeBroadcast("state", state.openCvState)
-  });
-
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
+  eventManager.socketConnection(socket)
 });
 
-function safeBroadcast(event, payloadObject) {
-  try {
-    io.emit(event, JSON.stringify(payloadObject))
-  } catch (error) {
-    console.trace(error)
-    console.error("Error emitting event!")
-  }
-}
 
 server.listen(3000, () => {
   console.log('Server listening on port http://localhost:3000/app');
-  if (state.openCvState.active) {
+  if (stateManager.state.active) {
     openCvEventBus.start()
   } else {
     console.log("Not running opencv state active = false")
@@ -81,7 +46,7 @@ server.listen(3000, () => {
 });
 
 process.on('SIGINT', () => {
-  if (state.openCvState.active) {
+  if (stateManager.state.active) {
     openCvEventBus.stop()
   }
 

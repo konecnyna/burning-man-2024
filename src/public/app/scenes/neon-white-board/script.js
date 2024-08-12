@@ -19,7 +19,6 @@ let erasing = false;
 const socket = io();
 
 socket.on('index_finger_detect', (data) => {
-  console.log("Detect!")
   try {
     const payload = JSON.parse(data);
     drawFromEvent(canvas.width - payload.x_percent * canvas.width, payload.y_percent * canvas.height);

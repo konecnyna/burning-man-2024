@@ -1,6 +1,6 @@
 
 
-class State {
+module.exports = class StateManager {
   constructor({
     startScene = "http://localhost:3000/neon-white-board/index.html",
     openCvState = {}
@@ -12,15 +12,17 @@ class State {
       isMockMode: false,
       rtspUrl: null,
       detectionMode: "passive",
+      currentScene: "fluid-sim",
+      nextSceneTime: null
     }
     this.startScene = startScene;
-    this.openCvState = { ...defaultOpenCvState, ...openCvState };
+    this.state = { ...defaultOpenCvState, ...openCvState };
   }
 
   updateState(newState) {
-    this.openCvState = { ...this.openCvState, ...newState.openCvState };   
+    console.log(`Updating state:\n${JSON.stringify({ ...this.openCvState, ...newState }, null, 2)}`)
+    this.state = { ...this.openCvState, ...newState };
   }
 }
 
 
-module.exports = State

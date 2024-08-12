@@ -33,11 +33,11 @@ class OpenCvEventBus {
             console.log(`🐍 ${line.trim()}`);
           }
         })
-        
+
       } catch (e) {
-        console.error("ERROR", data.toString().split("\n"),data.toString())
+        console.error("ERROR", data.toString().split("\n"), data.toString())
       }
-    
+
     });
 
     this.pythonProcess.stderr.on('data', (data) => {
@@ -47,9 +47,12 @@ class OpenCvEventBus {
     });
 
     this.pythonProcess.on('close', (code) => {
-      this.io.emit('pythonClose', `Process exited with code ${code}`);
-      console.log(`🚨🚨🚨🚨🚨\nPython script crashed. Try to run it manually\n$ python3 src/cv/main.py --show-cv\n🚨🚨🚨🚨🚨`)
-      process.exit(1);
+      this.io.emit('pythonClose', { code });
+      if (code > 0) {
+        console.log(`🚨🚨🚨🚨🚨\nPython script crashed. Try to run it manually\n$ python3 src/cv/main.py --show-cv\n🚨🚨🚨🚨🚨`)
+      }
+
+
     });
   }
 
