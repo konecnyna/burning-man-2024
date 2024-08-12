@@ -37,6 +37,17 @@ async function showToast(message, toastLength = 3000) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const contentFrame = document.getElementById('contentFrame');
+
+  const stateChanged = async (state) => {
+    try {
+      console.log("srtate!!!!", state)
+      const currentScene = state.currentScene
+      showToast(`Loading scene ${currentScene.name}...`);
+      loadPage(currentScene)
+    } catch (e) {
+      console.trace(e)
+    }
+  }
   const loadPage = async (page) => {
     console.log(JSON.stringify(page));
     contentFrame.src = page.url;
@@ -51,15 +62,22 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   socket.on('state_changed', (data) => {
-    try {
-      const state = JSON.parse(data);
-      console.log("srtate!!!!",state)
-      const currentScene = state.currentScene
-      showToast(`Loading scene ${currentScene.name}...`);
-      loadPage(currentScene)
-    } catch (e) {
-      console.trace(e)
-    }
+    stateChanged(JSON.parse(data))
   });
+
+  function fetchAppState() {
+    console.log("send it!")
+    fetch('/api/app-state')
+      .then(response => response.json())
+      .then(state => {
+        stateChanged(state)
+      })
+      .catch(error => {
+        console.trace(error)
+      });
+  }
+
+
+  fetchAppState()
 });
 
