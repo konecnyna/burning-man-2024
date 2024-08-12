@@ -1,4 +1,4 @@
-const SceneManager = require("./scene-manager");
+const { SceneManager } = require("./scene-manager");
 
 
 
@@ -29,16 +29,19 @@ module.exports = class EventManager {
     });
 
     socket.on("detection_mode", (data) => {
-      console.log("!!!!!!!!!")
       let nextSceneTime = null
       if (data.mode == "active") {
         nextSceneTime = new Date()
       }
 
       const newScene = this.sceneManager.changeScene()
+      const newState = this.stateManager.updateState({
+        detectionMode: data.mode,
+        nextSceneTime,
+        currentScene: newScene
+      })
 
-      this.stateManager.updateState({ detectionMode: data.mode, nextSceneTime, currentScene: newScene })
-      this.safeBroadcast("state_changed", this.stateManager.state)
+      this.stateManager.broadcastState(this.io)
     });
 
     socket.on("pythonClose", (data) => {
@@ -66,5 +69,4 @@ module.exports = class EventManager {
       console.error("Error emitting event!")
     }
   }
-
 }

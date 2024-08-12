@@ -1,32 +1,39 @@
+const {scenes} = require("./scene-manager");
+
 
 
 module.exports = class StateManager {
-  constructor({
-    startScene = "http://localhost:3000/neon-white-board/index.html",
-    openCvState = {}
-  } = {}) {
+  constructor({ openCvState = {} } = {}) {
     const defaultOpenCvState = {
       debugging: false,
-      active: true,
+      openCvPythonRunning: false,
       showVideo: false,
       isMockMode: false,
       rtspUrl: null,
       detectionMode: "passive",
-      currentScene: "fluid-sim",
+      currentScene: scenes.loading,
       nextSceneTime: null
     }
-    this.startScene = startScene;
+    
     this.state = { ...defaultOpenCvState, ...openCvState };
   }
 
   isInActiveMode() {
-    console.log("!!!!!!stae")
     return this.state.detectionMode.toLowerCase() === "active"
   }
 
   updateState(newState) {
-    console.log(`Updating state:\n${JSON.stringify({ ...this.openCvState, ...newState }, null, 2)}`)
-    this.state = { ...this.openCvState, ...newState };
+    this.state = { ...this.state, ...newState };
+    return this.state
+  }
+
+  broadcastState(io) {
+    try {
+      io.emit("state_changed", JSON.stringify(this.state))
+    } catch (error) {
+      console.trace(error)
+      console.error("Error emitting event!")
+    }
   }
 }
 

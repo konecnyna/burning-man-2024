@@ -12,13 +12,11 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 
 const stateManager = new StateManager({
   openCvState: {
     debugging: true,
-    active: true,
+    openCvEnabled: true,
     showVideo: false,
     isMockMode: false,
     rtspUrl: null,
@@ -40,16 +38,17 @@ io.on('connection', async (socket) => {
 
 
 server.listen(3000, () => {
+  stateManager.broadcastState(io)
   console.log('Server listening on port http://localhost:3000/app');
-  if (stateManager.state.active) {
+  if (stateManager.state.openCvEnabled) {
     openCvEventBus.start()
   } else {
     console.log("Not running opencv state active = false")
-  }
+  }    
 });
 
 process.on('SIGINT', () => {
-  if (stateManager.state.active) {
+  if (stateManager.state.openCvEnabled) {
     openCvEventBus.stop()
   }
 

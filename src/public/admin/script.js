@@ -61,7 +61,7 @@ function updateState(state) {
   const modeStatus = document.getElementById('modeStatus');
   const currentScene = document.getElementById('currentScene');
 
-  if (state.active) {
+  if (state.openCvEnabled) {
     opencvStatus.textContent = "Running";
     opencvStatus.classList.remove('chip-passive');
     opencvStatus.classList.add('chip-running');
@@ -84,7 +84,12 @@ function updateState(state) {
   }
   
   setSceneCountdown(state)
-  currentScene.textContent = state.currentScene || "Unknown"; 
+  try {
+    currentScene.textContent = state.currentScene.name; 
+  } catch (e) {
+    currentScene.textContent = "Unknown"; 
+  }
+  
 }
 
 
@@ -93,7 +98,6 @@ function setSceneCountdown(state) {
   const sceneChangeTimer = document.getElementById('sceneChangeTimer');
 
   if (state.nextSceneTime) {
-    console.log("!!",)
     if (sceneChangeTimer.interval) {
       clearInterval(sceneChangeTimer.interval);
     }
@@ -107,7 +111,6 @@ function setSceneCountdown(state) {
       const seconds = Math.floor(timeLeft % 60);
 
       sceneChangeTimer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
       // Stop the countdown when it reaches 0
       if (timeLeft <= 0) {
         clearInterval(sceneChangeTimer.interval);
@@ -118,7 +121,6 @@ function setSceneCountdown(state) {
     updateCountdown(); 
     sceneChangeTimer.interval = setInterval(updateCountdown, 1000);
   } else {
-    console.log("!boo")
     sceneChangeTimer.textContent = "00:00:00";
   }
 }
