@@ -507,16 +507,26 @@ function toggleVisuals() {
 }
 
 
+function scaleByPixelRatio(input) {
+  let pixelRatio = window.devicePixelRatio || 1;
+  return Math.floor(input * pixelRatio);
+}
+
 socket.on('hand_detect', (data) => {
   try {
+    console.log(data)
     const payload = JSON.parse(data);
-    payload.forEach(hand => {
-      let posX = scaleByPixelRatio(hand.x);
-      let posY = scaleByPixelRatio(hand.y);
-      // use posX, posY like a mouse
-      mouseX = posX - windowHalfX;
-      mouseY = posY - windowHalfY;
-    });
+    const hand = payload[0]
+
+
+    console.log(hand)
+    let posX = hand.x_percent * window.innerWidth;
+    let posY = hand.y_percent * window.innerHeight;
+
+    mouseX = posX - windowHalfX;
+    mouseY = posY - windowHalfY;
+
+
 
   } catch (e) {
     console.trace(e);

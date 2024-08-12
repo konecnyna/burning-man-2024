@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const stateChanged = async (state) => {
     try {
-      console.log("srtate!!!!", state)
       const currentScene = state.currentScene
       showToast(`Loading scene ${currentScene.name}...`);
       loadPage(currentScene)
@@ -49,13 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   const loadPage = async (page) => {
-    console.log(JSON.stringify(page));
     contentFrame.src = page.url;
-
     await sleep(1500)
-
     await showToast(page.name, 1500);
-
     for (var i = 0; i < page.instructions.length; i++) {
       await showToast(page.instructions[i], 4000)
     }

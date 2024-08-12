@@ -1,6 +1,7 @@
 const {scenes} = require("./scene-manager");
 
 
+const CAMERA_URL = 0
 
 module.exports = class StateManager {
   constructor({ openCvState = {} } = {}) {
@@ -12,7 +13,7 @@ module.exports = class StateManager {
       rtspUrl: null,
       detectionMode: "passive",
       currentScene: scenes.loading,
-      nextSceneTime: null
+      nextSceneTime: CAMERA_URL
     }
     
     this.state = { ...defaultOpenCvState, ...openCvState };

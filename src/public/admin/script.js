@@ -3,7 +3,6 @@ const socket = io();
 
 
 function fetchAppState() {
-  console.log("send it!")
   fetch('/api/app-state')
     .then(response => response.json())
     .then(state => {
@@ -94,7 +93,6 @@ function updateState(state) {
 
 
 function setSceneCountdown(state) {
-  console.log("!go")
   const sceneChangeTimer = document.getElementById('sceneChangeTimer');
 
   if (state.nextSceneTime) {

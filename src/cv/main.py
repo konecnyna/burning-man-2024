@@ -18,8 +18,7 @@ def main(show_cv, debug, mock_mode, camera_address):
             hand_detector.mockMode()
             object_detector.mockMode()        
     
-    cap = cv2.VideoCapture("/Users/defkon/Desktop/mode-tranisition-test.mp4")
-    # cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(camera_address)
     
     while cap.isOpened():
         success, img = cap.read()
@@ -27,9 +26,7 @@ def main(show_cv, debug, mock_mode, camera_address):
             return
         
         face_detector.subscribe(img=img, distance=50)
-    
-        
-        #hand_detector.subscribe(img=img)
+        hand_detector.subscribe(img=img)
         #object_detector.subscribe(img=img)     
         
            

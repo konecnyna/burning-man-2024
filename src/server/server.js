@@ -17,9 +17,9 @@ const stateManager = new StateManager({
   openCvState: {
     debugging: true,
     openCvEnabled: true,
-    showVideo: false,
+    showVideo: true,
     isMockMode: false,
-    rtspUrl: null,
+    //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }
 })
 const eventManager = new EventManager(stateManager, io)
