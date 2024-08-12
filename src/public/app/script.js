@@ -109,6 +109,5 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('state_changed', (data) => {
     console.log(data)
   });
-
 });
 
