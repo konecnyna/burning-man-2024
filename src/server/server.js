@@ -12,6 +12,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
 const stateManager = new StateManager({
   openCvState: {
     debugging: true,
@@ -26,12 +29,12 @@ const openCvEventBus = new OpenCvEventBus(io, stateManager.state)
 
 app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
-app.get('/api/opencv-state', (req, res) => {
+app.get('/api/app-state', (req, res) => {
   res.json(stateManager.state);
 });
 
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   eventManager.socketConnection(socket)
 });
 

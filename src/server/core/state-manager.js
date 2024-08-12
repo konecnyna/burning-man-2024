@@ -19,6 +19,11 @@ module.exports = class StateManager {
     this.state = { ...defaultOpenCvState, ...openCvState };
   }
 
+  isInActiveMode() {
+    console.log("!!!!!!stae")
+    return this.state.detectionMode.toLowerCase() === "active"
+  }
+
   updateState(newState) {
     console.log(`Updating state:\n${JSON.stringify({ ...this.openCvState, ...newState }, null, 2)}`)
     this.state = { ...this.openCvState, ...newState };

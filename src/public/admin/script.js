@@ -4,7 +4,7 @@ const socket = io();
 
 function fetchAppState() {
   console.log("send it!")
-  fetch('/api/opencv-state')
+  fetch('/api/app-state')
     .then(response => response.json())
     .then(state => {
       addLog(`OpenCV State: ${JSON.stringify(state, null, 2)}`);
@@ -36,11 +36,11 @@ function addLog(message) {
 
 
 document.getElementById('fluidButton').addEventListener('click', () => {
-  socket.emit('admin_event', { event: "update_current_app", payload: { name: "Fluid Dreams", url: '/app/scenes/fluid-sim/index.html' } });
+  socket.emit('admin_event', { event: "change_scene", payload: { name: "Fluid Dreams", url: '/app/scenes/fluid-sim/index.html' } });
 });
 
 document.getElementById('neonButton').addEventListener('click', () => {
-  socket.emit('admin_event', { event: "update_current_app", payload: { name: "Core Memories", url: '/app/scenes/neon-white-board/index.html' } });
+  socket.emit('admin_event', { event: "change_scene", payload: { name: "Core Memories", url: '/app/scenes/neon-white-board/index.html' } });
 });
 
 
@@ -93,7 +93,7 @@ function setSceneCountdown(state) {
   const sceneChangeTimer = document.getElementById('sceneChangeTimer');
 
   if (state.nextSceneTime) {
-    console.log("!!")
+    console.log("!!",)
     if (sceneChangeTimer.interval) {
       clearInterval(sceneChangeTimer.interval);
     }
@@ -115,7 +115,7 @@ function setSceneCountdown(state) {
     };
 
     // Start the countdown
-    updateCountdown(); // Initial call
+    updateCountdown(); 
     sceneChangeTimer.interval = setInterval(updateCountdown, 1000);
   } else {
     console.log("!boo")

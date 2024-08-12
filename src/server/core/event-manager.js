@@ -1,9 +1,12 @@
+const SceneManager = require("./scene-manager");
+
 
 
 module.exports = class EventManager {
   constructor(stateManager, io) {
     this.stateManager = stateManager;
     this.io = io;
+    this.sceneManager = new SceneManager(stateManager)
   }
 
   socketConnection(socket) {
@@ -26,12 +29,15 @@ module.exports = class EventManager {
     });
 
     socket.on("detection_mode", (data) => {
+      console.log("!!!!!!!!!")
       let nextSceneTime = null
       if (data.mode == "active") {
         nextSceneTime = new Date()
       }
 
-      this.stateManager.updateState({ detectionMode: data.mode, nextSceneTime })
+      const newScene = this.sceneManager.changeScene()
+
+      this.stateManager.updateState({ detectionMode: data.mode, nextSceneTime, currentScene: newScene })
       this.safeBroadcast("state_changed", this.stateManager.state)
     });
 

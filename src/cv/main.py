@@ -18,8 +18,8 @@ def main(show_cv, debug, mock_mode, camera_address):
             hand_detector.mockMode()
             object_detector.mockMode()        
     
-    #cap = cv2.VideoCapture("/Users/defkon/Desktop/mode-tranisition-test.mp4")
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture("/Users/defkon/Desktop/mode-tranisition-test.mp4")
+    # cap = cv2.VideoCapture(0)
     
     while cap.isOpened():
         success, img = cap.read()

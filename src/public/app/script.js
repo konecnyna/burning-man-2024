@@ -17,14 +17,14 @@ async function showToast(message, toastLength = 3000) {
 
   // Reset classes to trigger reflow
   toast.classList.remove('fade-in', 'fade-out', 'hidden', 'visible');
-  void toast.offsetWidth; 
+  void toast.offsetWidth;
 
   // Fade in
   toast.classList.add('visible');
 
   await new Promise((resolve) => {
     toastTimeout = setTimeout(async () => {
-      toast.classList.remove('visible');      
+      toast.classList.remove('visible');
       await sleep(1000)
       toast.classList.add('hidden');
       resolve();
@@ -34,12 +34,8 @@ async function showToast(message, toastLength = 3000) {
 
 
 const pages = [
-  {
-    id: "fluid-sim", url: '/app/scenes/fluid-sim/index.html', instructions: ["Wave you hand to move the particles around."], name: "Fluid waves"
-  }, 
-  // {
-  //   id: "white-board", url: '/app/scenes/neon-white-board/index.html', instructions: ["Raise your index finger to paint."], name: "Neon board"
-  // }
+  { id: "fluid-sim", url: '/app/scenes/fluid-sim/index.html', instructions: ["Wave you hand to move the particles around."], name: "Fluid waves" },
+  { id: "passive", url: '/app/scenes/passive/index.html', instructions: ["Passive mode uses IR cameara."], name: "Fluid waves" }
 ];
 
 
@@ -95,12 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-
-
   // Load the first page initially
   loadPage(pages[currentPage]);
 
-  socket.on('update_current_app', (data) => {
+  socket.on('change_scene', (data) => {
     try {
       console.log(data)
       const { name, url } = JSON.parse(data);
@@ -110,5 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
       console.trace(e)
     }
   });
+
+
+  socket.on('state_changed', (data) => {
+    console.log(data)
+  });
+
 });
 
