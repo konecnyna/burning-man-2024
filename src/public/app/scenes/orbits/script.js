@@ -512,16 +512,15 @@ function scaleByPixelRatio(input) {
   return Math.floor(input * pixelRatio);
 }
 
-socket.on('hand_detect', (data) => {
+socket.on('hand_detect_new', (data) => {
   try {
-    console.log(data)
     const payload = JSON.parse(data);
     const hand = payload[0]
-
-
     console.log(hand)
-    let posX = hand.x_percent * window.innerWidth;
-    let posY = hand.y_percent * window.innerHeight;
+    // let posX = hand.x_percent * window.innerWidth;
+    let posX = hand.x;
+    // let posY = hand.y_percent * window.innerHeight;
+    let posY = hand.y;
 
     mouseX = posX - windowHalfX;
     mouseY = posY - windowHalfY;
