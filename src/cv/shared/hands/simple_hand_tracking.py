@@ -6,6 +6,8 @@ from shared.util.web_socket_client import ws_client
 
 mp_hands = mp.solutions.hands
 
+# https://chatgpt.com/share/bb255ebc-2e5a-48ef-ac2d-448d5fc6b63a
+
 class SimpleHandTracking:
     def __init__(self):
         self.hands = mp_hands.Hands(
