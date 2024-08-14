@@ -29,7 +29,13 @@ module.exports = class EventManager {
     });
 
     socket.on('admin_event', (data) => {
-      this.safeBroadcast("admin_event", data)
+      switch(data.event) {
+        case "change_scene":
+          this.stateManager.updateStateAndBroadcast({
+            currentScene: data.payload
+          })
+          break;
+      }
     });
 
     socket.on("detection_mode", (data) => {
@@ -39,13 +45,11 @@ module.exports = class EventManager {
       }
 
       const newScene = this.sceneManager.changeScene()
-      const newState = this.stateManager.updateState({
+      this.stateManager.updateStateAndBroadcast({
         detectionMode: data.mode,
         nextSceneTime,
         currentScene: newScene
       })
-
-      this.stateManager.broadcastState(this.io)
     });
 
     socket.on("pythonClose", (data) => {
