@@ -39,6 +39,11 @@ function initScene(){
 	document.addEventListener( 'keydown', onKeyDown, false );
 
     document.addEventListener('mousemove', onDocumentMouseMove, false);
+    document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+    document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+    document.addEventListener( 'touchend', onDocumentTouchEnd, false );
+    document.addEventListener( 'touchcancel', onDocumentTouchEnd, false );
+    document.addEventListener( 'touchleave', onDocumentTouchEnd, false );
     // document.addEventListener('mousedown', onDocumentMouseDown, false);
 
     animate();
@@ -55,22 +60,23 @@ function initCanvasTex(){
 	canvas = document.createElement("canvas");
 	canvas.width = w;
 	canvas.height = h;
-	sliceSize = 25;
+	sliceSize = 50;
 	// document.body.appendChild(canvas);
 	// canvas.style['z-index'] = -1;
 	ctx = canvas.getContext("2d");
 	image = new Image();
-	image.crossOrigin = "Anonymous";
 	image.onload = function (){
 		ctx.drawImage(image, 0, 0);
 	}
+	image.src = "./img/rgblcd.png";
 	// image.src = "img/rb-grid.jpg";
-	image.src = "img/rgblcd.png";
 
 
     tex = new THREE.Texture(canvas);
     tex.needsUpdate = true;
     camTex = tex;
+	// window.setInterval(canvasDraw, 200);
+
     initFrameDifferencing();
 
 
@@ -90,6 +96,7 @@ function initCameraTex(){
 	        tex = new THREE.Texture(video);
 	        tex.needsUpdate = true;
 	        camTex = tex;
+
 	        initFrameDifferencing();
         }, function(error){
 		   console.log("Failed to get a stream due to", error);
@@ -124,7 +131,9 @@ function initFrameDifferencing(){
 			time: { type: 'f' , value: time},
 			resolution: {type: 'v2', value: new THREE.Vector2(w,h)},
 			texture: {type: 't', value: rt1},
-			texture2: {type: 't', value: camTex}
+			texture2: {type: 't', value: camTex},
+			mouseX: {type: 'f', value: mouseX},
+			mouseY: {type: 'f', value: mouseY}
 		},
 		vertexShader: document.getElementById("vs").textContent,
 		fragmentShader: document.getElementById("colorFs").textContent
@@ -213,7 +222,23 @@ function initFrameDifferencing(){
 	meshFB4 = new THREE.Mesh(planeGeometry, materialFB4);
 	sceneFB4.add(meshFB4);
 
-	material = new THREE.MeshBasicMaterial({map: rtFB4});
+	sceneBump = new THREE.Scene();
+	rtBump = new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter, format: THREE.RGBFormat });
+	materialBump = new THREE.ShaderMaterial({
+		uniforms: {
+			time: { type: 'f' , value: time},
+			resolution: {type: 'v2', value: new THREE.Vector2(w,h)},
+			texture: {type: 't', value: rtFB4},
+			mouseX: {type: 'f', value: mouseX},
+			mouseY: {type: 'f', value: mouseY}
+		},
+		vertexShader: document.getElementById("vs").textContent,
+		fragmentShader: document.getElementById("fs").textContent
+	});
+	meshBump = new THREE.Mesh(planeGeometry, materialBump);
+	sceneBump.add(meshBump);
+
+	material = new THREE.MeshBasicMaterial({map: rtBump});
 	mesh = new THREE.Mesh(planeGeometry, material);
 	scene.add(mesh);
 
@@ -240,7 +265,7 @@ function canvasDraw(){
 }
 function draw(){
 	time+=0.01;
-	canvasDraw();
+	// canvasDraw();
     camTex.needsUpdate = true;
 
     // expand(1.01);
@@ -256,6 +281,7 @@ function draw(){
 	renderer.render(sceneFB2, cameraRTT, rtFB2, true);
 	renderer.render(sceneFB3, cameraRTT, rtFB3, true);
 	renderer.render(sceneFB4, cameraRTT, rtFB4, true);
+	renderer.render(sceneBump, cameraRTT, rtBump, true);
 
 	renderer.render(scene, camera);
 
@@ -283,13 +309,53 @@ function onDocumentMouseMove(event){
 
     materialFB2.uniforms.mouseX.value = mouseX;
     material1.uniforms.mouseX.value = mouseX;
+    materialBump.uniforms.mouseX.value = mouseX;
     materialFB2.uniforms.mouseY.value = mouseY;
     material1.uniforms.mouseY.value = mouseY;
+    materialBump.uniforms.mouseY.value = mouseY;
 }
 
 function onDocumentMouseDown(event){
     renderer.render(scene1, cameraRTT, rt1, true);
 
+}
+function onDocumentTouchStart( event ) {
+    if ( event.touches.length === 1 ) {
+        event.preventDefault();
+        mouseX = map(event.touches[ 0 ].pageX, window.innerWidth, -1.0,1.0);
+        mouseY = map(event.touches[ 0 ].pageY, window.innerHeight, -1.0,1.0);
+        materialFB2.uniforms.mouseX.value = mouseX;
+	    material1.uniforms.mouseX.value = mouseX;
+	    materialBump.uniforms.mouseX.value = mouseX;
+	    materialFB2.uniforms.mouseY.value = mouseY;
+	    material1.uniforms.mouseY.value = mouseY;
+	    materialBump.uniforms.mouseY.value = mouseY;
+    }
+}
+
+function onDocumentTouchMove( event ) {
+    if ( event.touches.length === 1 ) {
+        event.preventDefault();
+        
+        mouseX = map(event.touches[ 0 ].pageX, window.innerWidth, -1.0,1.0);
+        mouseY = map(event.touches[ 0 ].pageY, window.innerHeight, -1.0,1.0);
+        /*
+        for(var i = 0; i < fbMaterial.fbos.length; i++){
+          fbMaterial.fbos[i].material.uniforms.mouse.value = new THREE.Vector2(mx, my);
+        }
+        */
+        materialFB2.uniforms.mouseX.value = mouseX;
+	    material1.uniforms.mouseX.value = mouseX;
+	    materialBump.uniforms.mouseX.value = mouseX;
+	    materialFB2.uniforms.mouseY.value = mouseY;
+	    material1.uniforms.mouseY.value = mouseY;
+	    materialBump.uniforms.mouseY.value = mouseY;
+    }
+}
+    
+function onDocumentTouchEnd( event ) {
+    mouseX = 0; 
+    mouseY = 0;
 }
 function onKeyDown( event ){
 	if( event.keyCode == "32"){

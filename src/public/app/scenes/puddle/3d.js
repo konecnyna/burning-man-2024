@@ -15,6 +15,8 @@ var mesh1, mesh2;
 var mouseX, mouseY;
 var time = 0.0;
 var modelMesh;
+
+
 initCanvasScene();
 // initScene();
 function initCanvasScene(){
@@ -38,27 +40,27 @@ function initCanvasScene(){
 	// canvasCamera.lookAt( canvasScene.position )
     // canvasCamera.rotation.x = Math.PI/2;//test
 
-	cubeTex = THREE.ImageUtils.loadTexture("../img/test.png")
-	canvasGeometry = new THREE.CubeGeometry(50,50,50);
+	//cubeTex = THREE.ImageUtils.loadTexture("../img/test.png")
+	///canvasGeometry = new THREE.CubeGeometry(50,50,50);
     // canvasGeometry = new THREE.TorusGeometry( 50, 10, 16, 100 );
 
 
-	canvasMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, wireframe:false });
+	//canvasMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, wireframe:false });
 
-	var path = "../img/cube/vince/";
-	var format = '.png';
-	var urls = [
-			path + 'px' + format, path + 'nx' + format,
-			path + 'py' + format, path + 'ny' + format,
-			path + 'pz' + format, path + 'nz' + format
-	];
-	var reflectionCube = THREE.ImageUtils.loadTextureCube( urls );
-	reflectionCube.format = THREE.RGBFormat;
+	// var path = "../img/cube/vince/";
+	// var format = '.png';
+	// var urls = [
+	// 		path + 'px' + format, path + 'nx' + format,
+	// 		path + 'py' + format, path + 'ny' + format,
+	// 		path + 'pz' + format, path + 'nz' + format
+	// ];
+	// var reflectionCube = THREE.ImageUtils.loadTextureCube( urls );
+	// reflectionCube.format = THREE.RGBFormat;
 
-	var refractionCube = new THREE.CubeTexture( reflectionCube.image, THREE.CubeRefractionMapping );
-	refractionCube.format = THREE.RGBFormat;
-	var chainMaterial = new THREE.MeshLambertMaterial( { side: THREE.DoubleSide, color: 0xffffff, ambient: 0xaaaaaa, envMap: reflectionCube } )
-	var daggerMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, map: new THREE.ImageUtils.loadTexture("img/dagger.png") } )
+	// var refractionCube = new THREE.CubeTexture( reflectionCube.image, THREE.CubeRefractionMapping );
+	// refractionCube.format = THREE.RGBFormat;
+	// var chainMaterial = new THREE.MeshLambertMaterial( { side: THREE.DoubleSide, color: 0xffffff, ambient: 0xaaaaaa, envMap: reflectionCube } )
+	// var daggerMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, map: new THREE.ImageUtils.loadTexture("img/dagger.png") } )
 
 
 	// loadModel("js/models/dagger.js", 0, 0, 0, 1.0, 0, 0, 0, daggerMaterial)
