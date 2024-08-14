@@ -27,10 +27,11 @@ const debugPoint  = {
 }
 
 // Listen for the 'open_cv_event' event
-socket.on('hand_detect', (data) => {  
+socket.on('hand_detect_new', (data) => {  
   
   try {
     const payload = JSON.parse(data);
+    console.log(payload)
     payload.forEach(hand => {
       let posX = scaleByPixelRatio(hand.x);
       let posY = scaleByPixelRatio(hand.y);

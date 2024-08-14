@@ -26,9 +26,9 @@ class SceneManager {
 
   changeScene() {
     if (this.stateManager.isInActiveMode()) {
-      return scenes.orbits
+      return scenes.fluidSim
     } else {
-      return scenes.orbits
+      return scenes.fluidSim
     }
   }
 }

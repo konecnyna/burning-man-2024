@@ -517,10 +517,10 @@ socket.on('hand_detect_new', (data) => {
     const payload = JSON.parse(data);
     const hand = payload[0]
     console.log(hand)
-    // let posX = hand.x_percent * window.innerWidth;
-    let posX = hand.x;
-    // let posY = hand.y_percent * window.innerHeight;
-    let posY = hand.y;
+    let posX = hand.x_percent * window.innerWidth;
+    // let posX = hand.x;
+    let posY = hand.y_percent * window.innerHeight;
+    // let posY = hand.y;
 
     mouseX = posX - windowHalfX;
     mouseY = posY - windowHalfY;

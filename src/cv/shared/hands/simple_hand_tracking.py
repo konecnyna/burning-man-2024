@@ -9,7 +9,7 @@ mp_hands = mp.solutions.hands
 class SimpleHandTracking:
     def __init__(self):
         self.hands = mp_hands.Hands(
-            max_num_hands=1,
+            max_num_hands=4,
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5
         ) 
@@ -23,7 +23,8 @@ class SimpleHandTracking:
         result = self.hands.process(rgb_frame)
 
         if result.multi_hand_landmarks:
-            for hand_landmarks in result.multi_hand_landmarks:
+            payloads = []
+            for idx, hand_landmarks in enumerate(result.multi_hand_landmarks):
                 # Initialize variables for bounding box
                 x_min, y_min = float('inf'), float('inf')
                 x_max, y_max = float('-inf'), float('-inf')
@@ -53,8 +54,8 @@ class SimpleHandTracking:
                 y_center = (y_min + y_max) // 2
                 
                  # Calculate percentage position relative to the screen
-                x_percent = (x_center / w) * 100
-                y_percent = (y_center / h) * 100
+                x_percent = (x_center / w)
+                y_percent = (y_center / h)
 
                 # Draw the bounding box
                 cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
@@ -66,9 +67,12 @@ class SimpleHandTracking:
                 # mp_drawing.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
                 # Print bounding box coordinates and center point
-                print(f"Center point: x={x_center}, y={y_center}")
-                ws_client.publish("hand_detect_new", [{ "x": x_center, "y" : y_center, "x_percent": x_percent, "y_percent": y_percent }])
-                cv2.imshow('Hand Position with Bounding Box and Center Point', img)
+                # print(f"Center point: x={x_center}, y={y_center}")
+                # cv2.imshow('Hand Position with Bounding Box and Center Point', img)
+                
+                payloads.append({ "id": idx, "x": x_center, "y" : y_center, "x_percent": x_percent, "y_percent": y_percent })
+                
+            ws_client.publish("hand_detect_new", payloads)
 
                 
     def makeEvent(self, event, payload):
