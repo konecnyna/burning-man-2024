@@ -51,7 +51,6 @@ server.listen(3000, () => {
   }
 
   setTimeout(async () => {
-    console.log("go time!")
     stateManager.updateStateAndBroadcast({
         detectionMode: "active",
         currentScene: scenes.puddle
