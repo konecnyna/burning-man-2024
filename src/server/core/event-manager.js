@@ -31,25 +31,13 @@ module.exports = class EventManager {
     socket.on('admin_event', (data) => {
       switch(data.event) {
         case "change_scene":
-          this.stateManager.updateStateAndBroadcast({
-            currentScene: data.payload
-          })
+          this.stateManager.nextScene()
           break;
       }
     });
 
     socket.on("detection_mode", (data) => {
-      let nextSceneTime = null
-      if (data.mode == "active") {
-        nextSceneTime = new Date()
-      }
-
-      const newScene = this.sceneManager.changeScene()
-      this.stateManager.updateStateAndBroadcast({
-        detectionMode: data.mode,
-        nextSceneTime,
-        currentScene: newScene
-      })
+      this.stateManager.nextScene()
     });
 
     socket.on("pythonClose", (data) => {

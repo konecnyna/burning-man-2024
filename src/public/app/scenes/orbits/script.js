@@ -512,6 +512,9 @@ function scaleByPixelRatio(input) {
   return Math.floor(input * pixelRatio);
 }
 
+
+const socket = io();
+
 socket.on('hand_detect_new', (data) => {
   try {
     const payload = JSON.parse(data);

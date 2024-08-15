@@ -3,7 +3,6 @@ let toastTimeout;
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-
 async function showToast(message, toastLength = 3000) {
   const toast = document.getElementById('toast');
   const toastMessage = document.getElementById('toast-message');
@@ -16,22 +15,23 @@ async function showToast(message, toastLength = 3000) {
   }
 
   // Reset classes to trigger reflow
-  toast.classList.remove('fade-in', 'fade-out', 'hidden', 'visible');
-  void toast.offsetWidth;
+  toast.classList.remove('opacity-0', 'opacity-100', 'hidden');
+  void toast.offsetWidth;  // Force a reflow to restart the animation
 
   // Fade in
-  toast.classList.add('visible');
+  toast.classList.add('opacity-100');
 
   await new Promise((resolve) => {
     toastTimeout = setTimeout(async () => {
-      toast.classList.remove('visible');
-      await sleep(1000)
-      toast.classList.add('hidden');
+      // Fade out
+      toast.classList.remove('opacity-100');
+      toast.classList.add('opacity-0');
+      await sleep(1000); // Wait for the fade-out transition to complete
+      toast.classList.add('hidden'); // Hide the toast after fade-out
       resolve();
     }, toastLength);
   });
 }
-
 
 
 
@@ -41,19 +41,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const stateChanged = async (state) => {
     try {
       const currentScene = state.currentScene
-      showToast(`Loading scene ${currentScene.name}...`);
-      loadPage(currentScene)
+      loadPage(currentScene)      
     } catch (e) {
       console.trace(e)
     }
   }
-  const loadPage = async (page) => {
-    contentFrame.src = page.url;
+  const loadPage = async (scene) => {
+    contentFrame.src = scene.url;
     await sleep(1500)
-    await showToast(page.name, 1500);
-    for (var i = 0; i < page.instructions.length; i++) {
-      await showToast(page.instructions[i], 4000)
-    }
+    if (scene.id != "loading") {
+      await showToast(scene.name, 1500);
+      for (var i = 0; i < scene.instructions.length; i++) {
+        await showToast(scene.instructions[i], 4000)
+      }
+    }    
   };
 
   socket.on('state_changed', (data) => {

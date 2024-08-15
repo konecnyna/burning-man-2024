@@ -37,12 +37,12 @@ function fetchAppState() {
     })
     .catch(error => {
       console.trace(error);
-      addLog("Error", `fetching OpenCV State: ${error}`);
+      addLog("error", `fetching OpenCV State:\n${error}`);
     });
 }
 
 function updateState(state) {
-  addLog("Error", JSON.stringify(state, null, 2))
+  addLog("state_change", JSON.stringify(state, null, 2))
   updateOpenCVStatus(state.openCvEnabled);
   updateModeStatus(state.detectionMode);
   updateCurrentScene(state.currentScene);

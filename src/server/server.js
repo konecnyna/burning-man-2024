@@ -6,7 +6,7 @@ const socketIo = require('socket.io');
 const OpenCvEventBus = require("./core/opencv-event-bus")
 const StateManager = require("./core/state-manager")
 const EventManager = require("./core/event-manager");
-const { SceneManager } = require("./core/scene-manager");
+const { SceneManager, scenes } = require("./core/scene-manager");
 
 
 const app = express();
@@ -18,7 +18,7 @@ const stateManager = new StateManager(
   {
     openCvState: {
       debugging: true,
-      openCvEnabled: false,
+      openCvEnabled: true,
       showVideo: true,
       isMockMode: false,
       //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
@@ -47,16 +47,16 @@ server.listen(3000, () => {
   if (stateManager.state.openCvEnabled) {
     openCvEventBus.start()
   } else {
-    console.log("🟡 Not running opencv state 'openCvEnabled=false'")
-    setTimeout(async () => {
-      stateManager.updateStateAndBroadcast(
-        {
-          currentScene: sceneManager.nextScene(),
-          detectionMode: "active"
-        }
-      )
-    }, 2500);
+    console.log("🟡 Not running opencv state 'openCvEnabled=false'")    
   }
+
+  setTimeout(async () => {
+    console.log("go time!")
+    stateManager.updateStateAndBroadcast({
+        detectionMode: "active",
+        currentScene: scenes.puddle
+      })
+  }, 3500);
 });
 
 process.on('SIGINT', () => {

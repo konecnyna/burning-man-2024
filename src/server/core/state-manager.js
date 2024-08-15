@@ -13,7 +13,7 @@ module.exports = class StateManager {
       rtspUrl: CAMERA_URL,
       detectionMode: "passive",
       currentScene: scenes.loading,
-      nextSceneTime: this.getFutureDate(1),
+      nextSceneTime: this.getFutureDate(5),
       scenes: scenes,
     };
 
@@ -31,7 +31,7 @@ module.exports = class StateManager {
   updateStateAndBroadcast(newState) {
     let nextSceneTime = this.state.nextSceneTime;
     if (newState.currentScene.id !== this.state.currentScene.id) {
-      nextSceneTime = this.getFutureDate(1); // Update to 5 minutes in the future
+      nextSceneTime = this.getFutureDate(5); 
     }
 
     this.state = { ...this.state, ...newState, nextSceneTime };
@@ -58,18 +58,17 @@ module.exports = class StateManager {
     setInterval(() => {
       const now = new Date();
       if (now >= this.state.nextSceneTime) {
-        const nextScene = this.nextScene();
-        this.updateStateAndBroadcast({ currentScene: nextScene });
+        this.nextScene();        
       }
     }, 1000);
   }
-
 
   nextScene() {
     if (this.isInActiveMode()) {
       this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
       const nextScene = this.activeScenes[this.currentSceneIndex];
-      return nextScene;
+      
+      this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: new Date() });
     } else {
       return scenes.passive;      
     }
