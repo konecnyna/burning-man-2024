@@ -83,6 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('hand_detect_new', (data) => {
     try {
       const payload = JSON.parse(data);
+      if (!payload[0].handDebugging) {
+        return;
+      }
   
       // Clear the canvas
       handCanvasCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);

@@ -17,7 +17,11 @@ module.exports = class EventManager {
     });
 
     socket.on('hand_detect_new', (data) => {
-      this.safeBroadcast("hand_detect_new", data)
+      
+      this.safeBroadcast("hand_detect_new", data.map(it => {
+        it["handDebugging"] = this.stateManager.state.handDebugging
+        return it
+      }))
     });
 
     socket.on('index_finger_detect', (data) => {
