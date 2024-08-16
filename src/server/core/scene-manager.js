@@ -6,7 +6,7 @@ const scenes = {
     id: "passive", url: '/app/scenes/passive/index.html', instructions: ["Come close to the looking glass to enable active mode"], name: "Passive mode", isActive: false,
   },
   fluidSim: {
-    id: "fluid-sim", url: '/app/scenes/fluid-sim/index.html', instructions: ["Wave you hand to move the particles around."], name: "Fluid waves", isActive: true,
+    id: "fluid_sim", url: '/app/scenes/fluid-sim/index.html', instructions: ["Wave you hand to move the particles around."], name: "Fluid waves", isActive: true,
   },
   orbits: {
     id: "orbits", url: '/app/scenes/orbits/index.html', instructions: ["Move your hand to navigate the universe"], name: "Tripping through Space", isActive: true,

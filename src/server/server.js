@@ -53,9 +53,9 @@ server.listen(3000, () => {
   setTimeout(async () => {
     stateManager.updateStateAndBroadcast({
         detectionMode: "active",
-        currentScene: scenes.puddle
+        currentScene: scenes.orbits
       })
-  }, 3500);
+  }, 5000);
 });
 
 process.on('SIGINT', () => {

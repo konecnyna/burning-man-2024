@@ -1,14 +1,13 @@
 const { exec } = require('child_process');
 
 // Function to execute shell commands
-function executeCommand(command) {
+function executeCommand(command, silent=false) {
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(stdout.trim());
+      if (error && !silent) {
+        console.trace(error)
       }
+      resolve(stdout.trim());
     });
   });
 }
@@ -51,13 +50,37 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Function to hide the mouse cursor
+async function hideMouseCursor() {
+  console.log('Hiding the mouse cursor...');
+  await executeCommand(`defaults write com.apple.UniversalAccess increaseContrast -bool true`);
+  await executeCommand(`killall Finder`);
+  await executeCommand(`killall Dock`);
+  console.log('Mouse cursor hidden.');
+}
+
+async function killGhosts() {
+  try {
+    await executeCommand("pkill -f Google", true);
+    await executeCommand("pkill -f python", true);
+  } catch (e) {
+  }
+
+}
+
 async function main() {
   try {
+    await killGhosts()
+
+
     launchServer();
 
-    await sleep(3000)
+    await sleep(1000)
 
     await launchChrome();
+
+    // Hide the mouse cursor
+    await hideMouseCursor();
 
     // Loop until Chrome is focused
     while (true) {
