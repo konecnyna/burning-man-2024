@@ -8,7 +8,7 @@ const StateManager = require("./core/state-manager")
 const EventManager = require("./core/event-manager");
 const { SceneManager, scenes } = require("./core/scene-manager");
 
-
+  
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
