@@ -7,7 +7,7 @@ module.exports = class StateManager {
     this.io = io;
     const defaultOpenCvState = {
       debugging: false,
-      handDebugging: false,
+      handDebugging: true,
       openCvPythonRunning: false,
       showVideo: false,
       isMockMode: false,

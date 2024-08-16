@@ -12,12 +12,16 @@ class SimpleHandTracking:
     def __init__(self):
         self.hands = mp_hands.Hands(
             max_num_hands=4,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
+            min_detection_confidence=0.1,
+            min_tracking_confidence=0.1,
+            model_complexity=0,
         ) 
 
     
     def subscribe(self, img, draw=True):
+        # To improve performance, optionally mark the image as not writeable to
+        # pass by reference.
+        img.flags.writeable = False
         # Convert the color space from BGR to RGB
         rgb_frame = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -60,10 +64,10 @@ class SimpleHandTracking:
                 y_percent = (y_center / h)
 
                 # Draw the bounding box
-                cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+                #cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
                 # Draw the center point
-                cv2.circle(img, (x_center, y_center), 5, (255, 0, 0), -1)
+                #cv2.circle(img, (x_center, y_center), 5, (255, 0, 0), -1)
 
                 # Draw the hand landmarks on the frame
                 # mp_drawing.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
