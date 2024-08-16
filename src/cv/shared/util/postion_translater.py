@@ -1,6 +1,5 @@
 
 
-
 def translate_img_coordinates(event_x, event_y):
     box_width, box_height = 1920, 1080
     

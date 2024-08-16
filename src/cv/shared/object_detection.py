@@ -4,11 +4,13 @@ import time
 import json
 
 from shared.util.postion_translater import translate_img_coordinates
+from shared.util.web_socket_client import ws_client
 
 class ObjectDetector:
-    def __init__(self, draw_square=False):
+    def __init__(self, draw_square=False, debug=False):
         self.first_Frame = None
         self.area = 500
+        self.debug = debug
         self.draw_square = draw_square
 
     def resize(self, image, width):
@@ -47,7 +49,7 @@ class ObjectDetector:
 
                 translated_x, translated_y = translate_img_coordinates(
                     event_x=center_x,
-                    event_y=center_y                    
+                    event_y=center_y,
                 )
 
                 events.append({"id": i, "x": translated_x, "y": translated_y})
@@ -58,7 +60,9 @@ class ObjectDetector:
                     cv2.putText(img, f"ID {i}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
         if events:
-            print(self.makeEvent(events), flush=True)
+            ws_client.publish(event="object_detected", data=events)
+            if self.debug:
+                print(self.makeEvent(events), flush=True)
 
     def makeEvent(self, events):
         event = {'event': 'object_detected', 'payload': events}
@@ -100,7 +104,9 @@ class ObjectDetector:
                 next_id += 1
 
             payload = [{"id": point["id"], "x": point["x"], "y": point["y"]} for point in points]
-            print(self.makeEvent(payload), flush=True)
+            ws_client.publish(event="object_detected", data=payload)
+            if self.debug:
+                print(self.makeEvent(payload), flush=True)
             time.sleep(0.1)        
         
     def start(self):

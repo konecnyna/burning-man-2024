@@ -34,22 +34,6 @@ function arrayRandomizer(arr) {
 // })
 
 
-/*
- "class" name 
-   wvAnimation
- parameters
-   nX			:	szeletek száma vízszintesen
-   nSpeed	:	egy négyzet áttünési sebessége (msec)
-   nSeq		:	két egymást követő áttünés megkezdése közti idő (msec)
-     bCreate  :  ha true akkor letrehozza a full-fill div-et, egyebkent nem
-     oImg     :  megjelenítendő kép (Image object)
-     effect   :  effect number
-   
- default parameters
-   nX			=	6		(min:0,max:50)
-   nSpeed	=	500	(min:1)
-   nSeq		=	50		(min:0)
-*/
 
 function SquareFadeAnimation(nX, nSpeed, nSeq, bCreate, delay) {
 
@@ -113,7 +97,6 @@ function start(delay) {
     wvAnimation.oImg.width = nImgWidth * nArany;
     wvAnimation.oImg.height = nHeight;
   }
-  console.log("!!")
   var nImgXPoz = (nWidth - wvAnimation.oImg.width) / 2
   var nImgYPoz = (nHeight - wvAnimation.oImg.height) / 2
 

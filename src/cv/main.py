@@ -5,25 +5,37 @@ import argparse
 
 from shared.hands.hand_tracking import HandTrackingModule
 from shared.object_detection import ObjectDetector
+from shared.face.face_detector import FaceDetector
+from shared.hands.simple_hand_tracking import SimpleHandTracking
 
 def main(show_cv, debug, mock_mode, camera_address):
-    hand_tracking = HandTrackingModule(debug=debug, showCv=show_cv) 
+    hand_detector = HandTrackingModule(debug=debug, showCv=show_cv) 
     object_detector = ObjectDetector()
+    face_detector = FaceDetector(draw_square=True)
+    simple_hand_tracking = SimpleHandTracking()
     
     
     if (mock_mode): 
         while True:
-            hand_tracking.mockMode()
-            object_detector.mockMode()
-        return
+            hand_detector.mockMode()
+            object_detector.mockMode()        
     
     cap = cv2.VideoCapture(camera_address)
     
     while cap.isOpened():
         success, img = cap.read()
-        hand_tracking.subscribe(img=img)
-        #object_detector.subscribe(img=img)
+        if not success:
+            return
         
+         # Flip the frame horizontally for a mirror-like effect
+        frame = cv2.flip(img, 1)
+        
+        #   face_detector.subscribe(img=frame, distance=50)
+        #hand_detector.subscribe(img=frame)
+        simple_hand_tracking.subscribe(img=frame)
+        #object_detector.subscribe(img=img)     
+        
+           
         if show_cv:
             cv2.imshow("Image", img)
 
@@ -34,6 +46,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--show-cv', action='store_true', help='Show open cv image')
     parser.add_argument('--debug', action='store_true', help='Verbose logging')
+    parser.add_argument('--local', action='store_true', help='No websocket.')
     parser.add_argument('--mock-mode', action='store_true', help='Enable mock mode')
     parser.add_argument('--url', type=str, help='URL for the camera feed')
     args = parser.parse_args()
