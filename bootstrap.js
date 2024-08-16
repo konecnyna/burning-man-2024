@@ -15,7 +15,18 @@ function executeCommand(command) {
 
 function launchServer() {
   console.log('Starting global server');
-  executeCommand('/opt/homebrew/bin/node src/server/server.js');
+  // Start the server without waiting for it to complete
+  exec('/opt/homebrew/bin/node src/server/server.js', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Server error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`Server stderr: ${stderr}`);
+      return;
+    }
+    console.log(`Server stdout: ${stdout}`);
+  });
 }
 
 // Function to launch Google Chrome in kiosk mode

@@ -12,8 +12,8 @@ class SimpleHandTracking:
     def __init__(self):
         self.hands = mp_hands.Hands(
             max_num_hands=4,
-            min_detection_confidence=0.1,
-            min_tracking_confidence=0.1,
+            min_detection_confidence=0.25,
+            min_tracking_confidence=0.25,
             model_complexity=0,
         ) 
 
