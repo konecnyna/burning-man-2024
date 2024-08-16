@@ -47,10 +47,16 @@ async function focusChrome() {
   await executeCommand(`osascript -e 'tell application "Google Chrome" to activate'`);
 }
 
-// Main function to launch Chrome and ensure it's focused
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function main() {
   try {
     launchServer();
+
+    await sleep(3000)
+
     await launchChrome();
 
     // Loop until Chrome is focused
