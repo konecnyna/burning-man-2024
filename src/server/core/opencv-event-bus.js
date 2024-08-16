@@ -6,38 +6,40 @@ class OpenCvEventBus {
     this.io = io;
     this.state = state;
     this.pythonProcess = null;
+    this.restartTimeout = null;
+
+    this.restartDelay = 10000;
   }
 
   start() {
-    const args = ['main.py']
+    const args = ['main.py'];
     if (this.state.isMockMode) {
-      args.push("--mock-mode")
+      args.push("--mock-mode");
     }
 
     if (this.state.showVideo) {
-      args.push("--show-cv")
+      args.push("--show-cv");
     }
 
     if (this.state.rtspUrl) {
-      args.push("--url", this.state.rtspUrl)
+      args.push("--url", this.state.rtspUrl);
     }
 
-    console.log(`Starting script: python3 ${args.join(" ")}`)
-    this.pythonProcess = spawn('python3', args, { cwd: path.join(__dirname, '../../cv') })
+    console.log(`Starting script: python3 ${args.join(" ")}`);
+    this.pythonProcess = spawn('python3', args, { cwd: path.join(__dirname, '../../cv') });
 
     this.pythonProcess.stdout.on('data', (data) => {
       try {
-        const lines = data.toString().split("\n").filter(it => it)
+        const lines = data.toString().split("\n").filter(it => it);
         lines.forEach(line => {
           if (this.state.debugging) {
             console.log(`🐍 ${line.trim()}`);
           }
-        })
+        });
 
       } catch (e) {
-        console.error("ERROR", data.toString().split("\n"), data.toString())
+        console.error("ERROR", data.toString().split("\n"), data.toString());
       }
-
     });
 
     this.pythonProcess.stderr.on('data', (data) => {
@@ -48,19 +50,20 @@ class OpenCvEventBus {
 
     this.pythonProcess.on('close', (code) => {
       this.io.emit('pythonClose', { code });
+
       if (code > 0) {
-        console.log(`🚨🚨🚨🚨🚨\nPython script crashed. Try to run it manually\n$ python3 src/cv/main.py --show-cv\n🚨🚨🚨🚨🚨`)
+        console.log(`🚨🚨🚨🚨🚨\nPython script crashed. Retrying in 10 seconds...\n🚨🚨🚨🚨🚨`);
+        this.restartTimeout = setTimeout(() => this.start(), this.restartDelay);
       }
-
-
     });
   }
 
   stop() {
     if (this.pythonProcess) {
       this.pythonProcess.kill('SIGINT');
+      clearTimeout(this.restartTimeout);
     }
   }
 }
 
-module.exports = OpenCvEventBus
+module.exports = OpenCvEventBus;

@@ -13,6 +13,12 @@ const scenes = {
   },
   puddle: {
     id: "puddle", url: '/app/scenes/puddle/index.html', instructions: ["Wave hand to make waves"], name: "Iridescent Puddle", isActive: true,
+  },
+  cosmicSymbolism: {
+    id: "cosmic_symbolism", url: '/app/scenes/cosmic-symbolism/index.html', instructions: ["Move hand up and down to travel the cosmos faster"], name: "Cosmic Symbolism", isActive: true,
+  },
+  tieDye: {
+    id: "tie_dye", url: '/app/scenes/tie-dye/index.html', instructions: ["Move your hands to make tie dye"], name: "Tie Dye", isActive: true,
   }
 };
 

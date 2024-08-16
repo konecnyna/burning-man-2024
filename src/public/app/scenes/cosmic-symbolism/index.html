@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>COSMIC SYMBOLISM FLY-THROUGH</title>
+
+  <link rel="stylesheet" type="text/css" media="all" href="./content/zoom.css">
+
+  <meta name="msapplication-TileColor" content="#2b5797">
+  <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+  <script src="./content/jquery.min.js"></script>
+  <script src="./content/libs.js"></script>
+  <script src="./content/coffeelib.js" async=""></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mousetrap@1.6.5/mousetrap.min.js"></script> <!-- Mousetrap library -->
+
+</head>
+
+<body>
+  <div id="start-up"></div>
+
+  <div id="loading" style="opacity: 0; display: none;">
+    <div id="loadbar" style="width: 100%;"></div>
+  </div>
+  <canvas id="stage" class="stage" width="1800" height="935" style="opacity: 1;"></canvas>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const element = document.getElementById("stage");
+
+      // Simulate a scroll event on the canvas
+      function simulateScroll(deltaY) {
+        var evt = new WheelEvent('wheel', {
+          deltaY: deltaY,
+          bubbles: true,
+          cancelable: true
+        });
+        element.dispatchEvent(evt);
+      }
+
+      // Use Mousetrap to trigger scrolling
+      Mousetrap.bind('up', function() {
+        simulateScroll(-12); // Scroll up
+      });
+
+      Mousetrap.bind('down', function() {
+        simulateScroll(12); // Scroll down
+      });
+
+      // Start a looped scroll simulation
+      function startSimulating() {
+        const intervalId = setInterval(() => {
+          simulateScroll(-12); // Simulate scroll up
+        }, 100); // 100ms delay between iterations
+      }
+
+      // Start the simulation
+      startSimulating();
+    });
+  </script>
+</body>
+
+</html>

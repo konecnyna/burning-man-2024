@@ -87,7 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!payload[0].handDebugging) {
         return;
       }
-  
+
+      
       // Clear the canvas
       handCanvasCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
   
