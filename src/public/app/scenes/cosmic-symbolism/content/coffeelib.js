@@ -348,7 +348,8 @@ let scroll_speed_manual_control = -1;
                                           return function (e) {
                                             
                                             //t.touchAction = "start"
-                                            console.log("mousewheel!", e.deltaX, e.deltaY, scroll_speed_manual_control)
+                                            // SEARCH HERE!!!!!!!!!!!
+                                            // console.log("mousewheel!", e.deltaX, e.deltaY, scroll_speed_manual_control)
                                             
                                             let deltaYAdjust = scroll_speed_manual_control !== -1 ? scroll_speed_manual_control : e.deltaY
                                             var i, n;

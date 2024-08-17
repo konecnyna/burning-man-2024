@@ -10,7 +10,7 @@ class SimpleHandTracking:
     def __init__(self):
         self.hands = mp_hands.Hands(
             max_num_hands=4,
-            min_detection_confidence=0.25,
+            min_detection_confidence=0.75,
             min_tracking_confidence=0.25,
             model_complexity=0,
         )
@@ -18,7 +18,7 @@ class SimpleHandTracking:
         self.hands_combine_threshold = 250 
 
     def subscribe(self, img, draw=True):
-        img.flags.writeable = False
+        #img.flags.writeable = False
         rgb_frame = self.convert_bgr_to_rgb(img)
         result = self.hands.process(rgb_frame)
 
@@ -28,7 +28,8 @@ class SimpleHandTracking:
             filtered_indices = self.filter_close_hands(hand_centers)
 
             payloads = self.create_payloads(hand_centers, filtered_indices, img, result)
-            ws_client.publish("hand_detect_new", payloads)
+            ws_client.publish("hand_detect_new", payloads)            
+
 
     def convert_bgr_to_rgb(self, img):
         return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -48,10 +49,22 @@ class SimpleHandTracking:
                 x_min = min(x_min, x)
                 x_max = max(x_max, x)
                 y_min = min(y_min, y)
-                y_max = max(y_max, y)
+                y_max = max(y_max, y)                
 
-            x_center = (x_min + x_max) / 2 * w
-            y_center = (y_min + y_max) / 2 * h
+            x_center = int((x_min + x_max) / 2 * w)
+            y_center = int((y_min + y_max) / 2 * h)
+
+            # Convert bounding box coordinates to integers
+            x_min_int = int(x_min * w)
+            x_max_int = int(x_max * w)
+            y_min_int = int(y_min * h)
+            y_max_int = int(y_max * h)
+
+            # Draw the bounding box
+            # cv2.rectangle(img, (x_min_int, y_min_int), (x_max_int, y_max_int), (0, 255, 0), 2)
+            # Draw the center point
+            # cv2.circle(img, (x_center, y_center), 5, (255, 0, 0), -1)
+            
             hand_centers.append((idx, x_center, y_center))
 
         return hand_centers

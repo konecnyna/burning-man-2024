@@ -50,7 +50,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-<<<<<<< HEAD
 // Function to hide the mouse cursor
 async function hideMouseCursor() {
   console.log('Hiding the mouse cursor...');
@@ -66,12 +65,6 @@ async function killGhosts() {
     await executeCommand("pkill -f python", true);
   } catch (e) {
   }
-
-=======
-async function killGhosts() {
-  await executeCommand("pkill -f python");
-  await executeCommand("pkill -f Google");
->>>>>>> ec0af76 (updoot)
 }
 
 async function main() {

@@ -3,22 +3,15 @@ import time
 import cv2
 import argparse
 
-from shared.hands.hand_tracking import HandTrackingModule
 from shared.object_detection import ObjectDetector
 from shared.face.face_detector import FaceDetector
 from shared.hands.simple_hand_tracking import SimpleHandTracking
 
 def main(show_cv, debug, mock_mode, camera_address):
-    hand_detector = HandTrackingModule(debug=debug, showCv=show_cv) 
     object_detector = ObjectDetector()
     face_detector = FaceDetector(draw_square=True)
     simple_hand_tracking = SimpleHandTracking()
-    
-    
-    if (mock_mode): 
-        while True:
-            hand_detector.mockMode()
-            object_detector.mockMode()        
+      
     
     cap = cv2.VideoCapture(camera_address)
     
@@ -27,14 +20,12 @@ def main(show_cv, debug, mock_mode, camera_address):
         if not success:
             return
         
-         # Flip the frame horizontally for a mirror-like effect
+        # Flip the frame horizontally for a mirror-like effect
         frame = cv2.flip(img, 1)
         
-        #   face_detector.subscribe(img=frame, distance=50)
-        #hand_detector.subscribe(img=frame)
+        # face_detector.subscribe(img=frame, distance=50)
         simple_hand_tracking.subscribe(img=frame)
-        #object_detector.subscribe(img=img)     
-        
+        # object_detector.subscribe(img=img)     
            
         if show_cv:
             cv2.imshow("Image", img)

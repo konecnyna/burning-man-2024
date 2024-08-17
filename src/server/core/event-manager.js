@@ -44,20 +44,8 @@ module.exports = class EventManager {
       this.stateManager.nextScene()
     });
 
-    socket.on("pythonClose", (data) => {
-      console.log(`detect! `, data)
-      // let nextScene = null
-      // if(data.mode == "active") {
-      //     nextScene = new Date()
-      // }
-
-      // state.updateState({ detectionMode: data.mode, nextScene: nextScene })
-      // this.safeBroadcast("state_changed", state.openCvState)
-    });
-
-
     socket.on('disconnect', () => {
-      console.log('user disconnected');
+      //console.log('user disconnected');
     });
   }
 
