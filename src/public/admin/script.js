@@ -87,7 +87,9 @@ function createSceneButton(scene) {
   button.className = 'bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 p-4 rounded m-1';
   button.textContent = scene.name;
 
+  console.log(scene)
   button.addEventListener('click', () => {
+    console.log("CLICKE!", scene)
     socket.emit('admin_event', { event: "change_scene", payload: scene });
   });
 

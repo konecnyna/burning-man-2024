@@ -25,36 +25,7 @@
   <canvas id="stage" class="stage" width="1800" height="935" style="opacity: 1;"></canvas>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const element = document.getElementById("stage");
-
-      // Simulate a scroll event on the canvas
-      function simulateScroll(deltaY) {
-        var evt = new WheelEvent('wheel', {
-          deltaY: deltaY,
-          bubbles: true,
-          cancelable: true
-        });
-        element.dispatchEvent(evt);
-      }
-
-      // Use Mousetrap to trigger scrolling
-      Mousetrap.bind('up', function() {
-        simulateScroll(-12); // Scroll up
-      });
-
-      Mousetrap.bind('down', function() {
-        simulateScroll(12); // Scroll down
-      });
-
-      // Start a looped scroll simulation
-      function startSimulating() {
-        const intervalId = setInterval(() => {
-          simulateScroll(-12); // Simulate scroll up
-        }, 100); // 100ms delay between iterations
-      }
-
-      // Start the simulation
-      startSimulating();
+    
     });
   </script>
 </body>
