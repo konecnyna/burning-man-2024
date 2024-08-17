@@ -28,13 +28,13 @@ socket.on('hand_detect_new', (data) => {
   try {
     const payload = JSON.parse(data);
     const hand = payload[0];     
-    if (hand.hand_open) {
+    if (!hand.is_fist) {
       return;
     }
 
     let posX = hand.x_percent * window.innerWidth;
     let posY = hand.y_percent * window.innerHeight;
-
+    console.log(hand)
     drawFromEvent(posX, posY); // Use drawFromEvent to draw at the new position
   } catch (e) {
     console.trace(e);
