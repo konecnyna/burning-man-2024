@@ -4,10 +4,7 @@ import cv2
 import mediapipe as mp
 from shared.util.web_socket_client import ws_client
 
-
 mp_hands = mp.solutions.hands
-
-# https://chatgpt.com/share/bb255ebc-2e5a-48ef-ac2d-448d5fc6b63a
 
 class SimpleHandTracking:
     def __init__(self):
@@ -20,7 +17,6 @@ class SimpleHandTracking:
         
         self.hands_combine_thershold = 250 
 
-
     def subscribe(self, img, draw=True):
         img.flags.writeable = False
         rgb_frame = self.convert_bgr_to_rgb(img)
@@ -31,7 +27,7 @@ class SimpleHandTracking:
             hand_centers.reverse()  # Prioritize larger index hands
             filtered_indices = self.filter_close_hands(hand_centers)
 
-            payloads = self.create_payloads(hand_centers, filtered_indices, img)
+            payloads = self.create_payloads(hand_centers, filtered_indices, img, result)
             ws_client.publish("hand_detect_new", payloads)
 
     def convert_bgr_to_rgb(self, img):
@@ -61,7 +57,6 @@ class SimpleHandTracking:
         return hand_centers
 
     def filter_close_hands(self, hand_centers):
-        
         filtered_indices = set()
 
         for i in range(len(hand_centers)):
@@ -75,38 +70,39 @@ class SimpleHandTracking:
 
         return filtered_indices
 
-    def create_payloads(self, hand_centers, filtered_indices, img):
+    def create_payloads(self, hand_centers, filtered_indices, img, result):
         payloads = []
         h, w, _ = img.shape
 
-        for hand_idx, x_center, y_center in hand_centers:
+        for idx, (hand_idx, x_center, y_center) in enumerate(hand_centers):
             if hand_idx not in filtered_indices:
                 x_percent = x_center / w
                 y_percent = y_center / h
+
+                # Estimate the distance of the hand from the camera using the wrist z-coordinate
+                wrist_z = result.multi_hand_landmarks[hand_idx].landmark[0].z
+                distance = self.estimate_distance(wrist_z)
+
                 payloads.append({
                     "id": hand_idx,
                     "x": x_center,
                     "y": y_center,
                     "x_percent": x_percent,
-                    "y_percent": y_percent
+                    "y_percent": y_percent,
+                    "distance": distance
                 })
 
         return payloads
+
+    def estimate_distance(self, z):
+        # Example of converting the relative z value to a distance metric.
+        # This can be calibrated based on real-world measurements.
+        distance = abs(z * 1000000000)
+        return round(distance, 2)  # Scaling z for demonstration purposes
+
     def draw(self):
         print("draw")
-        # # Draw the bounding box
-        # cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
-        # # Draw the center point
-        # cv2.circle(img, (x_center, y_center), 5, (255, 0, 0), -1)
-
-        # # Draw the hand landmarks on the frame
-        # mp_drawing.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-
-        # # Print bounding box coordinates and center point
-        # print(f"Center point: x={x_center}, y={y_center}")
-        # cv2.imshow('Hand Position with Bounding Box and Center Point', img)
-                
     def makeEvent(self, event, payload):
         event = {"event": event, "payload": payload}
         return json.dumps(event)

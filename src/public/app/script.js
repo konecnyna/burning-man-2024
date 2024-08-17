@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('hand_detect_new', (data) => {
     try {
       const payload = JSON.parse(data);
-      console.log(payload)
+      
       if (!payload[0].handDebugging) {
         return;
       }
@@ -103,8 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
       // Iterate over each hand in the payload
       payload.forEach((hand, index) => {
+        console.log(hand.distance)
         const color = colors[index % colors.length]; // Cycle through colors if more hands than colors
-        console.log(window.innerHeight, handCanvas.height);
   
         let posX = hand.x_percent * window.innerWidth;
         let posY = hand.y_percent * window.innerHeight;
