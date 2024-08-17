@@ -1,6 +1,5 @@
 import time
 import cv2
-
 from shared.util.web_socket_client import ws_client
 
 class FaceDetector:
@@ -9,18 +8,14 @@ class FaceDetector:
         self.debug = debug
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.known_width = 14.3  # Average face width in centimeters
-        self.focal_length = 600  # Example focal length, you need to calibrate this for your camera
-        self.detected_under_50 = False
-        self.start_time = 0.0
+        self.focal_length = 600  # Example focal length, calibrate this for your camera
+        self.detection_mode = "passive"
         self.last_detection_time = None
         self.timeout = 120  # 2 minutes timeout in seconds
-        
-        self.detection_mode = "passive"
         self.publishEvent(self.detection_mode)
-        
-        
 
     def calculate_distance(self, face_width):
+        # Simple distance estimation based on the known face width and camera focal length
         return (self.known_width * self.focal_length) / face_width
 
     def detect_faces(self, img):
@@ -32,39 +27,29 @@ class FaceDetector:
             distance = self.calculate_distance(w)
             face_data.append({"x": x, "y": y, "width": w, "height": h, "distance": distance})
 
-            if self.draw_square:
-                color = (0, 255, 0)
-                cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
-                cv2.putText(img, f"{distance:.2f}cm", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
-        if self.debug:
-            print(face_data, flush=True)
-        
+            
         return face_data
 
-    def subscribe(self, img, distance):
+    def subscribe(self, img, threshold_distance):
         face_data = self.detect_faces(img)
         
         if face_data:
-            for face in face_data:
-                self.last_detection_time = time.time()                        
-                if face["distance"] < distance:                    
-                    elapsed_time = time.time() - self.start_time
-                    if elapsed_time > 3 and self.detection_mode != "active":
-                        print("Face detected under 50cm for more than 3 seconds! Staying in active mode.")                        
-                        self.detection_mode = "active"
-                        self.start_time = time.time()
-                        self.publishEvent(self.detection_mode)
-                else:
-                    self.detected_under_50 = False
-                    self.start_time = 0.0
+            closest_face = min(face_data, key=lambda f: f['distance'])
+            if closest_face["distance"] < threshold_distance:
+                if self.detection_mode != "active":
+                    self.detection_mode = "active"
+                    self.publishEvent(self.detection_mode)
+                self.last_detection_time = time.time()
         else:
-            if self.last_detection_time is not None:                
-                time_since_last_detection = time.time() - self.last_detection_time
-                if time_since_last_detection > self.timeout:
-                    self.detection_mode = "passive"
-                    self.last_detection_time = None
-                    print("No face detected for 2 minutes. Switching to passive mode.")
+            self.check_timeout()
+
+    def check_timeout(self):
+        if self.last_detection_time is not None:
+            time_since_last_detection = time.time() - self.last_detection_time
+            if time_since_last_detection > self.timeout:
+                self.detection_mode = "passive"
+                self.publishEvent(self.detection_mode)
+                self.last_detection_time = None
 
     def publishEvent(self, mode):
-        ws_client.publish(event="detection_mode", data={ "mode": mode })
+        ws_client.publish(event="detection_mode", data={"mode": mode})

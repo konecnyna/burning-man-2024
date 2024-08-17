@@ -10,8 +10,8 @@ class SimpleHandTracking:
     def __init__(self):
         self.hands = mp_hands.Hands(
             max_num_hands=4,
-            min_detection_confidence=0.75,
-            min_tracking_confidence=0.25,
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.3,
             model_complexity=0,
         )
         
@@ -107,7 +107,7 @@ class SimpleHandTracking:
                     "is_fist": self.is_fist(hand_landmarks),
                     "is_ok": self.is_ok_sign(hand_landmarks),
                     "is_peace_sign": self.is_peace_sign(hand_landmarks),
-                    "next_scene_gesture": self.is_peace_sign(hand_landmarks)
+                    "next_scene_gesture": self.is_ok_sign(hand_landmarks)
                 })
 
         return payloads

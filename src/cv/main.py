@@ -23,9 +23,8 @@ def main(show_cv, debug, mock_mode, camera_address):
         # Flip the frame horizontally for a mirror-like effect
         frame = cv2.flip(img, 1)
         
-        # face_detector.subscribe(img=frame, distance=50)
+        #face_detector.subscribe(img=frame, threshold_distance=50)
         simple_hand_tracking.subscribe(img=frame)
-        # object_detector.subscribe(img=img)     
            
         if show_cv:
             cv2.imshow("Image", img)
