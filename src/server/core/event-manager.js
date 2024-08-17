@@ -35,7 +35,7 @@ module.exports = class EventManager {
     socket.on('admin_event', (data) => {
       switch(data.event) {
         case "change_scene":
-          this.stateManager.nextScene()
+          this.stateManager.nextScene(data.payload.id)
           break;
       }
     });

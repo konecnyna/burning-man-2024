@@ -64,11 +64,14 @@ module.exports = class StateManager {
     }, 1000);
   }
 
-  nextScene() {
+  nextScene(id) {
     if (this.isInActiveMode()) {
-      this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
-      const nextScene = this.activeScenes[this.currentSceneIndex];
-      
+      let nextScene = Object.values(scenes).find(scene => scene.id === id);
+      if (!nextScene) {
+        this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
+        nextScene = this.activeScenes[this.currentSceneIndex];
+      }
+          
       this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: new Date() });
     } else {
       return scenes.passive;      
