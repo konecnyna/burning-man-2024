@@ -27,8 +27,7 @@ const socket = io();
 socket.on('hand_detect_new', (data) => {
   try {
     const payload = JSON.parse(data);
-    const hand = payload[0]; 
-    console.log(hand.hand_state)
+    const hand = payload[0];     
     if (hand.hand_open) {
       return;
     }

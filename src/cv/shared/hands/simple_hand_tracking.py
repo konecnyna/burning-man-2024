@@ -13,9 +13,9 @@ class SimpleHandTracking:
             min_detection_confidence=0.25,
             min_tracking_confidence=0.25,
             model_complexity=0,
-        ) 
+        )
         
-        self.hands_combine_thershold = 250 
+        self.hands_combine_threshold = 250 
 
     def subscribe(self, img, draw=True):
         img.flags.writeable = False
@@ -65,7 +65,7 @@ class SimpleHandTracking:
                 idx_j, x_j, y_j = hand_centers[j]
 
                 distance = math.sqrt((x_j - x_i) ** 2 + (y_j - y_i) ** 2)
-                if distance < self.hands_combine_thershold:
+                if distance < self.hands_combine_threshold:
                     filtered_indices.add(idx_j)
 
         return filtered_indices
@@ -83,22 +83,69 @@ class SimpleHandTracking:
                 wrist_z = result.multi_hand_landmarks[hand_idx].landmark[0].z
                 distance = self.estimate_distance(wrist_z)
 
+                hand_landmarks = result.multi_hand_landmarks[hand_idx]
                 payloads.append({
                     "id": hand_idx,
                     "x": x_center,
                     "y": y_center,
                     "x_percent": x_percent,
                     "y_percent": y_percent,
-                    "distance": distance
+                    "distance": distance,
+                    "is_fist": self.is_fist(hand_landmarks),
+                    "ok_sign": self.is_ok_sign(hand_landmarks)
                 })
 
         return payloads
 
+    def is_fist(self, hand_landmarks):
+        if not hand_landmarks or len(hand_landmarks.landmark) < 21:
+            return False
+
+        # Index, Middle, Ring, Pinky tips and their respective MCP joints
+        fingertip_ids = [8, 12, 16, 20]
+        mcp_joint_ids = [5, 9, 13, 17]
+
+        for tip_id, mcp_id in zip(fingertip_ids, mcp_joint_ids):
+            tip = hand_landmarks.landmark[tip_id]
+            mcp = hand_landmarks.landmark[mcp_id]
+
+            distance = math.sqrt(
+                (tip.x - mcp.x) ** 2 + 
+                (tip.y - mcp.y) ** 2 + 
+                (tip.z - mcp.z) ** 2
+            )
+
+            if distance > 0.05:  # Threshold for detecting a closed hand (may need tuning)
+                return False
+        return True
+
+    def is_ok_sign(self, hand_landmarks):
+        if not hand_landmarks or len(hand_landmarks.landmark) < 21:
+            return False
+        
+        thumb_tip = hand_landmarks.landmark[4]
+        index_tip = hand_landmarks.landmark[8]
+        thumb_mcp = hand_landmarks.landmark[2]
+
+        thumb_index_distance = math.sqrt(
+            (thumb_tip.x - index_tip.x) ** 2 + 
+            (thumb_tip.y - index_tip.y) ** 2 + 
+            (thumb_tip.z - index_tip.z) ** 2
+        )
+
+        thumb_mcp_distance = math.sqrt(
+            (thumb_tip.x - thumb_mcp.x) ** 2 + 
+            (thumb_tip.y - thumb_mcp.y) ** 2 + 
+            (thumb_tip.z - thumb_mcp.z) ** 2
+        )
+
+        if thumb_index_distance < 0.05 and thumb_mcp_distance > 0.05:
+            return True
+        return False
+
     def estimate_distance(self, z):
-        # Example of converting the relative z value to a distance metric.
-        # This can be calibrated based on real-world measurements.
         distance = abs(z * 1000000000)
-        return round(distance, 2)  # Scaling z for demonstration purposes
+        return round(distance, 2)
 
     def draw(self):
         print("draw")

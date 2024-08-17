@@ -18,7 +18,7 @@ const stateManager = new StateManager(
   {
     openCvState: {
       debugging: true,
-      openCvEnabled: false,
+      openCvEnabled: true,
       showVideo: true,
       isMockMode: false,
       //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
@@ -50,12 +50,17 @@ server.listen(3000, () => {
     console.log("🟡 Not running opencv state 'openCvEnabled=false'")    
   }
 
+  
+  // stateManager.updateStateAndBroadcast({
+  //   currentScene: scenes.loading
+  // })
+
   setTimeout(async () => {
     stateManager.updateStateAndBroadcast({
         detectionMode: "active",
         currentScene: scenes.orbits
       })
-  }, 5000);
+  }, 1000);
 });
 
 process.on('SIGINT', () => {

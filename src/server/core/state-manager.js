@@ -22,7 +22,7 @@ module.exports = class StateManager {
     this.currentSceneIndex = 0;
 
     this.state = { ...defaultOpenCvState, ...openCvState };
-    this.startSceneCheckInterval();
+    this.startSceneCheckInterval();    
   }
 
   isInActiveMode() {

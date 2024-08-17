@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const stateChanged = async (state) => {
     try {
       const currentScene = state.currentScene
-      loadPage(currentScene)
+      await loadPage(currentScene)
     } catch (e) {
       console.trace(e)
     }
@@ -62,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function fetchAppState() {
-    console.log("send it!")
     fetch('/api/app-state')
       .then(response => response.json())
       .then(state => {
@@ -79,50 +78,86 @@ document.addEventListener('DOMContentLoaded', () => {
   handCanvas.width = window.innerWidth;
   handCanvas.height = window.innerHeight;
 
+  function drawPointers(payload) {
+    // Clear the canvas
+    handCanvasCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
+
+    // Colors array to use different colors for different hands
+    const colors = [
+      { circle: 'rgba(255, 0, 0, 0.7)', text: 'white' },     // Red circle, white text
+      { circle: 'rgba(0, 255, 0, 0.7)', text: 'black' },     // Green circle, black text
+      { circle: 'rgba(0, 0, 255, 0.7)', text: 'yellow' },    // Blue circle, yellow text
+      { circle: 'rgba(255, 165, 0, 0.7)', text: 'black' },   // Orange circle, black text
+      { circle: 'rgba(128, 0, 128, 0.7)', text: 'white' },   // Purple circle, white text
+    ];
+
+    // Iterate over each hand in the payload
+    payload.forEach((hand, index) => {
+      const color = colors[index % colors.length]; // Cycle through colors if more hands than colors
+
+      let posX = hand.x_percent * window.innerWidth;
+      let posY = hand.y_percent * window.innerHeight;
+
+      // Draw hand cursor (a circle)
+      handCanvasCtx.beginPath();
+      handCanvasCtx.arc(posX, posY, 20, 0, 2 * Math.PI, false);
+      handCanvasCtx.fillStyle = color.circle;
+      handCanvasCtx.fill();
+
+      // Draw the hand ID inside the circle
+      handCanvasCtx.fillStyle = color.text;
+      handCanvasCtx.font = '16px Arial';
+      handCanvasCtx.textAlign = 'center';
+      handCanvasCtx.textBaseline = 'middle';
+      handCanvasCtx.fillText(hand.id, posX, posY);
+    });
+  }
+
+
+  let okSignTimer;
+  let actionTimeout;
+  
+  function resetActionTimeout() {
+    clearTimeout(actionTimeout);
+    actionTimeout = setTimeout(() => {
+      doSomething();
+    }, 3000); // 3 seconds
+  }
+  
+  function handleOkSign() {
+    clearTimeout(okSignTimer);
+    
+    // Reset the 500ms timer every time the ok_sign is detected
+    okSignTimer = setTimeout(() => {
+      clearTimeout(actionTimeout); 
+      actionTimeout = null;
+    }, 500);
+  
+    if (!actionTimeout) {
+      resetActionTimeout();
+    }    
+  }
+  
+  function doSomething() {
+    console.log('Action performed after 3 seconds of continuous ok_sign.');
+  }
+
 
   socket.on('hand_detect_new', (data) => {
     try {
       const payload = JSON.parse(data);
-      
-      if (!payload[0].handDebugging) {
-        return;
+      if (payload[0].handDebugging) {
+        drawPointers(payload)
       }
 
-      
-      // Clear the canvas
-      handCanvasCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
-  
-      // Colors array to use different colors for different hands
-      const colors = [
-        { circle: 'rgba(255, 0, 0, 0.7)', text: 'white' },     // Red circle, white text
-        { circle: 'rgba(0, 255, 0, 0.7)', text: 'black' },     // Green circle, black text
-        { circle: 'rgba(0, 0, 255, 0.7)', text: 'yellow' },    // Blue circle, yellow text
-        { circle: 'rgba(255, 165, 0, 0.7)', text: 'black' },   // Orange circle, black text
-        { circle: 'rgba(128, 0, 128, 0.7)', text: 'white' },   // Purple circle, white text
-      ];
-  
-      // Iterate over each hand in the payload
-      payload.forEach((hand, index) => {
-        console.log(hand.distance)
-        const color = colors[index % colors.length]; // Cycle through colors if more hands than colors
-  
-        let posX = hand.x_percent * window.innerWidth;
-        let posY = hand.y_percent * window.innerHeight;
-  
-        // Draw hand cursor (a circle)
-        handCanvasCtx.beginPath();
-        handCanvasCtx.arc(posX, posY, 20, 0, 2 * Math.PI, false);
-        handCanvasCtx.fillStyle = color.circle;
-        handCanvasCtx.fill();
-  
-        // Draw the hand ID inside the circle
-        handCanvasCtx.fillStyle = color.text;
-        handCanvasCtx.font = '16px Arial';
-        handCanvasCtx.textAlign = 'center';
-        handCanvasCtx.textBaseline = 'middle';
-        handCanvasCtx.fillText(hand.id, posX, posY);
-      });
-  
+      payload.forEach(hand => {
+        if (hand.ok_sign) {
+          handleOkSign();
+        }
+      })
+
+
+
     } catch (e) {
       console.trace(e);
     }
