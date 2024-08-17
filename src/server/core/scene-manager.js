@@ -19,7 +19,11 @@ const scenes = {
   },
   tieDye: {
     id: "tie_dye", url: '/app/scenes/tie-dye/index.html', instructions: ["Move your hands to make tie dye"], name: "Tie Dye", isActive: true,
+  },
+  neonPaint: {
+    id: "neon_pain", url: '/app/scenes/neon-white-board/index.html', instructions: ["Move your hands to make tie dye"], name: "Neon Paint", isActive: true,
   }
+
 };
 
 class SceneManager {
@@ -27,16 +31,6 @@ class SceneManager {
     this.stateManager = stateManager;
     this.activeScenes = Object.values(scenes).filter(scene => scene.isActive);
     this.currentSceneIndex = 0;
-  }
-
-  nextScene() {
-    if (this.stateManager.isInActiveMode()) {
-      this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
-      const nextScene = this.activeScenes[this.currentSceneIndex];
-      return nextScene;
-    } else {
-      return scenes.passive;      
-    }
   }
 }
 
