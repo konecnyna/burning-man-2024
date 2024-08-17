@@ -1,3 +1,5 @@
+const socket = io();
+
 window.requestSmoothMouse = (function () {
 //http://code.google.com/p/chromium/issues/detail?id=5598
 // ios
@@ -114,3 +116,19 @@ document.addEventListener("touchstart", Mouse.events.down);
 document.addEventListener("touchend", Mouse.events.up);
 document.addEventListener("mouseup", Mouse.events.up);
 
+
+
+// Handle hand detection data
+socket.on('hand_detect_new', (data) => {
+  try {
+    const payload = JSON.parse(data);
+    const hand = payload[0];
+    let posX = hand.x_percent * window.innerWidth;
+    let posY = hand.y_percent * window.innerHeight;
+    
+    Mouse.x = posX;
+    Mouse.y = posY;
+  } catch (e) {
+    console.trace(e);
+  }
+});

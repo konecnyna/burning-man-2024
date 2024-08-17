@@ -10,7 +10,7 @@ module.exports = class EventManager {
   }
 
   socketConnection(socket) {
-    console.log('a user connected');
+    //console.log('a user connected');
 
     socket.on('hand_detect', (data) => {
       this.safeBroadcast("hand_detect", data)

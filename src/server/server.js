@@ -16,7 +16,7 @@ const io = socketIo(server);
 const debugState = {
   openCvState: {
     debugging: true,
-    openCvEnabled: true,
+    openCvEnabled: false,
     showVideo: false,
     isMockMode: false,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
@@ -61,16 +61,12 @@ server.listen(3000, () => {
   }
 
 
-  // stateManager.updateStateAndBroadcast({
-  //   currentScene: scenes.loading
-  // })
-
   setTimeout(async () => {
     stateManager.updateStateAndBroadcast({
       detectionMode: "active",
-      currentScene: scenes.puddle
+      currentScene: scenes.tieDye
     })
-  }, 1000);
+  }, 3000);
 });
 
 process.on('SIGINT', () => {

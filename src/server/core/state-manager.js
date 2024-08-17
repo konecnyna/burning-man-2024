@@ -51,7 +51,6 @@ module.exports = class StateManager {
   getFutureDate(minutes) {
     const futureDate = new Date();
     futureDate.setMinutes(futureDate.getMinutes() + minutes);
-    // futureDate.getSeconds(futureDate.getSeconds() + 25);
     return futureDate;
   }
 

@@ -3,29 +3,47 @@
 
 <head>
   <title>COSMIC SYMBOLISM FLY-THROUGH</title>
-
   <link rel="stylesheet" type="text/css" media="all" href="./content/zoom.css">
-
-  <meta name="msapplication-TileColor" content="#2b5797">
-  <meta name="msapplication-TileImage" content="/mstile-144x144.png">
   <script src="./content/jquery.min.js"></script>
   <script src="./content/libs.js"></script>
-  <script src="./content/coffeelib.js" async=""></script>
+  <script src="./content/coffeelib.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mousetrap@1.6.5/mousetrap.min.js"></script> <!-- Mousetrap library -->
 
 </head>
 
 <body>
-  <div id="start-up"></div>
+  <div id="testElement">Scroll here</div>
 
-  <div id="loading" style="opacity: 0; display: none;">
-    <div id="loadbar" style="width: 100%;"></div>
-  </div>
   <canvas id="stage" class="stage" width="1800" height="935" style="opacity: 1;"></canvas>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    
+    document.addEventListener("DOMContentLoaded", function () {
+
+      const element = document.getElementById("stage")
+      // Function to execute the wheel event in a loop with a delay
+      function startSimulating() {
+        let iteration = 0;
+        const intervalId = setInterval(() => {
+          scroll_speed_manual_control = 10
+          element.dispatchEvent(new WheelEvent('wheel', {
+            bubbles: false,             // Event bubbles up through the DOM
+            cancelable: false,          // Event can be canceled
+            clientX: 1200,              // X-coordinate of the mouse pointer in the viewport
+            clientY: 100,              // Y-coordinate of the mouse pointer in the viewport
+            deltaX: 10,                 // Horizontal scroll amount
+            deltaY: -12,               // Vertical scroll amount
+            deltaZ: 10,                 // Z-axis scroll amount (for 3D scrolling, typically unused)
+            deltaMode: 0,              // Scroll mode: 0 for pixels, 1 for lines, 2 for pages
+            screenX: 100,              // X-coordinate of the mouse pointer on the screen
+            screenY: 100,              // Y-coordinate of the mouse pointer on the screen
+            ctrlKey: false,            // Whether the control key was pressed
+            shiftKey: false,           // Whether the shift key was pressed
+            altKey: false,             // Whether the alt key was pressed
+            metaKey: false             // Whether the meta key was pressed (e.g., Windows or Command key)
+          }));
+        }, 100);
+      }
+
+      startSimulating();
     });
   </script>
 </body>
