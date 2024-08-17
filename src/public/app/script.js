@@ -124,11 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       payload.forEach(hand => {
         if (hand.next_scene_gesture) {
-          makeStatusText(
+          handleNextSceneGesture(
             "next_scene_status_text",
             () => {
-            console.log("cancelled!")
+              console.log("cancelled!")
           }, () => {
+            console.log("send it!")
             socket.emit('admin_event', { event: "change_scene", payload:  {}});
           });
         }
@@ -140,9 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   fetchAppState()
-  displayMessageWithTimeout("start_text", "Starting!")
-
-
 });
 
 

@@ -86,7 +86,7 @@ function startCooldown(id) {
   }, 5000);
 }
 
-function handleOkSign(id, onClearCallback, onActionTriggeredCallback) {
+function handleNextSceneGesture(id, onClearCallback, onActionTriggeredCallback) {
   // Ensure timers[id] is initialized as an object
   if (!timers[id]) {
     timers[id] = {};
