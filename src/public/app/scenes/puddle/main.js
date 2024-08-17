@@ -410,7 +410,6 @@ socket.on('hand_detect_new', (data) => {
   try {
     const payload = JSON.parse(data);
     const hand = payload[0];
-    console.log(hand);
 
     // Calculate positions based on percentage of the screen dimensions
     let posX = hand.x_percent * window.innerWidth;

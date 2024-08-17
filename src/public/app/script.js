@@ -36,6 +36,7 @@ async function showToast(message, toastLength = 3000) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+
   const contentFrame = document.getElementById('contentFrame');
 
   const stateChanged = async (state) => {
@@ -46,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.trace(e)
     }
   }
+
   const loadPage = async (scene) => {
     contentFrame.src = scene.url;
     await sleep(1500)
@@ -113,36 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-
-  let okSignTimer;
-  let actionTimeout;
-  
-  function resetActionTimeout() {
-    clearTimeout(actionTimeout);
-    actionTimeout = setTimeout(() => {
-      doSomething();
-    }, 3000); // 3 seconds
-  }
-  
-  function handleOkSign() {
-    clearTimeout(okSignTimer);
-    
-    // Reset the 500ms timer every time the ok_sign is detected
-    okSignTimer = setTimeout(() => {
-      clearTimeout(actionTimeout); 
-      actionTimeout = null;
-    }, 500);
-  
-    if (!actionTimeout) {
-      resetActionTimeout();
-    }    
-  }
-  
-  function doSomething() {
-    console.log('Action performed after 3 seconds of continuous ok_sign.');
-  }
-
-
   socket.on('hand_detect_new', (data) => {
     try {
       const payload = JSON.parse(data);
@@ -151,12 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       payload.forEach(hand => {
-        if (hand.ok_sign) {
-          handleOkSign();
+        if (hand.next_scene_gesture) {
+          handleOkSign(() => {
+            console.log("cancelled!")
+          }, () => {
+            socket.emit('admin_event', { event: "change_scene", payload:  {}});
+          });
         }
       })
-
-
 
     } catch (e) {
       console.trace(e);
@@ -164,6 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   fetchAppState()
+
+
 });
 
 

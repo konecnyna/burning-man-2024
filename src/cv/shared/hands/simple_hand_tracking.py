@@ -92,7 +92,9 @@ class SimpleHandTracking:
                     "y_percent": y_percent,
                     "distance": distance,
                     "is_fist": self.is_fist(hand_landmarks),
-                    "ok_sign": self.is_ok_sign(hand_landmarks)
+                    "is_ok": self.is_ok_sign(hand_landmarks),
+                    "is_peace_sign": self.is_peace_sign(hand_landmarks),
+                    "next_scene_gesture": self.is_peace_sign(hand_landmarks)
                 })
 
         return payloads
@@ -118,6 +120,21 @@ class SimpleHandTracking:
             if distance > 0.05:  # Threshold for detecting a closed hand (may need tuning)
                 return False
         return True
+
+
+    def is_peace_sign(self, hand_landmarks):
+        if not hand_landmarks or len(hand_landmarks.landmark) < 21:
+            return False
+    
+        index_finger_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.INDEX_FINGER_TIP]
+        middle_finger_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.MIDDLE_FINGER_TIP]
+        thumb_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_TIP]
+
+        if (index_finger_tip.y > middle_finger_tip.y and
+            thumb_tip.y > index_finger_tip.y):
+            return True
+        
+        return False
 
     def is_ok_sign(self, hand_landmarks):
         if not hand_landmarks or len(hand_landmarks.landmark) < 21:
