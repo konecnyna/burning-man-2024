@@ -32,7 +32,6 @@ module.exports = class StateManager {
     }
 
     this.passiveModeTimer = setTimeout(() => {
-      console.log("passive!")
       this.updateStateAndBroadcast({ detectionMode: "passive", currentScene: scenes.passive });
     }, 1 * 60 * 1000);
   }
@@ -42,23 +41,10 @@ module.exports = class StateManager {
   }
 
   updateStateAndBroadcast(newState) {
-    const changedKeys = Object.keys(newState).filter(key =>
-      this.state[key] !== newState[key]
-    );
-
-    if (changedKeys.length > 0) {
-      console.log("Changed parts of the state:", changedKeys);
-      changedKeys.forEach(key => {
-        console.log(`State change - ${key}:`, {
-          oldValue: this.state[key],
-          newValue: newState[key]
-        });
-      });
-    } else {
-      console.log("No changes detected in the state.");
+    if (!newState) {
+      throw Error("no state provided!")
     }
-
-
+    
     this.state = { ...this.state, ...newState };
     this.broadcastState();
   }
@@ -99,13 +85,11 @@ module.exports = class StateManager {
   }
 
   faceDetected(data) {
-    // if (score > 0.30) {
     const lastDectionMode = this.state.detectionMode
     this.resetPassiveModeTimer();  // Reset the timer whenever a face with a high score is detected
     if (lastDectionMode === "passive") {
       this.updateStateAndBroadcast({ detectionMode: "active" });
       this.nextActiveScene();
     }
-    // }
   }
 };
