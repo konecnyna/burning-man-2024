@@ -87,13 +87,14 @@ module.exports = class StateManager {
     }, 1000);
   }
 
-  nextActiveScene(id) {
-    let nextScene = Object.values(scenes).find(scene => scene.id === id);
-    if (!nextScene) {
-      this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
-      nextScene = this.activeScenes[this.currentSceneIndex];
-    }
+  nextActiveScene() {
+    this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
+    nextScene = this.activeScenes[this.currentSceneIndex];
+    this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: this.getFutureDate(5) });
+  }
 
+  nextScene(id) {
+    let nextScene = Object.values(scenes).find(scene => scene.id === id);
     this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: this.getFutureDate(5) });
   }
 
