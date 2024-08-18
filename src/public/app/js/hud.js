@@ -60,7 +60,6 @@ const constructHud = (currentScene, nextSceneTime) => {
   // Add additional instructions if they exist
   let instructions = currentScene?.meta?.additional_instructions || []  
   if (!instructions.length) {
-    console.log("!!")
     instructions = ["ℹ️ Make 👌 to change scene"]
   }
 

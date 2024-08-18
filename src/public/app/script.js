@@ -1,14 +1,36 @@
 const socket = io();
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+let lastState = null
+let transitionTimer = null
+
 document.addEventListener('DOMContentLoaded', () => {
   const contentFrame = document.getElementById('contentFrame');
   const stateChanged = async (state) => {
+    // console.log("stae!")
+    // if (lastState && lastState.detectionMode != state.detectionMode) {
+    //   console.log("conten!")
+    //   contentFrame.src  = "whipe/index.html"
+    //   transitionTimer = setTimeout(() => {
+    //     updateState(state)
+    //   }, 1900)
+    // } else if (!transitionTimer) {
+    //   updateState(state);
+    // }
+
+    updateState(state);
+    lastState = state
+  }
+
+  const updateState = async (state) => {
     try {
       const currentScene = state.currentScene;
       if (currentScene) {
         if (currentScene.isActive) {
           constructHud(currentScene, state.nextSceneTime);
+        } else {
+          const hud = document.getElementById('hud');
+          hud.innerHTML = '';
         }
 
         await loadPage(currentScene);
@@ -21,14 +43,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   const loadPage = async (scene) => {
-    contentFrame.src = scene.url;
-    await sleep(1500)
-    if (scene.id != "loading") {
-      await showToast(scene.name, 1500);
-      for (var i = 0; i < scene.instructions.length; i++) {
-        await showToast(scene.instructions[i], 4000)
-      }
+    if(contentFrame.src == scene.url) {
+      return;
     }
+
+
+    contentFrame.src = scene.url;
+    if (scene.id === "loading" || scene.id === "passive") {
+      return;
+    }
+
+    await sleep(1500)
+    await showToast(scene.name, 1500);
+    for (var i = 0; i < scene.instructions.length; i++) {
+      await showToast(scene.instructions[i], 4000)
+    }
+
   };
 
   socket.on('state_changed', (data) => {
@@ -69,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // }
 
 
-        if (hand.next_scene_gesture) {
+        if (hand.next_scene_gesture && lastState.detectionMode === "active") {
           handleNextSceneGesture(
             "next_scene_status_text",
             () => {
@@ -80,6 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
       })
+
+      setTimeout(() => {
+        //startWhipeAnimation()
+      }, 2000)
 
     } catch (e) {
       console.trace(e);
