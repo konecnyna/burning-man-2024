@@ -19,22 +19,23 @@
     <canvas id="handCanvas" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
 
     <!-- HUD Container -->
-    <div id="hud" class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 bg-black bg-opacity-30 text-white text-lg p-3 rounded-b-md transition-opacity duration-500 ease-in-out">
+    <div id="hud"
+      class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 bg-black bg-opacity-30 text-white text-lg p-3 rounded-b-md transition-opacity duration-500 ease-in-out">
 
     </div>
 
 
-    <div id="status_text_container" class="fixed bottom-4 right-4 flex flex-col space-y-4">
+    <div id="status_text_container" class="fixed inset-0 flex items-center justify-center">
       <!-- Status messages will be dynamically added here -->
     </div>
     <script defer src="./js/hud.js"></script>
     <script defer src="./js/status-text.js"></script>
     <script defer src="./js/toast.js"></script>
     <script defer src="./js/hands.js"></script>
-  
+
   </div>
   <div id="toast"
-    class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-500 via-purple-600 to-purple-900 text-white shadow-lg rounded-lg p-4 flex items-center justify-center gap-2 opacity-0 transition-opacity duration-500 hidden animate-psychedelic">
+    class="fixed inset-0 flex items-center justify-center bg-gradient-to-r from-yellow-500 via-purple-600 to-purple-900 text-white shadow-lg rounded-lg p-4 gap-2 opacity-0 transition-opacity duration-500 hidden animate-psychedelic">
     <span id="toast-message" class="z-50 text-4xl toast-message text-center leading-none"></span>
   </div>
 </body>
