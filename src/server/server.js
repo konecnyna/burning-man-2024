@@ -33,7 +33,7 @@ const productionState = {
   }
 }
 
-const stateManager = new StateManager(io, debugState)
+const stateManager = new StateManager(io, productionState)
 
 const eventManager = new EventManager(stateManager, io)
 const openCvEventBus = new OpenCvEventBus(io, stateManager.state)
