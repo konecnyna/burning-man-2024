@@ -13,7 +13,7 @@ module.exports = class StateManager {
       isMockMode: false,
       rtspUrl: CAMERA_URL,
       detectionMode: "passive",
-      currentScene: scenes.loading,
+      currentScene: scenes.passive,
       nextSceneTime: this.getFutureDate(5),
       scenes: scenes,
     };
@@ -42,12 +42,24 @@ module.exports = class StateManager {
   }
 
   updateStateAndBroadcast(newState) {
-    let nextSceneTime = this.state.nextSceneTime;
-    if (newState.currentScene && newState.currentScene.id !== this.state.currentScene.id) {
-      nextSceneTime = this.getFutureDate(5);
+    const changedKeys = Object.keys(newState).filter(key =>
+      this.state[key] !== newState[key]
+    );
+
+    if (changedKeys.length > 0) {
+      console.log("Changed parts of the state:", changedKeys);
+      changedKeys.forEach(key => {
+        console.log(`State change - ${key}:`, {
+          oldValue: this.state[key],
+          newValue: newState[key]
+        });
+      });
+    } else {
+      console.log("No changes detected in the state.");
     }
 
-    this.state = { ...this.state, ...newState, nextSceneTime };
+
+    this.state = { ...this.state, ...newState };
     this.broadcastState();
   }
 
@@ -82,20 +94,17 @@ module.exports = class StateManager {
       nextScene = this.activeScenes[this.currentSceneIndex];
     }
 
-    this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: new Date() });
+    this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: this.getFutureDate(5) });
   }
 
   faceDetected(data) {
-    console.log("face!");
     const { score } = data;
 
     if (score > 0.90) {
-      console.log("good!");
       const lastDectionMode = this.state.detectionMode
-      this.updateStateAndBroadcast({ detectionMode: "active" });
       this.resetPassiveModeTimer();  // Reset the timer whenever a face with a high score is detected
       if (lastDectionMode === "passive") {
-        console.log("ty next!");
+        this.updateStateAndBroadcast({ detectionMode: "active" });
         this.nextActiveScene();
       }
     }

@@ -58,14 +58,6 @@ server.listen(3000, () => {
   } else {
     console.log("🟡 Not running opencv state 'openCvEnabled=false'")
   }
-
-
-  setTimeout(async () => {
-    stateManager.updateStateAndBroadcast({
-      detectionMode: "passive",
-      currentScene: scenes.passive
-    })
-  }, 3000);
 });
 
 process.on('SIGINT', () => {

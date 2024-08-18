@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     //   updateState(state);
     // }
 
+    console.log("Next state...")
+
     updateState(state);
     lastState = state
   }
@@ -43,10 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   const loadPage = async (scene) => {
-    if(contentFrame.src == scene.url) {
+    if (contentFrame.src.toString().includes(scene.url)) {
       return;
     }
 
+    console.log("LOADING PAGE", contentFrame.src,  scene.url)
 
     contentFrame.src = scene.url;
     if (scene.id === "loading" || scene.id === "passive") {
