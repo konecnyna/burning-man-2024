@@ -99,16 +99,13 @@ module.exports = class StateManager {
   }
 
   faceDetected(data) {
-    const { score } = data;
-
-    console.log(score)
-    if (score > 0.90) {
-      const lastDectionMode = this.state.detectionMode
-      this.resetPassiveModeTimer();  // Reset the timer whenever a face with a high score is detected
-      if (lastDectionMode === "passive") {
-        this.updateStateAndBroadcast({ detectionMode: "active" });
-        this.nextActiveScene();
-      }
+    // if (score > 0.30) {
+    const lastDectionMode = this.state.detectionMode
+    this.resetPassiveModeTimer();  // Reset the timer whenever a face with a high score is detected
+    if (lastDectionMode === "passive") {
+      this.updateStateAndBroadcast({ detectionMode: "active" });
+      this.nextActiveScene();
     }
+    // }
   }
 };
