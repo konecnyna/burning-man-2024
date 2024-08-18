@@ -14,8 +14,8 @@ class SimpleHandTracking:
         self.drawLandmarks = drawLandmarks
         self.hands = mp_hands.Hands(
             max_num_hands=4,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.3,
+            min_detection_confidence=0.3,
+            min_tracking_confidence=0.1,
             model_complexity=0,
         )
         
