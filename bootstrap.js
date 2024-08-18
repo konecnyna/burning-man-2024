@@ -67,9 +67,10 @@ async function killGhosts() {
   }
 }
 
-module.exports = async function startupScrit() {
+async function main() {
   try {
     await killGhosts()
+
 
     launchServer();
 
@@ -96,3 +97,6 @@ module.exports = async function startupScrit() {
     console.error('An error occurred:', error);
   }
 }
+
+// Run the script
+main();
