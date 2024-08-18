@@ -7,6 +7,7 @@ const OpenCvEventBus = require("./core/opencv-event-bus")
 const StateManager = require("./core/state-manager")
 const EventManager = require("./core/event-manager");
 const { scenes } = require("./core/scene-manager");
+const startupScript = require("./core/start-up");
 
 
 const app = express();
@@ -58,6 +59,9 @@ server.listen(3000, () => {
   } else {
     console.log("🟡 Not running opencv state 'openCvEnabled=false'")
   }
+  
+  
+  startupScript()
 });
 
 process.on('SIGINT', () => {

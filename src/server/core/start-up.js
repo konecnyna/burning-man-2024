@@ -67,7 +67,7 @@ async function killGhosts() {
   }
 }
 
-module.exports = async function startupScrit() {
+module.exports = async function startupScript() {
   try {
     //await killGhosts()
 
