@@ -89,7 +89,7 @@ module.exports = class StateManager {
 
   nextActiveScene() {
     this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
-    nextScene = this.activeScenes[this.currentSceneIndex];
+    const nextScene = this.activeScenes[this.currentSceneIndex];
     this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: this.getFutureDate(5) });
   }
 
