@@ -25,15 +25,15 @@ const debugState = {
 
 const productionState = {
   openCvState: {
-    debugging: true,
+    debugging: false,
     openCvEnabled: false,
-    showVideo: true,
+    showVideo: false,
     isMockMode: false,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }
 }
 
-const stateManager = new StateManager(io, debugState)
+const stateManager = new StateManager(io, productionState)
 
 const eventManager = new EventManager(stateManager, io)
 const openCvEventBus = new OpenCvEventBus(io, stateManager.state)
