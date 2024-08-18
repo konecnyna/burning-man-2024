@@ -69,12 +69,11 @@ async function killGhosts() {
 
 module.exports = async function startupScrit() {
   try {
-    //await killGhosts()
+    await killGhosts()
 
+    launchServer();
 
-    //launchServer();
-
-    //await sleep(1000)
+    await sleep(1000)
 
     await launchChrome();
 

@@ -61,7 +61,7 @@ server.listen(3000, () => {
   }
   
   
-  startupScript()
+  // startupScript()
 });
 
 process.on('SIGINT', () => {
