@@ -21,6 +21,10 @@ class OpenCvEventBus {
       args.push("--show-cv");
     }
 
+    if (this.state.debugging) {
+      args.push("--debug");
+    }
+
     if (this.state.rtspUrl) {
       args.push("--url", this.state.rtspUrl);
     }
