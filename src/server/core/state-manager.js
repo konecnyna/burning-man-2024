@@ -34,7 +34,7 @@ module.exports = class StateManager {
     this.passiveModeTimer = setTimeout(() => {
       console.log("passive!")
       this.updateStateAndBroadcast({ detectionMode: "passive", currentScene: scenes.passive });
-    }, 1 * 60 * 1000);  
+    }, 1 * 60 * 1000);
   }
 
   isInActiveMode() {
@@ -69,12 +69,8 @@ module.exports = class StateManager {
   startSceneCheckInterval() {
     setInterval(() => {
       const now = new Date();
-      if (now >= this.state.nextSceneTime) {
-        if (this.isInActiveMode()) {
-          this.nextActiveScene();
-        } else {
-          this.updateStateAndBroadcast({ currentScene: scenes.passive });
-        }
+      if (now >= this.state.nextSceneTime && this.isInActiveMode()) {
+        this.nextActiveScene();
       }
     }, 1000);
   }
@@ -97,9 +93,9 @@ module.exports = class StateManager {
       this.updateStateAndBroadcast({ detectionMode: "active" });
       this.resetPassiveModeTimer();  // Reset the timer whenever a face with a high score is detected
       if (lastDectionMode === "passive") {
-        this.nextActiveScene();  
+        this.nextActiveScene();
       }
-      
+
     }
   }
 };
