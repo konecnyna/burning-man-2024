@@ -4,6 +4,7 @@ const CAMERA_URL = 0;
 
 module.exports = class StateManager {
   constructor(io, { openCvState = {} } = {}) {
+
     this.io = io;
     const defaultOpenCvState = {
       debugging: false,
@@ -14,7 +15,7 @@ module.exports = class StateManager {
       rtspUrl: CAMERA_URL,
       detectionMode: "passive",
       currentScene: scenes.passive,
-      nextSceneTime: this.getFutureDate(5),
+      nextSceneTime: this.getFutureDate(),
       scenes: scenes,
     };
 
@@ -58,7 +59,7 @@ module.exports = class StateManager {
     }
   }
 
-  getFutureDate(minutes) {
+  getFutureDate(minutes=3) {
     const futureDate = new Date();
     futureDate.setMinutes(futureDate.getMinutes() + minutes);
     return futureDate;
@@ -76,12 +77,12 @@ module.exports = class StateManager {
   nextActiveScene() {
     this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
     const nextScene = this.activeScenes[this.currentSceneIndex];
-    this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: this.getFutureDate(5) });
+    this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: this.getFutureDate() });
   }
 
   nextScene(id) {
     let nextScene = Object.values(scenes).find(scene => scene.id === id);
-    this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: this.getFutureDate(5) });
+    this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: this.getFutureDate() });
   }
 
   faceDetected(data) {
