@@ -6,7 +6,7 @@ const socketIo = require('socket.io');
 const OpenCvEventBus = require("./core/opencv-event-bus")
 const StateManager = require("./core/state-manager")
 const EventManager = require("./core/event-manager");
-const { SceneManager, scenes } = require("./core/scene-manager");
+const { scenes } = require("./core/scene-manager");
 
 
 const app = express();
@@ -37,7 +37,6 @@ const stateManager = new StateManager(io, debugState)
 
 const eventManager = new EventManager(stateManager, io)
 const openCvEventBus = new OpenCvEventBus(io, stateManager.state)
-const sceneManager = new SceneManager(stateManager)
 
 app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
@@ -63,8 +62,8 @@ server.listen(3000, () => {
 
   setTimeout(async () => {
     stateManager.updateStateAndBroadcast({
-      detectionMode: "active",
-      currentScene: scenes.tieDye
+      detectionMode: "passive",
+      currentScene: scenes.passive
     })
   }, 3000);
 });

@@ -1,21 +1,22 @@
 const socket = io();
-let toastTimeout;
-
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-
 document.addEventListener('DOMContentLoaded', () => {
-
   const contentFrame = document.getElementById('contentFrame');
-
   const stateChanged = async (state) => {
     try {
-      const currentScene = state.currentScene
-      await loadPage(currentScene)
+      const currentScene = state.currentScene;
+      if (currentScene) {
+        // Update the HUD
+        constructHud(currentScene, state.nextSceneTime);
+        await loadPage(currentScene);
+      }
+
     } catch (e) {
       console.trace(e)
     }
   }
+
 
   const loadPage = async (scene) => {
     contentFrame.src = scene.url;
@@ -52,6 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       payload.forEach(hand => {
+
+        // if (hand.is_shaka_sign) {
+        //   console.log("🤙", hand.is_shaka_sign)
+        // }
+
+        // if (hand.is_peace_sign) {
+        //   console.log("✌️", hand.is_peace_sign)
+        // }
+
+        // if (hand.is_ok) {
+        //   console.log("👌", hand.is_ok)
+        // }
+
+
         if (hand.next_scene_gesture) {
           handleNextSceneGesture(
             "next_scene_status_text",
@@ -72,6 +87,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   fetchAppState()
 });
-
-
 

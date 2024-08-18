@@ -1,3 +1,5 @@
+let toastTimeout;
+
 
 async function showToast(message, toastLength = 3000) {
   const toast = document.getElementById('toast');

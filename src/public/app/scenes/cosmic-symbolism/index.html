@@ -39,7 +39,6 @@
     }
 
     function setScrollSpeed(speed) {
-      console.log(`Setting: ${speed}`)
       scroll_speed_manual_control = speed;
 
       element.dispatchEvent(new WheelEvent('wheel', {
@@ -60,17 +59,20 @@
       }));
     }
 
-    socket.on('hand_detect_new', (data) => {
-      try {
-        const payload = JSON.parse(data);
-        const hand = payload[0];        
-        const speed = mapPercentageToRange(hand.y_percent)
-        console.log(speed)
-        setScrollSpeed(speed)
-      } catch (e) {
+    setTimeout(() => {
+      socket.on('hand_detect_new', (data) => {
+        try {
+          const payload = JSON.parse(data);
+          const hand = payload[0];
+          const speed = mapPercentageToRange(hand.y_percent)
+          console.log(speed)
+          setScrollSpeed(speed)
+        } catch (e) {
+          console.trace(e)
+        }
+      });
+    }, 3000)
 
-      }
-    });
 
     setInterval(() => {
       reduceScrollSpeed();
