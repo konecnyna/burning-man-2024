@@ -10,26 +10,13 @@ module.exports = class EventManager {
   }
 
   socketConnection(socket) {
-    //console.log('a user connected');
-
-    socket.on('hand_detect', (data) => {
-      this.safeBroadcast("hand_detect", data)
-    });
-
+  
     socket.on('hand_detect_new', (data) => {
-      
+      console.log(data)
       this.safeBroadcast("hand_detect_new", data.map(it => {
         it["handDebugging"] = this.stateManager.state.handDebugging
         return it
       }))
-    });
-
-    socket.on('index_finger_detect', (data) => {
-      this.safeBroadcast("index_finger_detect", data)
-    });
-
-    socket.on('object_detected', (data) => {
-      this.safeBroadcast("object_detected", data)
     });
 
     socket.on('admin_event', (data) => {
@@ -38,14 +25,6 @@ module.exports = class EventManager {
           this.stateManager.nextScene(data.payload.id)
           break;
       }
-    });
-
-    socket.on("detection_mode", (data) => {
-      this.stateManager.nextScene()
-    });
-
-    socket.on('disconnect', () => {
-      //console.log('user disconnected');
     });
   }
 

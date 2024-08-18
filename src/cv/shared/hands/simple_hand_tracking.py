@@ -20,6 +20,7 @@ class SimpleHandTracking:
         )
         
         self.hands_combine_threshold = 150 
+        self.distance_history = [] 
 
     def subscribe(self, img, draw=True):
         #img.flags.writeable = False
@@ -122,9 +123,23 @@ class SimpleHandTracking:
 
         return payloads
 
-    def estimate_distance(self, z):
+    # def estimate_distance(self, z):
+    #     # Invert the z value and scale to a more reasonable range.
+    #     distance = -z * 1000000000  # You can adjust the 100 scaling factor as needed.
+    #     return round(distance, 2)
+
+    def estimate_distance(self, z, history_size=15):
+        # Invert the z value and scale to a more reasonable range
+        # If the hand is too close (z is a large negative value), set distance to 0
         distance = abs(z * 1000000000)
-        return round(distance, 2)
+        
+        # Maintain a running average of the distance
+        self.distance_history.append(distance)
+        if len(self.distance_history) > history_size:
+            self.distance_history.pop(0)
+        
+        
+        return round(sum(self.distance_history) / len(self.distance_history),2)
 
     def draw(self):
         print("draw")
