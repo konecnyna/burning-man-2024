@@ -34,8 +34,7 @@ module.exports = class StateManager {
     this.passiveModeTimer = setTimeout(() => {
       console.log("passive!")
       this.updateStateAndBroadcast({ detectionMode: "passive", currentScene: scenes.passive });
-    //}, 5 * 60 * 1000);  // 5 minutes
-    }, 15 * 1000);  // 5 minutes
+    }, 1 * 60 * 1000);  
   }
 
   isInActiveMode() {
