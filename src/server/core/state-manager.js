@@ -22,7 +22,20 @@ module.exports = class StateManager {
     this.currentSceneIndex = 0;
 
     this.state = { ...defaultOpenCvState, ...openCvState };
-    this.startSceneCheckInterval();    
+    this.startSceneCheckInterval();
+    this.resetPassiveModeTimer();  // Initialize the passive mode timer
+  }
+
+  resetPassiveModeTimer() {
+    if (this.passiveModeTimer) {
+      clearTimeout(this.passiveModeTimer);
+    }
+
+    this.passiveModeTimer = setTimeout(() => {
+      console.log("passive!")
+      this.updateStateAndBroadcast({ detectionMode: "passive", currentScene: scenes.passive });
+    //}, 5 * 60 * 1000);  // 5 minutes
+    }, 15 * 1000);  // 5 minutes
   }
 
   isInActiveMode() {
@@ -31,8 +44,8 @@ module.exports = class StateManager {
 
   updateStateAndBroadcast(newState) {
     let nextSceneTime = this.state.nextSceneTime;
-    if (newState.currentScene.id !== this.state.currentScene.id) {
-      nextSceneTime = this.getFutureDate(5); 
+    if (newState.currentScene && newState.currentScene.id !== this.state.currentScene.id) {
+      nextSceneTime = this.getFutureDate(5);
     }
 
     this.state = { ...this.state, ...newState, nextSceneTime };
@@ -58,22 +71,33 @@ module.exports = class StateManager {
     setInterval(() => {
       const now = new Date();
       if (now >= this.state.nextSceneTime) {
-        this.nextScene();        
+        if (this.isInActiveMode()) {
+          this.nextActiveScene();
+        } else {
+          this.updateStateAndBroadcast({ currentScene: scenes.passive });
+        }
       }
     }, 1000);
   }
 
-  nextScene(id) {
-    if (this.isInActiveMode()) {
-      let nextScene = Object.values(scenes).find(scene => scene.id === id);
-      if (!nextScene) {
-        this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
-        nextScene = this.activeScenes[this.currentSceneIndex];
-      }
-          
-      this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: new Date() });
-    } else {
-      return scenes.passive;      
+  nextActiveScene(id) {
+    let nextScene = Object.values(scenes).find(scene => scene.id === id);
+    if (!nextScene) {
+      this.currentSceneIndex = (this.currentSceneIndex + 1) % this.activeScenes.length;
+      nextScene = this.activeScenes[this.currentSceneIndex];
+    }
+
+    this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: new Date() });
+  }
+
+  faceDetected(data) {
+    const { score } = data;
+
+    if (score > 0.90) {
+      this.updateStateAndBroadcast({ detectionMode: "active" });
+      console.log("active!")
+      this.resetPassiveModeTimer();  // Reset the timer whenever a face with a high score is detected
+      this.nextActiveScene();  // Transition to the next scene immediately
     }
   }
 };

@@ -10,9 +10,11 @@ module.exports = class EventManager {
   }
 
   socketConnection(socket) {
-  
+    socket.on('face_detect', (data) => {
+      this.stateManager.faceDetected(data)
+    });
+
     socket.on('hand_detect_new', (data) => {
-      console.log(data)
       this.safeBroadcast("hand_detect_new", data.map(it => {
         it["handDebugging"] = this.stateManager.state.handDebugging
         return it

@@ -7,8 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const currentScene = state.currentScene;
       if (currentScene) {
-        // Update the HUD
-        constructHud(currentScene, state.nextSceneTime);
+        if (currentScene.isActive) {
+          constructHud(currentScene, state.nextSceneTime);
+        }
+
         await loadPage(currentScene);
       }
 

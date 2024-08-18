@@ -5,13 +5,18 @@ import argparse
 
 from shared.hands.simple_hand_tracking import SimpleHandTracking
 from shared.util.threaded_camera import ThreadedCamera
+from shared.face.simple_face_detection import SimpleFaceDetection
+
 
 def main(args):
-    simple_hand_tracking = SimpleHandTracking()
+    simple_hand_tracking = SimpleHandTracking(drawLandmarks=args.debug)
+    simple_face_detection = SimpleFaceDetection(drawLandmarks=args.debug)
+   
     camera_address = args.url if args.url is not None else 0
     camera = ThreadedCamera(camera_address)
     
         
+    frame_count = 0
     while camera.capture.isOpened():
         frame = camera.frame
         if frame is None:
@@ -20,7 +25,15 @@ def main(args):
         # Flip the frame horizontally for a mirror-like effect
         frame = cv2.flip(frame, 1)
         simple_hand_tracking.subscribe(img=frame)
-           
+        
+       
+        if frame_count % 60 == 0:
+            print("I AM DETECTED!!")
+            simple_face_detection.subscribe(img=frame)
+            frame_count = 0
+        
+        frame_count += 1
+ 
         if args.show_cv:
             cv2.imshow("Image", frame)
 
