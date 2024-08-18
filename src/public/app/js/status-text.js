@@ -57,33 +57,37 @@ function triggerAction(id, onActionTriggeredCallback) {
 
   let countdownValue = 3;
   clearTimeout(timers[id].actionTimeout);
+  clearTimeout(timers[id].messageTimeout);
 
   // Create the container if it doesn't exist
   if (!document.getElementById(`text_id_${id}`)) {
     createStatusContainer(id);
   }
 
-  updateStatusText(id, `Changing scene in: ${countdownValue--}`);
-  fadeInStatusText(id);
-
-  timers[id].actionTimeout = setInterval(() => {
+  // Set a timeout to display the message after 1 second
+  timers[id].messageTimeout = setTimeout(() => {
     updateStatusText(id, `Changing scene in: ${countdownValue--}`);
-    if (countdownValue < 0) {
-      onActionTriggeredCallback();
-      clearInterval(timers[id].actionTimeout);
-      timers[id].actionTimeout = null;
-      startCooldown(id); // Start cooldown after action is triggered
-      fadeOutStatusText(id);
-      setTimeout(() => removeStatusText(id), 500); // Remove after fading out
-    }
-  }, 1000);
+    fadeInStatusText(id);
+
+    timers[id].actionTimeout = setInterval(() => {
+      updateStatusText(id, `Changing scene in: ${countdownValue--}`);
+      if (countdownValue < 0) {
+        onActionTriggeredCallback();
+        clearInterval(timers[id].actionTimeout);
+        timers[id].actionTimeout = null;
+        startCooldown(id); // Start cooldown after action is triggered
+        fadeOutStatusText(id);
+        setTimeout(() => removeStatusText(id), 500); // Remove after fading out
+      }
+    }, 1000);
+  }, 1000); // Delay of 1 second before showing the message
 }
 
 function startCooldown(id) {
   timers[id].isCooldown = true;
   timers[id].cooldownTimer = setTimeout(() => {
     timers[id].isCooldown = false; // End cooldown after 5 seconds
-  }, 5000);
+  }, 1000);
 }
 
 function handleNextSceneGesture(id, onClearCallback, onActionTriggeredCallback) {
@@ -96,7 +100,9 @@ function handleNextSceneGesture(id, onClearCallback, onActionTriggeredCallback) 
 
   // Reset the 500ms timer every time the ok_sign is detected
   timers[id].okSignTimer = setTimeout(() => {
+    clearTimeout(timers[id].messageTimeout);
     clearTimeout(timers[id].actionTimeout);
+    timers[id].messageTimeout = null;
     timers[id].actionTimeout = null;
     fadeOutStatusText(id);
     onClearCallback();
@@ -104,7 +110,7 @@ function handleNextSceneGesture(id, onClearCallback, onActionTriggeredCallback) 
     setTimeout(() => removeStatusText(id), 500); // Remove after fading out
   }, 500);
 
-  if (!timers[id]?.actionTimeout) {
+  if (!timers[id]?.actionTimeout && !timers[id]?.messageTimeout) {
     triggerAction(id, onActionTriggeredCallback);
   }
 }

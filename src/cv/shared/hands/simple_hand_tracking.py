@@ -3,11 +3,15 @@ import math
 import cv2
 import mediapipe as mp
 from shared.util.web_socket_client import ws_client
+from shared.hands.gesture_detection import is_fist, is_peace_sign, is_ok_sign, is_shaka_sign
 
 mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils  # Add this for drawing landmarks
+mp_drawing_styles = mp.solutions.drawing_styles  # Add this for drawing styles
 
 class SimpleHandTracking:
-    def __init__(self):
+    def __init__(self, drawLandmarks=True):
+        self.drawLandmarks = drawLandmarks
         self.hands = mp_hands.Hands(
             max_num_hands=4,
             min_detection_confidence=0.5,
@@ -15,7 +19,7 @@ class SimpleHandTracking:
             model_complexity=0,
         )
         
-        self.hands_combine_threshold = 250 
+        self.hands_combine_threshold = 150 
 
     def subscribe(self, img, draw=True):
         #img.flags.writeable = False
@@ -28,8 +32,18 @@ class SimpleHandTracking:
             filtered_indices = self.filter_close_hands(hand_centers)
 
             payloads = self.create_payloads(hand_centers, filtered_indices, img, result)
-            ws_client.publish("hand_detect_new", payloads)            
+            ws_client.publish("hand_detect_new", payloads)
 
+            # Draw landmarks if self.drawLandmarks is True
+            if self.drawLandmarks:
+                for hand_landmarks in result.multi_hand_landmarks:
+                    mp_drawing.draw_landmarks(
+                        img, 
+                        hand_landmarks, 
+                        mp_hands.HAND_CONNECTIONS,
+                        mp_drawing_styles.get_default_hand_landmarks_style(),
+                        mp_drawing_styles.get_default_hand_connections_style()
+                    )
 
     def convert_bgr_to_rgb(self, img):
         return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -60,11 +74,6 @@ class SimpleHandTracking:
             y_min_int = int(y_min * h)
             y_max_int = int(y_max * h)
 
-            # Draw the bounding box
-            # cv2.rectangle(img, (x_min_int, y_min_int), (x_max_int, y_max_int), (0, 255, 0), 2)
-            # Draw the center point
-            # cv2.circle(img, (x_center, y_center), 5, (255, 0, 0), -1)
-            
             hand_centers.append((idx, x_center, y_center))
 
         return hand_centers
@@ -104,74 +113,14 @@ class SimpleHandTracking:
                     "x_percent": x_percent,
                     "y_percent": y_percent,
                     "distance": distance,
-                    "is_fist": self.is_fist(hand_landmarks),
-                    "is_ok": self.is_ok_sign(hand_landmarks),
-                    "is_peace_sign": self.is_peace_sign(hand_landmarks),
-                    "next_scene_gesture": self.is_ok_sign(hand_landmarks)
+                    "is_fist": is_fist(hand_landmarks),
+                    "is_ok": is_ok_sign(hand_landmarks),
+                    "is_peace_sign": is_peace_sign(hand_landmarks),
+                    "is_shaka_sign": is_shaka_sign(hand_landmarks),
+                    "next_scene_gesture": is_ok_sign(hand_landmarks)
                 })
 
         return payloads
-
-    def is_fist(self, hand_landmarks):
-        if not hand_landmarks or len(hand_landmarks.landmark) < 21:
-            return False
-
-        # Index, Middle, Ring, Pinky tips and their respective MCP joints
-        fingertip_ids = [8, 12, 16, 20]
-        mcp_joint_ids = [5, 9, 13, 17]
-
-        for tip_id, mcp_id in zip(fingertip_ids, mcp_joint_ids):
-            tip = hand_landmarks.landmark[tip_id]
-            mcp = hand_landmarks.landmark[mcp_id]
-
-            distance = math.sqrt(
-                (tip.x - mcp.x) ** 2 + 
-                (tip.y - mcp.y) ** 2 + 
-                (tip.z - mcp.z) ** 2
-            )
-
-            if distance > 0.05:  # Threshold for detecting a closed hand (may need tuning)
-                return False
-        return True
-
-
-    def is_peace_sign(self, hand_landmarks):
-        if not hand_landmarks or len(hand_landmarks.landmark) < 21:
-            return False
-    
-        index_finger_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.INDEX_FINGER_TIP]
-        middle_finger_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.MIDDLE_FINGER_TIP]
-        thumb_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_TIP]
-
-        if (index_finger_tip.y > middle_finger_tip.y and
-            thumb_tip.y > index_finger_tip.y):
-            return True
-        
-        return False
-
-    def is_ok_sign(self, hand_landmarks):
-        if not hand_landmarks or len(hand_landmarks.landmark) < 21:
-            return False
-        
-        thumb_tip = hand_landmarks.landmark[4]
-        index_tip = hand_landmarks.landmark[8]
-        thumb_mcp = hand_landmarks.landmark[2]
-
-        thumb_index_distance = math.sqrt(
-            (thumb_tip.x - index_tip.x) ** 2 + 
-            (thumb_tip.y - index_tip.y) ** 2 + 
-            (thumb_tip.z - index_tip.z) ** 2
-        )
-
-        thumb_mcp_distance = math.sqrt(
-            (thumb_tip.x - thumb_mcp.x) ** 2 + 
-            (thumb_tip.y - thumb_mcp.y) ** 2 + 
-            (thumb_tip.z - thumb_mcp.z) ** 2
-        )
-
-        if thumb_index_distance < 0.05 and thumb_mcp_distance > 0.05:
-            return True
-        return False
 
     def estimate_distance(self, z):
         distance = abs(z * 1000000000)

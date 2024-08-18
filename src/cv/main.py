@@ -3,31 +3,26 @@ import time
 import cv2
 import argparse
 
-from shared.object_detection import ObjectDetector
-from shared.face.face_detector import FaceDetector
 from shared.hands.simple_hand_tracking import SimpleHandTracking
+from shared.util.threaded_camera import ThreadedCamera
 
-def main(show_cv, debug, mock_mode, camera_address):
-    object_detector = ObjectDetector()
-    face_detector = FaceDetector(draw_square=True)
+def main(args):
     simple_hand_tracking = SimpleHandTracking()
-      
+    camera_address = args.url if args.url is not None else 0
+    camera = ThreadedCamera(camera_address)
     
-    cap = cv2.VideoCapture(camera_address)
-    
-    while cap.isOpened():
-        success, img = cap.read()
-        if not success:
-            return
         
+    while camera.capture.isOpened():
+        frame = camera.frame
+        if frame is None:
+            continue
+    
         # Flip the frame horizontally for a mirror-like effect
-        frame = cv2.flip(img, 1)
-        
-        #face_detector.subscribe(img=frame, threshold_distance=50)
+        frame = cv2.flip(frame, 1)
         simple_hand_tracking.subscribe(img=frame)
            
-        if show_cv:
-            cv2.imshow("Image", img)
+        if args.show_cv:
+            cv2.imshow("Image", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -41,8 +36,6 @@ if __name__ == "__main__":
     parser.add_argument('--url', type=str, help='URL for the camera feed')
     args = parser.parse_args()
     
-    # 0 is usb/default camera.
+    print("🐍 Running opencv with:")
     print(args)
-    camera_address = args.url if args.url is not None else 0
-
-    main(args.show_cv, args.debug, args.mock_mode, camera_address)
+    main(args)

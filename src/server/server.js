@@ -17,7 +17,7 @@ const debugState = {
   openCvState: {
     debugging: true,
     openCvEnabled: true,
-    showVideo: false,
+    showVideo: true,
     isMockMode: false,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }

@@ -1,6 +1,8 @@
 const scenes = {
   loading: {
-    id: "loading", url: '/app/scenes/loading/index.html', instructions: ["Start up scene"], name: "Loading", isActive: false,
+    id: "loading", url: '/app/scenes/loading/index.html', instructions: ["Start up scene"], name: "Loading", isActive: falsem, meta: {
+      
+    },
   },
   passive: {
     id: "passive", url: '/app/scenes/passive/index.html', instructions: ["Come close to the looking glass to enable active mode"], name: "Passive mode", isActive: false,
@@ -21,7 +23,10 @@ const scenes = {
     id: "tie_dye", url: '/app/scenes/tie-dye/index.html', instructions: ["Move your hands to make tie dye"], name: "Tie Dye", isActive: true,
   },
   neonPaint: {
-    id: "neon_pain", url: '/app/scenes/neon-white-board/index.html', instructions: ["Move your hands to make tie dye"], name: "Neon Paint", isActive: true,
+    id: "neon_pain", url: '/app/scenes/neon-white-board/index.html', instructions: ["Move your hands to make tie dye"], name: "Neon Paint", isActive: true, meta: {
+      "supported_people": 1,
+      "additional_instructions": ["Make a fist to paint"]
+    },
   }
 
 };
