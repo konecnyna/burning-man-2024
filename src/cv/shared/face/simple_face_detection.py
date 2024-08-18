@@ -10,7 +10,7 @@ class SimpleFaceDetection:
     def __init__(self, drawLandmarks=True):
         self.drawLandmarks = drawLandmarks
         self.face_detection = mp_face_detection.FaceDetection(
-            min_detection_confidence=0.25
+            min_detection_confidence=0.1
         )
 
     def subscribe(self, img, draw=True):
