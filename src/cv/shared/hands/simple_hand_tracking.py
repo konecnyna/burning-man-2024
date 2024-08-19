@@ -106,7 +106,9 @@ class SimpleHandTracking:
                 # Estimate the distance of the hand from the camera using the wrist z-coordinate
                 wrist_z = result.multi_hand_landmarks[hand_idx].landmark[0].z
                 distance = self.estimate_distance(wrist_z)
+                is_thumbs_up  = self.gesture_recognizer.is_thumbs_up(image=img)
 
+                print(f"👍 {is_thumbs_up}", flush=True)
                 hand_landmarks = result.multi_hand_landmarks[hand_idx]
                 payloads.append({
                     "id": hand_idx,
@@ -118,8 +120,8 @@ class SimpleHandTracking:
                     "is_fist": is_fist(hand_landmarks),
                     "is_ok": is_ok_sign(hand_landmarks),
                     "is_peace_sign": is_peace_sign(hand_landmarks),
-                    "is_thumbs_up": self.gesture_recognizer.is_thumbs_up(image=img),
-                    "next_scene_gesture": self.gesture_recognizer.is_thumbs_up(image=img)
+                    "is_thumbs_up": is_thumbs_up,
+                    "next_scene_gesture": is_thumbs_up
                 })
 
         return payloads
