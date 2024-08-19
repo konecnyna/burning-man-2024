@@ -38,3 +38,55 @@ function drawPointers(payload) {
     handCanvasCtx.fillText(hand.id, posX, posY);
   });
 }
+
+
+
+
+
+
+
+// // Get canvas and context
+// const handCanvas = document.getElementById('handCanvas');
+// const handCanvasCtx = handCanvas.getContext('2d');
+// handCanvas.width = window.innerWidth;
+// handCanvas.height = window.innerHeight;
+
+// // Image URLs (using the same URL for now)
+// const imageUrls = [
+//   'https://emojis.slackmojis.com/emojis/images/1643515619/16413/alice_in_wonderland.gif',
+//   'https://emojis.slackmojis.com/emojis/images/1643516900/29550/mad_hatter.png',
+//   'https://emojis.slackmojis.com/emojis/images/1710477675/91023/cheshire-cat-e.png',
+//   'https://emojis.slackmojis.com/emojis/images/1643516999/30539/queen_of_hearts.png',
+//   'https://emojis.slackmojis.com/emojis/images/1699564752/74656/white_rabbitq.png',
+// ];
+
+// // Load images into an array
+// const handImages = imageUrls.map(url => {
+//   const img = new Image();
+//   img.src = url;
+//   return img;
+// });
+
+// function drawPointers(payload) {
+//   // Clear the canvas
+//   handCanvasCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
+
+//   // Iterate over each hand in the payload
+//   payload.forEach((hand, index) => {
+//     const image = handImages[index % handImages.length]; // Cycle through images if more hands than images
+
+//     let posX = hand.x_percent * window.innerWidth;
+//     let posY = hand.y_percent * window.innerHeight;
+
+//     // Draw hand cursor (the image)
+//     const imageSize = 40; // Set the desired size for the image
+//     handCanvasCtx.drawImage(image, posX - imageSize / 2, posY - imageSize / 2, imageSize, imageSize);
+
+//     // Draw the hand ID below the image
+//     handCanvasCtx.fillStyle = 'white';
+//     handCanvasCtx.font = '16px Arial';
+//     handCanvasCtx.textAlign = 'center';
+//     handCanvasCtx.textBaseline = 'top';
+//     handCanvasCtx.fillText(hand.id, posX, posY + imageSize / 2 + 5);
+//   });
+// }
