@@ -9,3 +9,8 @@
   /* This centers the background image */
   background-repeat: no-repeat;
 }
+
+
+body, html {
+  background-color: black;
+}

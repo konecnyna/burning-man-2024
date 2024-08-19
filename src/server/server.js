@@ -4,68 +4,68 @@ const path = require("path")
 const http = require('http');
 const socketIo = require('socket.io');
 const OpenCvEventBus = require("./core/opencv-event-bus")
-const State = require("./core/state")
-const Video = require("./core/video")
+const StateManager = require("./core/state-manager")
+const EventManager = require("./core/event-manager");
+const { scenes } = require("./core/scene-manager");
+const startupScript = require("./core/start-up");
+
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-io.on('connection', (socket) => {
-  socket.on('video-data', (data) => {
-    socket.broadcast.emit('video-data', data);
-  });
-});
-
-// Global state.
-const state = new State({
+const debugState = {
   openCvState: {
     debugging: true,
-    active: true,
+    openCvEnabled: true,
     showVideo: true,
     isMockMode: false,
-    rtspUrl: null,
+    //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }
-})
+}
 
-const openCvEventBus = new OpenCvEventBus(io, state.openCvState)
-const videoTransport = new Video(io, openCvEventBus)
-videoTransport.listen()
+const productionState = {
+  openCvState: {
+    debugging: false,
+    openCvEnabled: true,
+    showVideo: false,
+    isMockMode: false,
+    //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
+  }
+}
+
+const stateManager = new StateManager(io, productionState)
+
+const eventManager = new EventManager(stateManager, io)
+const openCvEventBus = new OpenCvEventBus(io, stateManager.state)
 
 app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
-
-
-io.on('connection', (socket) => {
-  console.log('a user connected');
-
-  socket.on('admin_event', (data) => {
-    console.log(`incoming event: ${JSON.stringify(data)}`)
-    try {
-      const { event, payload } = data
-      io.emit(event, JSON.stringify(payload))
-    } catch (error) {
-      console.trace(error)
-      console.error("Error emitting event!")
-    }
-  });
-
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
+app.get('/api/app-state', (req, res) => {
+  res.json(stateManager.state);
 });
 
+
+io.on('connection', async (socket) => {
+  eventManager.socketConnection(socket)
+});
+
+
 server.listen(3000, () => {
+  stateManager.broadcastState(io)
   console.log('Server listening on port http://localhost:3000/app');
-  if (state.openCvState.active) {
+  if (stateManager.state.openCvEnabled) {
     openCvEventBus.start()
   } else {
-    console.log("Not running opencv state active = false")
+    console.log("🟡 Not running opencv state 'openCvEnabled=false'")
   }
+  
+  
+  // startupScript()
 });
 
 process.on('SIGINT', () => {
-  if (state.openCvState.active) {
+  if (stateManager.state.openCvEnabled) {
     openCvEventBus.stop()
   }
 

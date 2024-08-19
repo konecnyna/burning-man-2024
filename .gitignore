@@ -132,6 +132,9 @@ venv.bak/
 
 **/.DS_Store
 
+**/.webm
+src/public/app/scenes/passive/movies/
+
 src/server/node_modules/**
 
 # Spyder project settings

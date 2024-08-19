@@ -36,7 +36,6 @@ socket.on('open_cv_event', (data) => {
       return;
     }
 
-    console.log(payload)
     moveGhosts(payload);
 
   } catch (e) {

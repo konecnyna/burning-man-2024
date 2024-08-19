@@ -3,29 +3,39 @@ import time
 import cv2
 import argparse
 
-from shared.hands.hand_tracking import HandTrackingModule
-from shared.object_detection import ObjectDetector
+from shared.hands.simple_hand_tracking import SimpleHandTracking
+from shared.util.threaded_camera import ThreadedCamera
+from shared.face.simple_face_detection import SimpleFaceDetection
 
-def main(show_cv, debug, mock_mode, camera_address):
-    hand_tracking = HandTrackingModule(debug=debug, showCv=show_cv) 
-    object_detector = ObjectDetector()
+
+def main(args):
+    simple_hand_tracking = SimpleHandTracking(drawLandmarks=args.debug)
+    simple_face_detection = SimpleFaceDetection(drawLandmarks=args.debug)
+   
+    camera_address = args.url if args.url is not None else 0
+    camera = ThreadedCamera(camera_address)
     
-    
-    if (mock_mode): 
-        while True:
-            hand_tracking.mockMode()
-            object_detector.mockMode()
-        return
-    
-    cap = cv2.VideoCapture(camera_address)
-    
-    while cap.isOpened():
-        success, img = cap.read()
-        hand_tracking.subscribe(img=img)
-        #object_detector.subscribe(img=img)
         
-        if show_cv:
-            cv2.imshow("Image", img)
+    frame_count = 0
+    while camera.capture.isOpened():
+        frame = camera.frame
+        if frame is None:
+            continue
+    
+        # Flip the frame horizontally for a mirror-like effect
+        frame = cv2.flip(frame, 1)
+        simple_hand_tracking.subscribe(img=frame)
+        
+       
+        if frame_count % 60 == 0:
+            print("I AM DETECTED!!")
+            simple_face_detection.subscribe(img=frame)
+            frame_count = 0
+        
+        frame_count += 1
+ 
+        if args.show_cv:
+            cv2.imshow("Image", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -34,12 +44,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--show-cv', action='store_true', help='Show open cv image')
     parser.add_argument('--debug', action='store_true', help='Verbose logging')
+    parser.add_argument('--local', action='store_true', help='No websocket.')
     parser.add_argument('--mock-mode', action='store_true', help='Enable mock mode')
     parser.add_argument('--url', type=str, help='URL for the camera feed')
     args = parser.parse_args()
     
-    # 0 is usb/default camera.
+    print("🐍 Running opencv with:")
     print(args)
-    camera_address = args.url if args.url is not None else 0
-
-    main(args.show_cv, args.debug, args.mock_mode, camera_address)
+    main(args)

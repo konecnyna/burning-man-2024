@@ -15,14 +15,27 @@ let drawing = false;
 let eraseTimeout;
 let erasing = false;
 
+const windowHalfX = window.innerWidth / 2;
+const windowHalfY = window.innerHeight / 2;
+
 // Setup WebSocket connection
 const socket = io();
 
-socket.on('index_finger_detect', (data) => {
-  console.log("Detect!")
+
+
+// New socket event to handle hand detection
+socket.on('hand_detect_new', (data) => {
   try {
     const payload = JSON.parse(data);
-    drawFromEvent(canvas.width - payload.x_percent * canvas.width, payload.y_percent * canvas.height);
+    const hand = payload[0];     
+    if (!hand.is_fist) {
+      return;
+    }
+
+    let posX = hand.x_percent * window.innerWidth;
+    let posY = hand.y_percent * window.innerHeight;
+    console.log(hand)
+    drawFromEvent(posX, posY); // Use drawFromEvent to draw at the new position
   } catch (e) {
     console.trace(e);
   }

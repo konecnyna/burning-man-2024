@@ -27,10 +27,10 @@ const debugPoint  = {
 }
 
 // Listen for the 'open_cv_event' event
-socket.on('hand_detect', (data) => {  
+socket.on('hand_detect_new', (data) => {  
+  
   try {
     const payload = JSON.parse(data);
-
     payload.forEach(hand => {
       let posX = scaleByPixelRatio(hand.x);
       let posY = scaleByPixelRatio(hand.y);
@@ -84,12 +84,12 @@ let config = {
   SIM_RESOLUTION: 128,
   DYE_RESOLUTION: 1024,
   CAPTURE_RESOLUTION: 512,
-  DENSITY_DISSIPATION: 1,
-  VELOCITY_DISSIPATION: 0.2,
+  DENSITY_DISSIPATION: .5,
+  VELOCITY_DISSIPATION: 0.01,
   PRESSURE: 0.8,
   PRESSURE_ITERATIONS: 20,
   CURL: 30,
-  SPLAT_RADIUS: 0.25,
+  SPLAT_RADIUS: 0.55,
   SPLAT_FORCE: 6000,
   SHADING: true,
   COLORFUL: true,
