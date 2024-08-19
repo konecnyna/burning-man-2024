@@ -2,16 +2,16 @@ import json
 import math
 import cv2
 import mediapipe as mp
-from shared.util.web_socket_client import ws_client
-from shared.hands.gesture_detection import is_fist, is_peace_sign, is_ok_sign, is_shaka_sign
+from shared.hands.gesture_detection import is_fist, is_peace_sign, is_ok_sign
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils  # Add this for drawing landmarks
 mp_drawing_styles = mp.solutions.drawing_styles  # Add this for drawing styles
 
 class SimpleHandTracking:
-    def __init__(self, drawLandmarks=True):
+    def __init__(self, drawLandmarks=True, ws_client=False):
         self.drawLandmarks = drawLandmarks
+        self.ws_client = ws_client
         self.hands = mp_hands.Hands(
             max_num_hands=4,
             min_detection_confidence=0.3,
@@ -33,7 +33,7 @@ class SimpleHandTracking:
             filtered_indices = self.filter_close_hands(hand_centers)
 
             payloads = self.create_payloads(hand_centers, filtered_indices, img, result)
-            ws_client.publish("hand_detect_new", payloads)
+            self.ws_client.publish("hand_detect_new", payloads)
 
             # Draw landmarks if self.drawLandmarks is True
             if self.drawLandmarks:
@@ -68,12 +68,6 @@ class SimpleHandTracking:
 
             x_center = int((x_min + x_max) / 2 * w)
             y_center = int((y_min + y_max) / 2 * h)
-
-            # Convert bounding box coordinates to integers
-            x_min_int = int(x_min * w)
-            x_max_int = int(x_max * w)
-            y_min_int = int(y_min * h)
-            y_max_int = int(y_max * h)
 
             hand_centers.append((idx, x_center, y_center))
 
@@ -117,16 +111,10 @@ class SimpleHandTracking:
                     "is_fist": is_fist(hand_landmarks),
                     "is_ok": is_ok_sign(hand_landmarks),
                     "is_peace_sign": is_peace_sign(hand_landmarks),
-                    "is_shaka_sign": is_shaka_sign(hand_landmarks),
                     "next_scene_gesture": is_ok_sign(hand_landmarks)
                 })
 
         return payloads
-
-    # def estimate_distance(self, z):
-    #     # Invert the z value and scale to a more reasonable range.
-    #     distance = -z * 1000000000  # You can adjust the 100 scaling factor as needed.
-    #     return round(distance, 2)
 
     def estimate_distance(self, z, history_size=15):
         # Invert the z value and scale to a more reasonable range
@@ -140,9 +128,6 @@ class SimpleHandTracking:
         
         
         return round(sum(self.distance_history) / len(self.distance_history),2)
-
-    def draw(self):
-        print("draw")
 
     def makeEvent(self, event, payload):
         event = {"event": event, "payload": payload}

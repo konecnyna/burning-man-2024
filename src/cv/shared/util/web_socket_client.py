@@ -42,6 +42,3 @@ class WebsocketClient:
 
     def make_event(self, event, payload):
         return {'event': event, 'payload': payload}
-
-# Export a single instance of WebsocketClient
-ws_client = WebsocketClient(ws_url='http://localhost:3000', local=False)
