@@ -26,9 +26,7 @@ def main(args):
         frame = cv2.flip(frame, 1)
         simple_hand_tracking.subscribe(img=frame)
         
-       
         if frame_count % 60 == 0:
-            print("I AM DETECTED!!")
             simple_face_detection.subscribe(img=frame)
             frame_count = 0
         

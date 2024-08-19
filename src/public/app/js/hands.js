@@ -44,7 +44,6 @@ function drawPointers(payload) {
 
 
 
-
 // // Get canvas and context
 // const handCanvas = document.getElementById('handCanvas');
 // const handCanvasCtx = handCanvas.getContext('2d');

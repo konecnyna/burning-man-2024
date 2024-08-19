@@ -4,10 +4,12 @@ import cv2
 import mediapipe as mp
 from shared.util.web_socket_client import ws_client
 from shared.hands.gesture_detection import is_fist, is_peace_sign, is_ok_sign, is_shaka_sign
+from shared.hands.gesture_recognizer import GestureRecognizer
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils  # Add this for drawing landmarks
 mp_drawing_styles = mp.solutions.drawing_styles  # Add this for drawing styles
+
 
 class SimpleHandTracking:
     def __init__(self, drawLandmarks=True):
@@ -21,11 +23,15 @@ class SimpleHandTracking:
         
         self.hands_combine_threshold = 150 
         self.distance_history = [] 
+        self.gesture_recognizer = GestureRecognizer()
 
     def subscribe(self, img, draw=True):
         #img.flags.writeable = False
         rgb_frame = self.convert_bgr_to_rgb(img)
         result = self.hands.process(rgb_frame)
+        
+        
+        
 
         if result.multi_hand_landmarks:
             hand_centers = self.calculate_hand_centers(result, img)
@@ -69,12 +75,7 @@ class SimpleHandTracking:
             x_center = int((x_min + x_max) / 2 * w)
             y_center = int((y_min + y_max) / 2 * h)
 
-            # Convert bounding box coordinates to integers
-            x_min_int = int(x_min * w)
-            x_max_int = int(x_max * w)
-            y_min_int = int(y_min * h)
-            y_max_int = int(y_max * h)
-
+            
             hand_centers.append((idx, x_center, y_center))
 
         return hand_centers
@@ -117,7 +118,7 @@ class SimpleHandTracking:
                     "is_fist": is_fist(hand_landmarks),
                     "is_ok": is_ok_sign(hand_landmarks),
                     "is_peace_sign": is_peace_sign(hand_landmarks),
-                    "is_shaka_sign": is_shaka_sign(hand_landmarks),
+                    "is_thumbs_up": self.gesture_recognizer.is_thumbs_up(image=img),
                     "next_scene_gesture": is_ok_sign(hand_landmarks)
                 })
 
