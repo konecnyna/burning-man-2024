@@ -16,14 +16,12 @@ function launchServer() {
   console.log('Starting global server');
   // Use spawn instead of exec to start the server
   const server = spawn('/opt/homebrew/bin/node', ['src/server/server.js']);
-
-  // Listen to stdout and stderr for real-time logging
   server.stdout.on('data', (data) => {
-    console.log(`Server stdout: ${data}`);
+    console.log(data);
   });
 
   server.stderr.on('data', (data) => {
-    console.error(`Server stderr: ${data}`);
+    console.error(data);
   });
 
   server.on('close', (code) => {
@@ -31,7 +29,7 @@ function launchServer() {
   });
 
   server.on('error', (error) => {
-    console.error(`Server error: ${error.message}`);
+    console.error(error);
   });
 }
 
