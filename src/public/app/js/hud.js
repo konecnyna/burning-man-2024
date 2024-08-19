@@ -27,7 +27,7 @@ const constructHud = (currentScene, nextSceneTime) => {
     const playerCountDiv = document.createElement('div');
     playerCountDiv.id = 'player-count';
     const playerCount = currentScene.meta.supported_people;
-    playerCountDiv.textContent = `Players: ${playerCount}`;
+    playerCountDiv.textContent = `Supported hands: ${playerCount}`;
     hud.appendChild(playerCountDiv);
     elementsAdded = true;
   }
