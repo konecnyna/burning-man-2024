@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // }
 
         // if (hand.is_ok) {
-        //   console.log("👌", hand.is_ok)
+        //   console.log("👎", hand.is_ok)
         // }
 
 

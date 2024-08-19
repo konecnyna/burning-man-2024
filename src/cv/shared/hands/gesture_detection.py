@@ -1,4 +1,3 @@
-# gesture_detection.py
 import math
 import mediapipe as mp
 
@@ -62,3 +61,46 @@ def is_ok_sign(hand_landmarks):
         return True
     return False
 
+def is_thumbs_up(hand_landmarks):
+    if not hand_landmarks or len(hand_landmarks.landmark) < 21:
+        return False
+
+    thumb_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_TIP]
+    thumb_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_MCP]
+    index_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.INDEX_FINGER_MCP]
+    pinky_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.PINKY_MCP]
+
+    # Check if the thumb is extended upwards and the rest of the fingers are folded
+    is_thumb_up = (thumb_tip.y < thumb_mcp.y and  # Thumb tip is above the MCP joint
+                   thumb_tip.x > index_mcp.x and  # Thumb is to the right of the index finger MCP (for left hand, reverse for right)
+                   thumb_tip.x > pinky_mcp.x)      # Thumb is to the right of the pinky finger MCP (for left hand, reverse for right)
+
+    # Additional check to ensure other fingers are folded
+    fingertips_folded = all(
+        hand_landmarks.landmark[i].y > hand_landmarks.landmark[i - 2].y  # Tip is below its respective MCP joint
+        for i in [8, 12, 16, 20]
+    )
+
+    return is_thumb_up and fingertips_folded
+
+def is_thumbs_down(hand_landmarks):
+    if not hand_landmarks or len(hand_landmarks.landmark) < 21:
+        return False
+
+    thumb_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_TIP]
+    thumb_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_MCP]
+    index_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.INDEX_FINGER_MCP]
+    pinky_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.PINKY_MCP]
+
+    # Check if the thumb is extended downwards and the rest of the fingers are folded
+    is_thumb_down = (thumb_tip.y > thumb_mcp.y and  # Thumb tip is below the MCP joint
+                     thumb_tip.x > index_mcp.x and  # Thumb is to the right of the index finger MCP (for left hand, reverse for right)
+                     thumb_tip.x > pinky_mcp.x)      # Thumb is to the right of the pinky finger MCP (for left hand, reverse for right)
+
+    # Additional check to ensure other fingers are folded
+    fingertips_folded = all(
+        hand_landmarks.landmark[i].y > hand_landmarks.landmark[i - 2].y  # Tip is below its respective MCP joint
+        for i in [8, 12, 16, 20]
+    )
+
+    return is_thumb_down and fingertips_folded

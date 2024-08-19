@@ -60,7 +60,7 @@ const constructHud = (currentScene, nextSceneTime) => {
   // Add additional instructions if they exist
   let instructions = currentScene?.meta?.additional_instructions || []  
   if (!instructions.length) {
-    instructions = ["ℹ️ Make 👌 to change scene"]
+    instructions = ["ℹ️ Make � to change scene"]
   }
 
   if (elementsAdded) hud.appendChild(createDivider());

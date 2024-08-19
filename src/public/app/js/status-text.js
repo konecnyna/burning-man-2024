@@ -66,11 +66,11 @@ function triggerAction(id, onActionTriggeredCallback) {
 
   // Set a timeout to display the message after 1 second
   timers[id].messageTimeout = setTimeout(() => {
-    updateStatusText(id, `Continue to hold 👌 to change scene in: ${countdownValue--}`);
+    updateStatusText(id, `Continue to hold 👎 to change scene in: ${countdownValue--}`);
     fadeInStatusText(id);
 
     timers[id].actionTimeout = setInterval(() => {
-      updateStatusText(id, `Continue to hold 👌 to change scene in: ${countdownValue--}`);
+      updateStatusText(id, `Continue to hold 👎 to change scene in: ${countdownValue--}`);
       if (countdownValue < 0) {
         onActionTriggeredCallback();
         clearInterval(timers[id].actionTimeout);

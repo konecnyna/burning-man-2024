@@ -27,7 +27,7 @@ class WebsocketClient:
 
     def publish(self, event, data):
         if self.local:
-            print(self.make_event(event=event, payload=data))
+            # print(self.make_event(event=event, payload=data))
             return
         
         try:
