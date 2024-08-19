@@ -119,7 +119,7 @@ class SimpleHandTracking:
                     "is_ok": is_ok_sign(hand_landmarks),
                     "is_peace_sign": is_peace_sign(hand_landmarks),
                     "is_thumbs_up": self.gesture_recognizer.is_thumbs_up(image=img),
-                    "next_scene_gesture": is_ok_sign(hand_landmarks)
+                    "next_scene_gesture": self.gesture_recognizer.is_thumbs_up(image=img)
                 })
 
         return payloads
