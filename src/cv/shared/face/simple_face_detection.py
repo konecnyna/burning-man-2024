@@ -4,10 +4,10 @@ import mediapipe as mp
 mp_face_detection = mp.solutions.face_detection
 mp_drawing = mp.solutions.drawing_utils 
 mp_drawing_styles = mp.solutions.drawing_styles 
-from shared.util.web_socket_client import ws_client
 
 class SimpleFaceDetection:
-    def __init__(self, drawLandmarks=True):
+    def __init__(self, drawLandmarks=True, ws_client=False):
+        self.ws_client = ws_client
         self.drawLandmarks = drawLandmarks
         self.face_detection = mp_face_detection.FaceDetection(
             min_detection_confidence=0.1
@@ -23,7 +23,7 @@ class SimpleFaceDetection:
                 bbox = self.calculate_bounding_box(detection, img)
 
                 payload = self.create_payload(detection, bbox)
-                ws_client.publish("face_detect", payload)
+                self.ws_client.publish("face_detect", payload)
 
                 # Draw landmarks if self.drawLandmarks is True
                 if self.drawLandmarks:

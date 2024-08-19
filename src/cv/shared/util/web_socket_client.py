@@ -27,7 +27,7 @@ class WebsocketClient:
 
     def publish(self, event, data):
         if self.local:
-            #print(self.make_event(event=event, payload=data))
+            # print(self.make_event(event=event, payload=data))
             return
         
         try:
@@ -42,6 +42,3 @@ class WebsocketClient:
 
     def make_event(self, event, payload):
         return {'event': event, 'payload': payload}
-
-# Export a single instance of WebsocketClient
-ws_client = WebsocketClient(ws_url='http://localhost:3000', local=False)

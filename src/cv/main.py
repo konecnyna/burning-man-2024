@@ -3,14 +3,17 @@ import time
 import cv2
 import argparse
 
+from shared.util.web_socket_client import WebsocketClient
 from shared.hands.simple_hand_tracking import SimpleHandTracking
 from shared.util.threaded_camera import ThreadedCamera
 from shared.face.simple_face_detection import SimpleFaceDetection
 
 
 def main(args):
-    simple_hand_tracking = SimpleHandTracking(drawLandmarks=args.debug)
-    simple_face_detection = SimpleFaceDetection(drawLandmarks=args.debug)
+    
+    ws_client = WebsocketClient(ws_url='http://localhost:3000', local=args.local)
+    simple_hand_tracking = SimpleHandTracking(drawLandmarks=args.debug, ws_client=ws_client)
+    simple_face_detection = SimpleFaceDetection(drawLandmarks=args.debug, ws_client=ws_client)
    
     camera_address = args.url if args.url is not None else 0
     camera = ThreadedCamera(camera_address)
@@ -24,6 +27,7 @@ def main(args):
     
         # Flip the frame horizontally for a mirror-like effect
         frame = cv2.flip(frame, 1)
+        # frame = cv2.resize(frame, (480, 480)
         simple_hand_tracking.subscribe(img=frame)
         
         if frame_count % 60 == 0:

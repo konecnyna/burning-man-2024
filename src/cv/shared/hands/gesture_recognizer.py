@@ -17,22 +17,22 @@ class GestureRecognizer:
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image)
         gesture_result = self.recognizer.recognize(mp_image)
         
-        if gesture_result.gestures and len(gesture_result.gestures[0]) > 0:
-            return gesture_result.gestures[0][0].category_name
-        return None
+        recognized_gestures = []
+        if gesture_result.gestures:
+            for gesture_list in gesture_result.gestures:
+                if len(gesture_list) > 0:
+                    recognized_gestures.append(gesture_list[0].category_name)
+        
+        return recognized_gestures
 
-    def is_fist(self, image):
-        gesture = self.recognize_gesture(image)
-        return gesture == "Closed_Fist"
+    def is_fist(self, gestures):
+        return "Closed_Fist" in gestures
 
-    def is_thumbs_up(self, image):
-        gesture = self.recognize_gesture(image)
-        return gesture == "Thumb_Up"
+    def is_thumbs_up(self, gestures):
+        return "Thumb_Up" in gestures
 
-    def is_thumbs_down(self, image):
-        gesture = self.recognize_gesture(image)
-        return gesture == "Thumb_Down"
+    def is_thumbs_down(self, gestures):
+        return "Thumb_Down" in gestures
 
-    def is_pointing_up(self, image):
-        gesture = self.recognize_gesture(image)
-        return gesture == "Pointing_Up"
+    def is_pointing_up(self, gestures):
+        return "Pointing_Up" in gestures

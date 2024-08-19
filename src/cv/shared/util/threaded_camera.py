@@ -9,7 +9,7 @@ class ThreadedCamera(object):
        
         # FPS = 1/X
         # X = desired FPS
-        self.FPS = 1/30
+        self.FPS = 1/10
         self.FPS_MS = int(self.FPS * 1000)
 
         self.frame = None
