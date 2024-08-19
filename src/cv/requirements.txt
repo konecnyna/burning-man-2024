@@ -4,3 +4,4 @@ mediapipe==0.10.14
 setuptools==70.0.0
 pynput==1.7.7
 python_socketio==5.11.3
+tensorflow==2.17.0

@@ -1,9 +1,11 @@
+import os
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
 # Load the gesture recognizer model
-model_path = "/Users/defkon/github/burning-man-2024/src/cv/shared/hands/models/gesture_recognizer.task"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, "models/gesture_recognizer.task")
 
 class GestureRecognizer:
     def __init__(self):
