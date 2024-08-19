@@ -14,17 +14,24 @@ function executeCommand(command, silent = false) {
 
 function launchServer() {
   console.log('Starting global server');
-  // Start the server without waiting for it to complete
-  exec('/opt/homebrew/bin/node src/server/server.js', (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Server error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.error(`Server stderr: ${stderr}`);
-      return;
-    }
-    console.log(`Server stdout: ${stdout}`);
+  // Use spawn instead of exec to start the server
+  const server = spawn('/opt/homebrew/bin/node', ['src/server/server.js']);
+
+  // Listen to stdout and stderr for real-time logging
+  server.stdout.on('data', (data) => {
+    console.log(`Server stdout: ${data}`);
+  });
+
+  server.stderr.on('data', (data) => {
+    console.error(`Server stderr: ${data}`);
+  });
+
+  server.on('close', (code) => {
+    console.log(`Server process exited with code ${code}`);
+  });
+
+  server.on('error', (error) => {
+    console.error(`Server error: ${error.message}`);
   });
 }
 
