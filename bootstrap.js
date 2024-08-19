@@ -17,11 +17,11 @@ function launchServer() {
   // Use spawn instead of exec to start the server
   const server = spawn('/opt/homebrew/bin/node', ['src/server/server.js']);
   server.stdout.on('data', (data) => {
-    console.log(data);
+    console.log(data.toString());
   });
 
   server.stderr.on('data', (data) => {
-    console.error(data);
+    console.error(data.toString());
   });
 
   server.on('close', (code) => {
@@ -29,7 +29,7 @@ function launchServer() {
   });
 
   server.on('error', (error) => {
-    console.error(error);
+    console.error(error.toString());
   });
 }
 
