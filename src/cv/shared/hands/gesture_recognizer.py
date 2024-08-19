@@ -16,7 +16,6 @@ class GestureRecognizer:
         gesture_result = self.recognizer.recognize(mp_image)
         
         if gesture_result.gestures and len(gesture_result.gestures[0]) > 0:
-            print(gesture_result.gestures[0][0].category_name, flush=True)
             return gesture_result.gestures[0][0].category_name
         return None
 
