@@ -81,7 +81,7 @@ async function main() {
     await hideMouseCursor();
 
 
-    await sleep(3000)
+    await sleep(10000)
     const focused = await isChromeFocused();
     if (focused) {
       console.log('Google Chrome is now focused.');
