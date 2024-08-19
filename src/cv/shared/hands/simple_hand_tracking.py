@@ -103,8 +103,8 @@ class SimpleHandTracking:
                 
                 hand_landmarks = result.multi_hand_landmarks[hand_idx]
                 
-                is_thumbs_up = is_thumbs_up(hand_landmarks=hand_landmarks)
-                is_thumbs_down = is_thumbs_down(hand_landmarks=hand_landmarks)
+                is_thumbs_up_result = is_thumbs_up(hand_landmarks=hand_landmarks)
+                is_thumbs_down_result = is_thumbs_down(hand_landmarks=hand_landmarks)
 
                 payloads.append({
                     "id": hand_idx,
@@ -115,10 +115,10 @@ class SimpleHandTracking:
                     "distance": distance,
                     "is_fist": is_fist(hand_landmarks),
                     "is_ok": is_ok_sign(hand_landmarks),
-                    "is_thumb_down": is_thumbs_down,
-                    "is_thumbs_up": is_thumbs_up,
+                    "is_thumb_down": is_thumbs_down_result,
+                    "is_thumbs_up": is_thumbs_up_result,
                     "is_peace_sign": is_peace_sign(hand_landmarks),
-                    "next_scene_gesture": is_thumbs_down
+                    "next_scene_gesture": is_thumbs_down_result
                 })
 
         return payloads

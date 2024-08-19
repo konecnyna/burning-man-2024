@@ -1,7 +1,7 @@
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 
 // Function to execute shell commands
-function executeCommand(command, silent=false) {
+function executeCommand(command, silent = false) {
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
       if (error && !silent) {
@@ -14,17 +14,22 @@ function executeCommand(command, silent=false) {
 
 function launchServer() {
   console.log('Starting global server');
-  // Start the server without waiting for it to complete
-  exec('/opt/homebrew/bin/node src/server/server.js', (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Server error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.error(`Server stderr: ${stderr}`);
-      return;
-    }
-    console.log(`Server stdout: ${stdout}`);
+  // Use spawn instead of exec to start the server
+  const server = spawn('/opt/homebrew/bin/node', ['src/server/server.js']);
+  server.stdout.on('data', (data) => {
+    console.log(data);
+  });
+
+  server.stderr.on('data', (data) => {
+    console.error(data);
+  });
+
+  server.on('close', (code) => {
+    console.log(`Server process exited with code ${code}`);
+  });
+
+  server.on('error', (error) => {
+    console.error(error);
   });
 }
 
@@ -71,7 +76,6 @@ async function main() {
   try {
     await killGhosts()
 
-
     launchServer();
 
     await sleep(1000)
@@ -81,17 +85,15 @@ async function main() {
     // Hide the mouse cursor
     await hideMouseCursor();
 
-    // Loop until Chrome is focused
-    while (true) {
-      const focused = await isChromeFocused();
-      if (focused) {
-        console.log('Google Chrome is now focused.');
-        break;
-      } else {
-        console.log('Trying to focus on Google Chrome...');
-        await focusChrome();
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Sleep for 1 second
-      }
+
+    await sleep(10000)
+    const focused = await isChromeFocused();
+    if (focused) {
+      console.log('Google Chrome is now focused.');
+    } else {
+      console.log('Trying to focus on Google Chrome...');
+      await focusChrome();
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Sleep for 1 second
     }
   } catch (error) {
     console.error('An error occurred:', error);
