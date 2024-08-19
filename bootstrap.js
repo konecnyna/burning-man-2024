@@ -71,7 +71,6 @@ async function main() {
   try {
     await killGhosts()
 
-
     launchServer();
 
     await sleep(1000)
