@@ -15,8 +15,8 @@ class SimpleHandTracking:
         self.ws_client = ws_client
         self.hands = mp_hands.Hands(
             max_num_hands=4,
-            min_detection_confidence=0.1,
-            min_tracking_confidence=0.1,
+            min_detection_confidence=0.4,
+            min_tracking_confidence=0.2,
             model_complexity=0,
         )
         
