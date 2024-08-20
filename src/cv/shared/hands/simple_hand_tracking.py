@@ -106,6 +106,12 @@ class SimpleHandTracking:
                 is_thumbs_up_result = is_thumbs_up(hand_landmarks=hand_landmarks)
                 is_thumbs_down_result = is_thumbs_down(hand_landmarks=hand_landmarks)
 
+                if (is_thumbs_up_result):
+                    print("👍")
+                if (is_thumbs_down_result):
+                    print("👎")
+                    
+                    
                 payloads.append({
                     "id": hand_idx,
                     "x": x_center,
