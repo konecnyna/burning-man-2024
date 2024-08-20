@@ -87,6 +87,11 @@ module.exports = class StateManager {
   }
 
   faceDetected(data) {
+    if (data.every(item => item.distance < 2)) {
+      // check this.
+      return;
+    }
+
     const lastDectionMode = this.state.detectionMode
     this.resetPassiveModeTimer();  // Reset the timer whenever a face with a high score is detected
     if (lastDectionMode === "passive") {
