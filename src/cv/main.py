@@ -30,8 +30,7 @@ def main(args):
         
        
         if frame_count % 60 == 0:
-            print("I AM DETECTED!!")
-            simple_face_detection.subscribe(img=frame)
+            #simple_face_detection.subscribe(img=frame)
             frame_count = 0
         
         frame_count += 1

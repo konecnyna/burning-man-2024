@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import math
 import cv2
@@ -14,9 +15,9 @@ class SimpleHandTracking:
         self.ws_client = ws_client
         self.hands = mp_hands.Hands(
             max_num_hands=4,
-            min_detection_confidence=0.3,
-            min_tracking_confidence=0.1,
-            model_complexity=0,
+            min_detection_confidence=0.4,
+            min_tracking_confidence=0.2,
+            model_complexity=1,
         )
         
         self.hands_combine_threshold = 150 
@@ -106,12 +107,11 @@ class SimpleHandTracking:
                 is_thumbs_up_result = is_thumbs_up(hand_landmarks=hand_landmarks)
                 is_thumbs_down_result = is_thumbs_down(hand_landmarks=hand_landmarks)
 
-                if (is_thumbs_up_result):
-                    print("👍")
-                if (is_thumbs_down_result):
-                    print("👎")
-                    
-                print("!!!!")                    
+                # if (is_thumbs_up_result):
+                #     print(f"{datetime.now()} 👍")
+                # if (is_thumbs_down_result):
+                #     print("👎")
+
                 payloads.append({
                     "id": hand_idx,
                     "x": x_center,

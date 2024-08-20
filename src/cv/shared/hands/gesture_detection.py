@@ -65,17 +65,22 @@ def is_thumbs_up(hand_landmarks):
     if not hand_landmarks or len(hand_landmarks.landmark) < 21:
         return False
 
+    # Extract relevant landmarks
     thumb_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_TIP]
+    thumb_ip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_IP]
     thumb_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_MCP]
     index_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.INDEX_FINGER_MCP]
     pinky_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.PINKY_MCP]
 
-    # Check if the thumb is extended upwards and the rest of the fingers are folded
-    is_thumb_up = (thumb_tip.y < thumb_mcp.y and  # Thumb tip is above the MCP joint
-                   thumb_tip.x > index_mcp.x and  # Thumb is to the right of the index finger MCP (for left hand, reverse for right)
-                   thumb_tip.x > pinky_mcp.x)      # Thumb is to the right of the pinky finger MCP (for left hand, reverse for right)
+    # Check if the thumb is extended upwards or pointing towards/away from the camera
+    is_thumb_up = (
+        thumb_tip.y < thumb_ip.y and  # Thumb is pointing upwards or inline with camera
+        thumb_tip.y < thumb_mcp.y and
+        (thumb_tip.x > index_mcp.x or thumb_tip.z < thumb_ip.z) and  # Thumb is either to the right or inline with the camera
+        (thumb_tip.x > pinky_mcp.x or thumb_tip.z < thumb_ip.z)      # Thumb is either to the right or inline with the camera
+    )
 
-    # Additional check to ensure other fingers are folded
+    # Additional check to ensure other fingers are folded (fingertips are below their respective MCP joints)
     fingertips_folded = all(
         hand_landmarks.landmark[i].y > hand_landmarks.landmark[i - 2].y  # Tip is below its respective MCP joint
         for i in [8, 12, 16, 20]
@@ -87,17 +92,21 @@ def is_thumbs_down(hand_landmarks):
     if not hand_landmarks or len(hand_landmarks.landmark) < 21:
         return False
 
+    # Extract relevant landmarks
     thumb_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_TIP]
+    thumb_ip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_IP]
     thumb_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_MCP]
     index_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.INDEX_FINGER_MCP]
     pinky_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.PINKY_MCP]
 
     # Check if the thumb is extended downwards and the rest of the fingers are folded
-    is_thumb_down = (thumb_tip.y > thumb_mcp.y and  # Thumb tip is below the MCP joint
-                     thumb_tip.x > index_mcp.x and  # Thumb is to the right of the index finger MCP (for left hand, reverse for right)
-                     thumb_tip.x > pinky_mcp.x)      # Thumb is to the right of the pinky finger MCP (for left hand, reverse for right)
+    is_thumb_down = (
+        thumb_tip.y > thumb_ip.y > thumb_mcp.y and  # Thumb is straight and pointing downwards
+        thumb_tip.x > index_mcp.x and  # Thumb is to the right of the index finger MCP (for left hand, reverse for right)
+        thumb_tip.x > pinky_mcp.x      # Thumb is to the right of the pinky finger MCP (for left hand, reverse for right)
+    )
 
-    # Additional check to ensure other fingers are folded
+    # Additional check to ensure other fingers are folded (fingertips are below their respective MCP joints)
     fingertips_folded = all(
         hand_landmarks.landmark[i].y > hand_landmarks.landmark[i - 2].y  # Tip is below its respective MCP joint
         for i in [8, 12, 16, 20]
