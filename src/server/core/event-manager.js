@@ -19,6 +19,8 @@ module.exports = class EventManager {
         it["handDebugging"] = this.stateManager.state.handDebugging
         return it
       }))
+
+      this.stateManager.faceDetected(data)
     });
 
     socket.on('admin_event', (data) => {
