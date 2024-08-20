@@ -1,6 +1,7 @@
 const { scenes } = require("./scene-manager");
 
 const CAMERA_URL = 0;
+const DEFAULT_SCENE_TIME = 3;
 
 module.exports = class StateManager {
   constructor(io, { openCvState = {} } = {}) {
@@ -34,7 +35,7 @@ module.exports = class StateManager {
 
     this.passiveModeTimer = setTimeout(() => {
       this.updateStateAndBroadcast({ detectionMode: "passive", currentScene: scenes.passive });
-    }, 1 * 60 * 1000);
+    }, 10 * 60 * 1000);
   }
 
   isInActiveMode() {
@@ -59,7 +60,7 @@ module.exports = class StateManager {
     }
   }
 
-  getFutureDate(minutes=3) {
+  getFutureDate(minutes=DEFAULT_SCENE_TIME) {
     const futureDate = new Date();
     futureDate.setMinutes(futureDate.getMinutes() + minutes);
     return futureDate;
@@ -92,5 +93,9 @@ module.exports = class StateManager {
       this.updateStateAndBroadcast({ detectionMode: "active" });
       this.nextActiveScene();
     }
+  }
+
+  resetNextSceneTime(minutes = DEFAULT_SCENE_TIME) {
+    this.updateStateAndBroadcast({ nextSceneTime: this.getFutureDate(minutes) });
   }
 };
