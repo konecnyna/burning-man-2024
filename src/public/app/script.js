@@ -7,25 +7,6 @@ let transitionTimer = null
 document.addEventListener('DOMContentLoaded', () => {
   const contentFrame = document.getElementById('contentFrame');
   const stateChanged = async (state) => {
-
-    if (lastState?.detectionMode != state.detectionMode && !transitionTimer) {
-      transitionTimer = true
-      console.log("conten!", lastState?.detectionMode, state.detectionMode)
-      contentFrame.src  = "whipe/index.html"
-      console.log(`load whipe!!!`)
-      await sleep(10000)
-      console.log(`load ${state.currentScene.id}`)
-      await loadScene(state)
-      transitionTimer = false;
-    } else if (!transitionTimer) {
-      console.log(`load ${state.currentScene.id}`)
-      await loadScene(state)
-    }
-
-    lastState = state
-  }
-
-  const loadScene = async (state) => {
     try {
       const currentScene = state.currentScene;
       if (currentScene) {
@@ -42,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.trace(e)
     }
+   
+
+    lastState = state
   }
 
 
@@ -53,12 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("LOADING PAGE", contentFrame.src,  scene.url)
 
     contentFrame.src = scene.url;
-    if (scene.id === "loading" || scene.id === "passive") {
-      return;
-    }
-
     await sleep(1500)
-    await showToast(scene.name, 1500);
+    if (scene.name) {
+      await showToast(scene.name, 1500);      
+    }
     for (var i = 0; i < scene.instructions.length; i++) {
       await showToast(scene.instructions[i], 4000)
     }

@@ -18,8 +18,7 @@ const debugState = {
   openCvState: {
     debugging: true,
     openCvEnabled: true,
-    showVideo: true,
-    isMockMode: false,
+    showVideo: false,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }
 }
@@ -29,7 +28,6 @@ const productionState = {
     debugging: false,
     openCvEnabled: true,
     showVideo: false,
-    isMockMode: false,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }
 }
@@ -60,15 +58,6 @@ server.listen(3000, () => {
     console.log("🟡 Not running opencv state 'openCvEnabled=false'")
   }
   
-
-  // setTimeout(() => {
-  //   console.log("🟡 send it!")
-  //   stateManager.updateStateAndBroadcast({
-  //     detectionMode: "active"
-  //   })
-  // }, 8000)
-  
-  // startupScript()
 });
 
 

@@ -3,6 +3,10 @@ const { scenes } = require("./scene-manager");
 const CAMERA_URL = 0;
 const DEFAULT_SCENE_TIME = 3;
 
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
 module.exports = class StateManager {
   constructor(io, { openCvState = {} } = {}) {
 
@@ -26,6 +30,9 @@ module.exports = class StateManager {
     this.state = { ...defaultOpenCvState, ...openCvState };
     this.startSceneCheckInterval();
     this.resetPassiveModeTimer();  // Initialize the passive mode timer
+
+    
+    this.showingTransition = false;
   }
 
   resetPassiveModeTimer() {
@@ -86,12 +93,31 @@ module.exports = class StateManager {
     this.updateStateAndBroadcast({ currentScene: nextScene, nextSceneTime: this.getFutureDate() });
   }
 
-  faceDetected(data) {
-    if (data.every(item => item.distance < 2)) {
-      // check this.
+  async faceDetected(data) {
+    // console.log(data.every(item => item.distance < 2))
+    // if (data.every(item => item.distance < 2)) {
+    //   // check this.
+    //   // return;
+    //   console.log("NOPE")
+    // }
+
+    if (this.showingTransition ) {
       return;
     }
 
+    try {
+      this.showingTransition = true
+      this.updateStateAndBroadcast({ detectionMode: "active" })
+      this.nextScene(scenes.whipe.id)
+      console.log("showing next scene")
+      await sleep(15000)
+      console.log("showing kewl scne! scene")
+      this.nextActiveScene();
+    } catch (e) {
+      console.trace(e)
+    } finally {
+      this.showingTransition = false
+    }
     const lastDectionMode = this.state.detectionMode
     this.resetPassiveModeTimer();  // Reset the timer whenever a face with a high score is detected
     if (lastDectionMode === "passive") {
