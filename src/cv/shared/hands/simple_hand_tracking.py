@@ -111,7 +111,7 @@ class SimpleHandTracking:
                 if (is_thumbs_down_result):
                     print("👎")
                     
-                    
+                print("!!!!")                    
                 payloads.append({
                     "id": hand_idx,
                     "x": x_center,
