@@ -7,7 +7,7 @@ const OpenCvEventBus = require("./core/opencv-event-bus")
 const StateManager = require("./core/state-manager")
 const EventManager = require("./core/event-manager");
 const { scenes } = require("./core/scene-manager");
-const startupScript = require("./core/start-up");
+//const startupScript = require("./core/start-up");
 
 
 const app = express();
@@ -60,13 +60,36 @@ server.listen(3000, () => {
     console.log("🟡 Not running opencv state 'openCvEnabled=false'")
   }
   
+
+  // setTimeout(() => {
+  //   console.log("🟡 send it!")
+  //   stateManager.updateStateAndBroadcast({
+  //     detectionMode: "active"
+  //   })
+  // }, 8000)
   
   // startupScript()
 });
 
+
+// Function to execute shell commands
+const { exec } = require('child_process');
+function executeCommand(command, silent = false) {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error && !silent) {
+        console.trace(error)
+      }
+      resolve(stdout.trim());
+    });
+  });
+}
+
 process.on('SIGINT', () => {
   if (stateManager.state.openCvEnabled) {
     openCvEventBus.stop()
+    executeCommand("pkill Python")
+    executeCommand("pkill Google")
   }
 
   process.exit();

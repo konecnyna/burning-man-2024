@@ -7,24 +7,25 @@ let transitionTimer = null
 document.addEventListener('DOMContentLoaded', () => {
   const contentFrame = document.getElementById('contentFrame');
   const stateChanged = async (state) => {
-    // console.log("stae!")
-    // if (lastState && lastState.detectionMode != state.detectionMode) {
-    //   console.log("conten!")
-    //   contentFrame.src  = "whipe/index.html"
-    //   transitionTimer = setTimeout(() => {
-    //     updateState(state)
-    //   }, 1900)
-    // } else if (!transitionTimer) {
-    //   updateState(state);
-    // }
 
-    console.log("Next state...")
+    if (lastState?.detectionMode != state.detectionMode && !transitionTimer) {
+      transitionTimer = true
+      console.log("conten!", lastState?.detectionMode, state.detectionMode)
+      contentFrame.src  = "whipe/index.html"
+      console.log(`load whipe!!!`)
+      await sleep(10000)
+      console.log(`load ${state.currentScene.id}`)
+      await loadScene(state)
+      transitionTimer = false;
+    } else if (!transitionTimer) {
+      console.log(`load ${state.currentScene.id}`)
+      await loadScene(state)
+    }
 
-    updateState(state);
     lastState = state
   }
 
-  const updateState = async (state) => {
+  const loadScene = async (state) => {
     try {
       const currentScene = state.currentScene;
       if (currentScene) {
