@@ -16,8 +16,8 @@ const io = socketIo(server);
 
 const debugState = {
   openCvState: {
-    debugging: true,
-    openCvEnabled: true,
+    debugging: false,
+    openCvEnabled: false,
     showVideo: false,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }

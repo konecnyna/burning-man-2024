@@ -1,5 +1,3 @@
-// https://codepen.io/mesteradam/pen/xxdWVj
-
 var wvAnimation = {
   nX: 0,
   nSpeed: 1,
@@ -7,7 +5,7 @@ var wvAnimation = {
   oNegyzet: [],
   nSum: 0,
   nWidth: 0,
-  oBody: null,
+  oContainer: null,
   oFullFill: null,
   oImg: new Image(),
   effect: 0
@@ -36,17 +34,11 @@ function SquareFadeAnimation(nX, nSpeed, nSeq, bCreate, delay) {
   // nX
   wvAnimation.nX = nX || 6;
 
-  wvAnimation.oBody = document.body;
+  wvAnimation.oContainer = document.getElementById("content-container");
 
   // create?!
-  if (bCreate === undefined || bCreate === false) {
-    wvAnimation.oFullFill = document.getElementById("wv-full-fill");
-  } else {
-    var oWvFullFill = document.createElement("div");
-    oWvFullFill.setAttribute("id", "wv-full-fill");
-    document.body.insertBefore(oWvFullFill, document.body.childNodes[0]);
-    wvAnimation.oFullFill = document.getElementById("wv-full-fill");
-  }
+  wvAnimation.oFullFill = document.getElementById("wv-full-fill");
+
 
   start(delay);
 }
@@ -170,7 +162,7 @@ function linearCSSAnimation() {
     }, wvAnimation.nSeq);
   } else {
     setTimeout(function () {
-      wvAnimation.oBody.removeChild(wvAnimation.oFullFill);
+      wvAnimation.oContainer.removeChild(wvAnimation.oFullFill);
     }, wvAnimation.nSpeed);
   }
 }
@@ -193,13 +185,14 @@ function createPreloader() {
   return preloader;
 }
 
-function startWhipeAnimation(imageUrl, nX = 5, nSpeed = 750, nSeq = 200, delay = 2000) {
-  setWhipeImage(imageUrl);
+function startWhipeAnimation(nX = 5, nSpeed = 750, nSeq = 200, delay = 4000) {
+
   SquareFadeAnimation(nX, nSpeed, nSeq, true, delay);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  startWhipeAnimation("/images/oracle.jpeg")
+  setWhipeImage("/images/oracle.jpeg");
+  startWhipeAnimation()
 })
 
 function effectChange(o) {
