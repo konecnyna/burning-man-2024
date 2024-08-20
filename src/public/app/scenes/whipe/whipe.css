@@ -11,6 +11,28 @@
 }
 
 
-body, html {
-  background-color: black;
+.trippy-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 100px;
+  font-weight: bold;
+  color: #00ffff; /* Neon Cyan as base color */
+  text-shadow: 
+    0 0 5px #00ffff, 
+    0 0 10px #00ff99,  /* Neon Lime */
+    0 0 20px #00ffff,  /* Neon Magenta */
+    0 0 40px #00ffff, 
+    0 0 80px #00ff99, 
+    0 0 160px #00ffff;
+  z-index: 0; /* Ensure it's behind the squares */
+  opacity: 0; /* Start with invisible text */
+  transition: opacity 2s ease-in-out; /* Smooth fade-in effect */
+}
+
+
+
+body {
+  background-color: red;
 }

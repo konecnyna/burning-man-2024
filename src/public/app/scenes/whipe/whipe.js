@@ -136,6 +136,11 @@ function fadeInSquares() {
   }
 }
 
+function fadeInTrippyText() {
+  const trippyText = document.getElementById("trippy-text");
+  trippyText.style.opacity = "1"; // Trigger the fade-in effect
+}
+
 function linearCSSAnimation() {
   switch (wvAnimation.effect) {
     case 0:
@@ -163,6 +168,8 @@ function linearCSSAnimation() {
   } else {
     setTimeout(function () {
       wvAnimation.oContainer.removeChild(wvAnimation.oFullFill);
+      fadeInTrippyText(); // Fade in the text after the animation completes
+  
     }, wvAnimation.nSpeed);
   }
 }
@@ -190,11 +197,6 @@ function startWhipeAnimation(nX = 5, nSpeed = 750, nSeq = 200, delay = 4000) {
   SquareFadeAnimation(nX, nSpeed, nSeq, true, delay);
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  setWhipeImage("/images/oracle.jpeg");
-  startWhipeAnimation()
-})
-
 function effectChange(o) {
   wvAnimation.effect = o.selectedIndex;
 }
@@ -203,3 +205,9 @@ function effectChange(o) {
 window.startWhipeAnimation = startWhipeAnimation;
 window.setWhipeImage = setWhipeImage;
 window.effectChange = effectChange;
+
+
+
+setWhipeImage("/images/oracle.jpeg");
+startWhipeAnimation()
+
