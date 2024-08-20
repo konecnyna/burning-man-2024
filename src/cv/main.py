@@ -29,8 +29,8 @@ def main(args):
         simple_hand_tracking.subscribe(img=frame)
         
        
-        if frame_count % 60 == 0:
-            #simple_face_detection.subscribe(img=frame)
+        if frame_count % 25 == 0:
+            simple_face_detection.subscribe(img=frame)
             frame_count = 0
         
         frame_count += 1
