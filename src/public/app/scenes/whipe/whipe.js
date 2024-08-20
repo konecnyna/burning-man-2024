@@ -138,7 +138,14 @@ function fadeInSquares() {
 
 function fadeInTrippyText() {
   const trippyText = document.getElementById("trippy-text");
-  trippyText.style.opacity = "1"; // Trigger the fade-in effect
+  
+  // Fade in the text
+  trippyText.style.opacity = "1";
+
+  // Fade out the text after 2 seconds
+  setTimeout(function () {
+    trippyText.style.opacity = "0";
+  }, 2000); // 2 seconds delay
 }
 
 function linearCSSAnimation() {
