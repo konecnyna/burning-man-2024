@@ -3,7 +3,7 @@ import json
 import math
 import cv2
 import mediapipe as mp
-from shared.hands.gesture_detection import is_fist, is_peace_sign, is_ok_sign, is_thumbs_down, is_thumbs_up
+from shared.hands.gesture_detection import is_fist, is_peace_sign, is_ok_sign, is_thumbs_up_or_down
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils  # Add this for drawing landmarks
@@ -104,13 +104,12 @@ class SimpleHandTracking:
                 
                 hand_landmarks = result.multi_hand_landmarks[hand_idx]
                 
-                is_thumbs_up_result = is_thumbs_up(hand_landmarks=hand_landmarks)
-                is_thumbs_down_result = is_thumbs_down(hand_landmarks=hand_landmarks)
+                thumbs_gesture_result = is_thumbs_up_or_down(hand_landmarks=hand_landmarks)
 
-                # if (is_thumbs_up_result):
-                #     print(f"{datetime.now()} 👍")
-                # if (is_thumbs_down_result):
-                #     print("👎")
+                if (thumbs_gesture_result == "up"):
+                    print(f"{datetime.now()} 👍")
+                elif (thumbs_gesture_result == "down"):
+                    print(f"{datetime.now()} 👎")
 
                 payloads.append({
                     "id": hand_idx,
@@ -121,10 +120,10 @@ class SimpleHandTracking:
                     "distance": distance,
                     "is_fist": is_fist(hand_landmarks),
                     "is_ok": is_ok_sign(hand_landmarks),
-                    "is_thumb_down": is_thumbs_down_result,
-                    "is_thumbs_up": is_thumbs_up_result,
+                    "is_thumb_down": thumbs_gesture_result == "down",
+                    "is_thumbs_up": thumbs_gesture_result == "up",
                     "is_peace_sign": is_peace_sign(hand_landmarks),
-                    "next_scene_gesture": is_thumbs_down_result
+                    "next_scene_gesture": thumbs_gesture_result == "down"
                 })
 
         return payloads
