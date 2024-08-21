@@ -7,8 +7,8 @@ let parameters = {
   hue: 0.5,
   hueVariation: 1,
   gradient: .5,
-  density: .5,
-  displacement: .66
+  density: .75,
+  displacement: .8
 };
 
 class World {
