@@ -215,6 +215,20 @@ window.effectChange = effectChange;
 
 
 
-setWhipeImage("/images/oracle.jpeg");
-startWhipeAnimation()
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("set image")
+  
+  // Set the image source and wait for it to load
+  setWhipeImage("/images/oracle.jpeg");
+
+  // Wait for the image to load before starting the animation
+  wvAnimation.oImg.onload = function() {
+    console.log("Image loaded, starting animation");
+    startWhipeAnimation();
+  };
+});
+
+
 

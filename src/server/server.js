@@ -16,9 +16,9 @@ const io = socketIo(server);
 
 const debugState = {
   openCvState: {
-    debugging: false,
+    debugging: true,
     openCvEnabled: true,
-    showVideo: false,
+    showVideo: true,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }
 }
@@ -77,8 +77,8 @@ function executeCommand(command, silent = false) {
 process.on('SIGINT', () => {
   if (stateManager.state.openCvEnabled) {
     openCvEventBus.stop()
-    executeCommand("pkill Python")
-    executeCommand("pkill Google")
+    // executeCommand("pkill Python")
+    // executeCommand("pkill Google")
   }
 
   process.exit();

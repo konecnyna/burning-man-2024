@@ -114,17 +114,17 @@ def is_thumbs_up_or_down(hand_landmarks):
         for i in [8, 12, 16, 20]
     )
 
-    # Print statements for debugging
-    print(f"is_thumb_up {is_thumb_up}")
-    print(f"is_thumb_down {is_thumb_down}")
-    print(f"fingertips_folded {fingertips_folded}")
-    print(f"is_thumb_above_hand {is_thumb_above_hand}")
-    print(f"is_thumb_below_hand {is_thumb_below_hand}")
+    # # Print statements for debugging
+    # print(f"is_thumb_up {is_thumb_up}")
+    # print(f"is_thumb_down {is_thumb_down}")
+    # print(f"fingertips_folded {fingertips_folded}")
+    # print(f"is_thumb_above_hand {is_thumb_above_hand}")
+    # print(f"is_thumb_below_hand {is_thumb_below_hand}")
 
     # Return "up", "down", or None based on the gesture detected
-    if is_thumb_up and fingertips_folded and is_thumb_above_hand:
+    if is_thumb_up and fingertips_folded :
         return "up"
-    elif is_thumb_down and fingertips_folded and is_thumb_below_hand:
+    elif is_thumb_down and fingertips_folded:
         return "down"
     else:
         return None

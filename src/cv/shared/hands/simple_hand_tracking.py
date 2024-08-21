@@ -15,7 +15,7 @@ class SimpleHandTracking:
         self.ws_client = ws_client
         self.hands = mp_hands.Hands(
             max_num_hands=4,
-            min_detection_confidence=0.4,
+            min_detection_confidence=0.6,
             min_tracking_confidence=0.2,
             model_complexity=0,
         )
@@ -107,9 +107,9 @@ class SimpleHandTracking:
                 thumbs_gesture_result = is_thumbs_up_or_down(hand_landmarks=hand_landmarks)
 
                 if (thumbs_gesture_result == "up"):
-                    print(f"{datetime.now()} 👍")
+                    print(f"{datetime.now()} 👍", flush=True)
                 elif (thumbs_gesture_result == "down"):
-                    print(f"{datetime.now()} 👎")
+                    print(f"{datetime.now()} 👎", flush=True)
 
                 payloads.append({
                     "id": hand_idx,
