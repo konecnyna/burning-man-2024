@@ -7,7 +7,7 @@ const OpenCvEventBus = require("./core/opencv-event-bus")
 const StateManager = require("./core/state-manager")
 const EventManager = require("./core/event-manager");
 const { scenes } = require("./core/scene-manager");
-const startupScript = require("./core/start-up");
+//const startupScript = require("./core/start-up");
 
 
 const app = express();
@@ -16,10 +16,9 @@ const io = socketIo(server);
 
 const debugState = {
   openCvState: {
-    debugging: true,
+    debugging: false,
     openCvEnabled: true,
-    showVideo: true,
-    isMockMode: false,
+    showVideo: false,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }
 }
@@ -29,12 +28,11 @@ const productionState = {
     debugging: false,
     openCvEnabled: true,
     showVideo: false,
-    isMockMode: false,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }
 }
 
-const stateManager = new StateManager(io, productionState)
+const stateManager = new StateManager(io, debugState)
 
 const eventManager = new EventManager(stateManager, io)
 const openCvEventBus = new OpenCvEventBus(io, stateManager.state)
@@ -60,13 +58,27 @@ server.listen(3000, () => {
     console.log("🟡 Not running opencv state 'openCvEnabled=false'")
   }
   
-  
-  // startupScript()
 });
+
+
+// Function to execute shell commands
+const { exec } = require('child_process');
+function executeCommand(command, silent = false) {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error && !silent) {
+        console.trace(error)
+      }
+      resolve(stdout.trim());
+    });
+  });
+}
 
 process.on('SIGINT', () => {
   if (stateManager.state.openCvEnabled) {
     openCvEventBus.stop()
+    executeCommand("pkill Python")
+    executeCommand("pkill Google")
   }
 
   process.exit();

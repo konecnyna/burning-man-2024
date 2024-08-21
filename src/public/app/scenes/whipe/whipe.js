@@ -1,5 +1,3 @@
-// https://codepen.io/mesteradam/pen/xxdWVj
-
 var wvAnimation = {
   nX: 0,
   nSpeed: 1,
@@ -7,7 +5,7 @@ var wvAnimation = {
   oNegyzet: [],
   nSum: 0,
   nWidth: 0,
-  oBody: null,
+  oContainer: null,
   oFullFill: null,
   oImg: new Image(),
   effect: 0
@@ -36,17 +34,11 @@ function SquareFadeAnimation(nX, nSpeed, nSeq, bCreate, delay) {
   // nX
   wvAnimation.nX = nX || 6;
 
-  wvAnimation.oBody = document.body;
+  wvAnimation.oContainer = document.getElementById("content-container");
 
   // create?!
-  if (bCreate === undefined || bCreate === false) {
-    wvAnimation.oFullFill = document.getElementById("wv-full-fill");
-  } else {
-    var oWvFullFill = document.createElement("div");
-    oWvFullFill.setAttribute("id", "wv-full-fill");
-    document.body.insertBefore(oWvFullFill, document.body.childNodes[0]);
-    wvAnimation.oFullFill = document.getElementById("wv-full-fill");
-  }
+  wvAnimation.oFullFill = document.getElementById("wv-full-fill");
+
 
   start(delay);
 }
@@ -144,6 +136,18 @@ function fadeInSquares() {
   }
 }
 
+function fadeInTrippyText() {
+  const trippyText = document.getElementById("trippy-text");
+  
+  // Fade in the text
+  trippyText.style.opacity = "1";
+
+  // Fade out the text after 2 seconds
+  setTimeout(function () {
+    trippyText.style.opacity = "0";
+  }, 2000); // 2 seconds delay
+}
+
 function linearCSSAnimation() {
   switch (wvAnimation.effect) {
     case 0:
@@ -170,7 +174,9 @@ function linearCSSAnimation() {
     }, wvAnimation.nSeq);
   } else {
     setTimeout(function () {
-      wvAnimation.oBody.removeChild(wvAnimation.oFullFill);
+      wvAnimation.oContainer.removeChild(wvAnimation.oFullFill);
+      fadeInTrippyText(); // Fade in the text after the animation completes
+  
     }, wvAnimation.nSpeed);
   }
 }
@@ -193,14 +199,10 @@ function createPreloader() {
   return preloader;
 }
 
-function startWhipeAnimation(imageUrl, nX = 5, nSpeed = 750, nSeq = 200, delay = 2000) {
-  setWhipeImage(imageUrl);
+function startWhipeAnimation(nX = 5, nSpeed = 750, nSeq = 200, delay = 4000) {
+
   SquareFadeAnimation(nX, nSpeed, nSeq, true, delay);
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-  startWhipeAnimation("/images/oracle.jpeg")
-})
 
 function effectChange(o) {
   wvAnimation.effect = o.selectedIndex;
@@ -210,3 +212,9 @@ function effectChange(o) {
 window.startWhipeAnimation = startWhipeAnimation;
 window.setWhipeImage = setWhipeImage;
 window.effectChange = effectChange;
+
+
+
+setWhipeImage("/images/oracle.jpeg");
+startWhipeAnimation()
+

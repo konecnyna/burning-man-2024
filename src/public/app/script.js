@@ -4,27 +4,13 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 let lastState = null
 let transitionTimer = null
 
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
   const contentFrame = document.getElementById('contentFrame');
   const stateChanged = async (state) => {
-    // console.log("stae!")
-    // if (lastState && lastState.detectionMode != state.detectionMode) {
-    //   console.log("conten!")
-    //   contentFrame.src  = "whipe/index.html"
-    //   transitionTimer = setTimeout(() => {
-    //     updateState(state)
-    //   }, 1900)
-    // } else if (!transitionTimer) {
-    //   updateState(state);
-    // }
-
-    console.log("Next state...")
-
-    updateState(state);
-    lastState = state
-  }
-
-  const updateState = async (state) => {
+    lastState = state   
     try {
       const currentScene = state.currentScene;
       if (currentScene) {
@@ -34,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
           const hud = document.getElementById('hud');
           hud.innerHTML = '';
         }
-
         await loadPage(currentScene);
       }
 
@@ -49,15 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    console.log("LOADING PAGE", contentFrame.src,  scene.url)
+    console.log("LOADING PAGE", contentFrame.src, scene.url)
 
     contentFrame.src = scene.url;
-    if (scene.id === "loading" || scene.id === "passive") {
-      return;
-    }
-
     await sleep(1500)
-    await showToast(scene.name, 1500);
+    if (scene.name) {
+      await showToast(scene.name, 1500);
+    }
     for (var i = 0; i < scene.instructions.length; i++) {
       await showToast(scene.instructions[i], 4000)
     }
@@ -72,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/api/app-state')
       .then(response => response.json())
       .then(state => {
+        console.log("!!!!!!")
         stateChanged(state)
       })
       .catch(error => {
@@ -83,7 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('hand_detect_new', (data) => {
     try {
       const payload = JSON.parse(data);
-      if (payload[0].handDebugging) {
+
+      console.log(lastState)
+      if (lastState?.currentScene?.handCursors) {
         drawPointers(payload)
       }
 
@@ -98,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // }
 
         // if (hand.is_ok) {
-        //   console.log("👌", hand.is_ok)
+        //   console.log("👎", hand.is_ok)
         // }
 
 
@@ -114,9 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       })
 
-      setTimeout(() => {
-        //startWhipeAnimation()
-      }, 2000)
 
     } catch (e) {
       console.trace(e);

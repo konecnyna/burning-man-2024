@@ -1,4 +1,3 @@
-# gesture_detection.py
 import math
 import mediapipe as mp
 
@@ -62,3 +61,70 @@ def is_ok_sign(hand_landmarks):
         return True
     return False
 
+
+def is_thumbs_up_or_down(hand_landmarks):
+    if not hand_landmarks or len(hand_landmarks.landmark) < 21:
+        return None
+
+    # Extract relevant landmarks
+    thumb_tip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_TIP]
+    thumb_ip = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_IP]
+    thumb_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.THUMB_MCP]
+    index_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.INDEX_FINGER_MCP]
+    pinky_mcp = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.PINKY_MCP]
+    wrist = hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.WRIST]
+
+    # Calculate vector for the hand's orientation (wrist to middle MCP)
+    hand_vector = (hand_landmarks.landmark[mp.solutions.holistic.HandLandmark.MIDDLE_FINGER_MCP].y - wrist.y)
+
+    # Determine hand orientation (left or right) based on the thumb's relative position
+    is_left_hand = thumb_tip.x < index_mcp.x and thumb_tip.x < pinky_mcp.x
+
+    # Check if the thumb is extended upwards
+    is_thumb_up = (
+        thumb_tip.y < thumb_ip.y and  # Thumb is pointing upwards
+        thumb_ip.y < thumb_mcp.y and  # Thumb is extended
+        (thumb_tip.x > index_mcp.x if not is_left_hand else thumb_tip.x < index_mcp.x)  # Thumb is on the correct side
+    )
+
+    # Check if the thumb is extended downwards
+    is_thumb_down = (
+        thumb_tip.y > thumb_ip.y and  # Thumb is pointing downwards
+        thumb_ip.y > thumb_mcp.y and  # Thumb is extended
+        (thumb_tip.x > index_mcp.x if not is_left_hand else thumb_tip.x < index_mcp.x)  # Thumb is on the correct side
+    )
+
+    # Ensure the thumb is above the hand plane for thumbs up
+    is_thumb_above_hand = (
+        thumb_tip.y < wrist.y and
+        thumb_mcp.y < wrist.y and
+        hand_vector < 0  # Hand is pointing up
+    )
+
+    # Ensure the thumb is below the hand plane for thumbs down
+    is_thumb_below_hand = (
+        thumb_tip.y > wrist.y and
+        thumb_mcp.y > wrist.y and
+        hand_vector > 0  # Hand is pointing down
+    )
+
+    # Additional check to ensure other fingers are folded (fingertips are below their respective MCP joints)
+    fingertips_folded = all(
+        hand_landmarks.landmark[i].y > hand_landmarks.landmark[i - 2].y  # Tip is below its respective MCP joint
+        for i in [8, 12, 16, 20]
+    )
+
+    # Print statements for debugging
+    print(f"is_thumb_up {is_thumb_up}")
+    print(f"is_thumb_down {is_thumb_down}")
+    print(f"fingertips_folded {fingertips_folded}")
+    print(f"is_thumb_above_hand {is_thumb_above_hand}")
+    print(f"is_thumb_below_hand {is_thumb_below_hand}")
+
+    # Return "up", "down", or None based on the gesture detected
+    if is_thumb_up and fingertips_folded and is_thumb_above_hand:
+        return "up"
+    elif is_thumb_down and fingertips_folded and is_thumb_below_hand:
+        return "down"
+    else:
+        return None

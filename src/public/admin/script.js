@@ -6,6 +6,8 @@ const currentScene = document.getElementById('currentScene');
 const toggleLogButton = document.getElementById('toggleLogButton');
 const sceneButtonsContainer = document.getElementById('sceneButtons');
 const sceneChangeTimer = document.getElementById('sceneChangeTimer');
+const resetTimerBtn = document.getElementById('reset_timer');
+const nextSceneBtn = document.getElementById('next_scene');
 
 const connectionBanner = document.getElementById('connectionBanner');
 socket.on('connect', () => {
@@ -23,7 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeEventListeners() {
   toggleLogButton.addEventListener('click', toggleLogVisibility);
-
+  resetTimerBtn.addEventListener("click", () => {
+    socket.emit('admin_event', { event: "reset_screen_time", payload: {} });
+  })
+  nextSceneBtn.addEventListener("click", () => {
+    socket.emit('admin_event', { event: "change_scene", payload: {} });
+  })
   socket.on('state_changed', (data) => {
     updateState(JSON.parse(data));
   });
@@ -89,7 +96,6 @@ function createSceneButton(scene) {
 
   console.log(scene)
   button.addEventListener('click', () => {
-    console.log("CLICKE!", scene)
     socket.emit('admin_event', { event: "change_scene", payload: scene });
   });
 

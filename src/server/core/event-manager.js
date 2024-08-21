@@ -19,6 +19,8 @@ module.exports = class EventManager {
         it["handDebugging"] = this.stateManager.state.handDebugging
         return it
       }))
+
+      this.stateManager.faceDetected(data)
     });
 
     socket.on('admin_event', (data) => {
@@ -29,6 +31,9 @@ module.exports = class EventManager {
           } else  {
             this.stateManager.nextActiveScene()
           }
+          break;
+        case "reset_screen_time":
+          this.stateManager.resetNextSceneTime()
           break;
       }
     });

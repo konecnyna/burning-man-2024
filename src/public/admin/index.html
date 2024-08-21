@@ -43,12 +43,21 @@
         </div>
         <div class="bg-gray-700 p-4 rounded-md">
           <h3 class="text-lg font-semibold mb-2">⏰ Time Until Scene Changes</h3>
-          <p id="sceneChangeTimer">00:05:00</p>
+          <p id="sceneChangeTimer" class="text-4xl font-semibold mb-4">00:05:00</p>
+          
+          <button id="reset_timer" class="bg-red-600 hover:bg-gray-500 text-white py-2 px-4 rounded mb-4">
+            Reset Timer
+          </button>
         </div>
       </div>
       <div class="grid grid-cols-1 gap-4 mb-4">
         <div class="bg-gray-700 p-4 rounded-md">
-          <h3 class="text-lg font-semibold mb-2">🖲️ Change Scene:</h3>
+          <h3 class="text-lg font-semibold mb-2">🎬 Change Scene:</h3>
+          <button id="next_scene" class="bg-blue-600 hover:bg-gray-500 text-white py-2 px-4 rounded mb-4">
+            Next Scene
+          </button>
+
+          <h3 class="text-lg font-semibold mb-2">🖲️ Select specific screen:</h3>
           <div id="sceneButtons"></div>
         </div>
       </div>

@@ -1,8 +1,9 @@
+from datetime import datetime
 import json
 import math
 import cv2
 import mediapipe as mp
-from shared.hands.gesture_detection import is_fist, is_peace_sign, is_ok_sign
+from shared.hands.gesture_detection import is_fist, is_peace_sign, is_ok_sign, is_thumbs_up_or_down
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils  # Add this for drawing landmarks
@@ -14,8 +15,8 @@ class SimpleHandTracking:
         self.ws_client = ws_client
         self.hands = mp_hands.Hands(
             max_num_hands=4,
-            min_detection_confidence=0.3,
-            min_tracking_confidence=0.1,
+            min_detection_confidence=0.4,
+            min_tracking_confidence=0.2,
             model_complexity=0,
         )
         
@@ -24,8 +25,8 @@ class SimpleHandTracking:
 
     def subscribe(self, img, draw=True):
         #img.flags.writeable = False
-        rgb_frame = self.convert_bgr_to_rgb(img)
-        result = self.hands.process(rgb_frame)
+        # rgb_frame = self.convert_bgr_to_rgb(img)
+        result = self.hands.process(img)
 
         if result.multi_hand_landmarks:
             hand_centers = self.calculate_hand_centers(result, img)
@@ -100,7 +101,16 @@ class SimpleHandTracking:
                 wrist_z = result.multi_hand_landmarks[hand_idx].landmark[0].z
                 distance = self.estimate_distance(wrist_z)
 
+                
                 hand_landmarks = result.multi_hand_landmarks[hand_idx]
+                
+                thumbs_gesture_result = is_thumbs_up_or_down(hand_landmarks=hand_landmarks)
+
+                if (thumbs_gesture_result == "up"):
+                    print(f"{datetime.now()} 👍")
+                elif (thumbs_gesture_result == "down"):
+                    print(f"{datetime.now()} 👎")
+
                 payloads.append({
                     "id": hand_idx,
                     "x": x_center,
@@ -110,8 +120,10 @@ class SimpleHandTracking:
                     "distance": distance,
                     "is_fist": is_fist(hand_landmarks),
                     "is_ok": is_ok_sign(hand_landmarks),
+                    "is_thumb_down": thumbs_gesture_result == "down",
+                    "is_thumbs_up": thumbs_gesture_result == "up",
                     "is_peace_sign": is_peace_sign(hand_landmarks),
-                    "next_scene_gesture": is_ok_sign(hand_landmarks)
+                    "next_scene_gesture": thumbs_gesture_result == "down"
                 })
 
         return payloads
