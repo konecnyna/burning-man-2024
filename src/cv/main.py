@@ -5,6 +5,7 @@ from shared.util.web_socket_client import WebsocketClient
 from shared.hands.simple_hand_tracking import SimpleHandTracking
 from shared.util.threaded_camera import ThreadedCamera
 from shared.face.simple_face_detection import SimpleFaceDetection
+from shared.motion_detector import MotionDetector
 
 
 def main(args):
@@ -13,10 +14,10 @@ def main(args):
     
     simple_hand_tracking = SimpleHandTracking(drawLandmarks=args.debug, ws_client=ws_client)
     simple_face_detection = SimpleFaceDetection(drawLandmarks=args.debug, ws_client=ws_client)
+    motion_detector = MotionDetector(debug=args.debug, ws_client=ws_client)
    
     camera_address = args.url if args.url is not None else 0
     camera = ThreadedCamera(camera_address)
-    
         
     frame_count = 0
     while camera.capture.isOpened():
@@ -27,14 +28,13 @@ def main(args):
         # Flip the frame horizontally for a mirror-like effect
         frame = cv2.flip(frame, 1)
         simple_hand_tracking.subscribe(img=frame)
-        
+        motion_detector.subscribe(img=frame)
        
-        # if frame_count % 25 == 0:
-        #     simple_face_detection.subscribe(img=frame)
-        #     frame_count = 0
+        if frame_count % 15 == 0:
+            simple_face_detection.subscribe(img=frame)
+            frame_count = 0
         
         
-        frame_count += 1
  
         if args.show_cv:
             cv2.imshow("Image", frame)
