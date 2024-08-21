@@ -4,9 +4,13 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 let lastState = null
 let transitionTimer = null
 
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
   const contentFrame = document.getElementById('contentFrame');
   const stateChanged = async (state) => {
+    lastState = state   
     try {
       const currentScene = state.currentScene;
       if (currentScene) {
@@ -16,16 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
           const hud = document.getElementById('hud');
           hud.innerHTML = '';
         }
-
         await loadPage(currentScene);
       }
 
     } catch (e) {
       console.trace(e)
     }
-   
-
-    lastState = state
   }
 
 
@@ -34,12 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    console.log("LOADING PAGE", contentFrame.src,  scene.url)
+    console.log("LOADING PAGE", contentFrame.src, scene.url)
 
     contentFrame.src = scene.url;
     await sleep(1500)
     if (scene.name) {
-      await showToast(scene.name, 1500);      
+      await showToast(scene.name, 1500);
     }
     for (var i = 0; i < scene.instructions.length; i++) {
       await showToast(scene.instructions[i], 4000)
@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/api/app-state')
       .then(response => response.json())
       .then(state => {
+        console.log("!!!!!!")
         stateChanged(state)
       })
       .catch(error => {
@@ -66,7 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('hand_detect_new', (data) => {
     try {
       const payload = JSON.parse(data);
-      if (payload[0].handDebugging) {
+
+      console.log(lastState)
+      if (lastState?.currentScene?.handCursors) {
         drawPointers(payload)
       }
 
@@ -97,9 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       })
 
-      setTimeout(() => {
-        //startWhipeAnimation()
-      }, 2000)
 
     } catch (e) {
       console.trace(e);

@@ -3,7 +3,7 @@ const scenes = {
     id: "loading", url: '/app/scenes/loading/index.html', instructions: ["Start up scene"], name: "Loading", isActive: false,
   },
   whipe: {
-    id: "whipe", url: '/app/whipe/index.html', instructions: [], name: null, isActive: false,
+    id: "whipe", url: '/app/scenes/whipe/index.html', instructions: [], name: null, isActive: false,
   },
   passive: {
     id: "passive", url: '/app/scenes/passive/index.html', instructions: ["Come peer into the looking glass..."], name: null, isActive: false,
@@ -18,7 +18,7 @@ const scenes = {
     id: "orbits", url: '/app/scenes/orbits/index.html', instructions: ["Move your hand slowly (palms out) to navigate the universe"], name: "Tripping through Space", isActive: true, meta: {
       "supported_people": "💁‍♂️",
       "additional_instructions": []
-    },
+    },    
   },
   puddle: {
     id: "puddle", url: '/app/scenes/puddle/index.html', instructions: ["Wave hand slowly (palms out) to make waves"], name: "Iridescent Puddle", isActive: true, meta: {
@@ -43,8 +43,15 @@ const scenes = {
       "supported_people": "💁‍♂️",
       "additional_instructions": ["Make a fist to paint"]
     },
+    handCursors: true,
+  },
+  psychedelicWaves: {
+    id: "psychedelic_waves", url: '/app/scenes/psychedelic-waves/index.html', instructions: ["Move your hands slowly (palms out) to make waves"], name: "Psychedelic Waves", isActive: true, meta: {
+      "supported_people": "💁‍♂️",
+      "additional_instructions": []
+    },
+    handCursors: false,
   }
-
 };
 
 class SceneManager {

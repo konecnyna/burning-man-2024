@@ -13,7 +13,7 @@ module.exports = class StateManager {
     this.io = io;
     const defaultOpenCvState = {
       debugging: false,
-      handDebugging: true,
+      handDebugging: false,
       openCvPythonRunning: false,
       showVideo: false,
       isMockMode: false,
@@ -101,7 +101,12 @@ module.exports = class StateManager {
     //   console.log("NOPE")
     // }
 
-    if (this.showingTransition ) {
+    if (this.showingTransition) {
+      return;
+    }
+
+    if (this.state.detectionMode == "active") {
+      this.resetPassiveModeTimer(); 
       return;
     }
 
