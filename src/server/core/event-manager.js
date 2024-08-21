@@ -14,13 +14,21 @@ module.exports = class EventManager {
       this.stateManager.faceDetected(data)
     });
 
+
+    socket.on('object_detected', (data) => {
+      if (this.stateManager.state.detectionMode === "passive") {
+        this.safeBroadcast("object_detected", data)
+      }      
+    });
+    
+
     socket.on('hand_detect_new', (data) => {
       this.safeBroadcast("hand_detect_new", data.map(it => {
         it["handDebugging"] = this.stateManager.state.handDebugging
         return it
       }))
 
-      this.stateManager.faceDetected(data)
+      //this.stateManager.faceDetected(data)
     });
 
     socket.on('admin_event', (data) => {

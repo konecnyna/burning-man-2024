@@ -1,10 +1,7 @@
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
 
-const pointRemoveDelay = 15000;
 const maxDistance = 250; // Maximum allowed distance to connect lines
-const eraseDelay = 10000; // Time to wait before starting to erase (10 seconds)
-const eraseInterval = 100; // Interval to remove points (100ms)
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -12,22 +9,20 @@ canvas.height = window.innerHeight;
 let points = [];
 let hue = 0;
 let drawing = false;
-let eraseTimeout;
-let erasing = false;
-
-const windowHalfX = window.innerWidth / 2;
-const windowHalfY = window.innerHeight / 2;
 
 // Setup WebSocket connection
 const socket = io();
-
-
 
 // New socket event to handle hand detection
 socket.on('hand_detect_new', (data) => {
   try {
     const payload = JSON.parse(data);
     const hand = payload[0];     
+    if (hand.is_ok) {
+      //clearScreen(); // Clear the canvas if is_ok is true
+      //return;
+    }
+
     if (!hand.is_fist) {
       return;
     }
@@ -42,11 +37,6 @@ socket.on('hand_detect_new', (data) => {
 });
 
 function drawFromEvent(x, y) {
-  if (erasing) {
-    erasing = false;
-    resetEraseTimeout();
-  }
-
   points.push({ x, y, hue });
 
   ctx.lineWidth = 5;
@@ -69,8 +59,6 @@ function drawFromEvent(x, y) {
   if (hue >= 360) {
     hue = 0;
   }
-
-  resetEraseTimeout();
 }
 
 function getDistance(point1, point2) {
@@ -85,7 +73,6 @@ function startPosition(e) {
 function endPosition() {
   drawing = false;
   ctx.beginPath();
-  setTimeout(removePoint, pointRemoveDelay); // Start removing points after 15 seconds
 }
 
 function draw(e) {
@@ -97,58 +84,12 @@ function draw(e) {
   drawFromEvent(x, y);
 }
 
-function removePoint() {
-  if (points.length > 0) {
-    points.shift();
-    redraw();
-    setTimeout(removePoint, 30); // Remove a point every 30ms
-  }
-}
-
-function redraw() {
+function clearScreen() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.beginPath();
-  for (let i = 0; i < points.length; i++) {
-    const point = points[i];
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = `hsl(${point.hue}, 100%, 50%)`;
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = `hsl(${point.hue}, 100%, 50%)`;
-
-    const lastPoint = points[i - 1];
-    if (lastPoint && getDistance(lastPoint, point) > maxDistance) {
-      ctx.beginPath();
-    }
-
-    ctx.lineTo(point.x, point.y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(point.x, point.y);
-  }
-}
-
-function startErasing() {
-  if (erasing && points.length > 0) {
-    points.shift();
-    redraw();
-    setTimeout(startErasing, eraseInterval); // Remove a point every 100ms
-  }
-}
-
-function resetEraseTimeout() {
-  clearTimeout(eraseTimeout);
-  erasing = false;
-  eraseTimeout = setTimeout(() => {
-    erasing = true;
-    startErasing();
-  }, eraseDelay);
+  points = []; // Optionally clear the points array if you want to reset everything
 }
 
 // Mouse event listeners
 canvas.addEventListener('mousedown', startPosition);
 canvas.addEventListener('mouseup', endPosition);
 canvas.addEventListener('mousemove', draw);
-
-resetEraseTimeout();

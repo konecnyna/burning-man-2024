@@ -34,7 +34,6 @@ def main(args):
             simple_face_detection.subscribe(img=frame)
             frame_count = 0
         
-        
  
         if args.show_cv:
             cv2.imshow("Image", frame)
