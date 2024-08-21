@@ -55,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/api/app-state')
       .then(response => response.json())
       .then(state => {
-        console.log("!!!!!!")
         stateChanged(state)
       })
       .catch(error => {
@@ -69,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const payload = JSON.parse(data);
 
       console.log(lastState)
-      if (lastState?.currentScene?.handCursors) {
+      if (lastState?.currentScene?.handCursors || lastState?.handDebugging) {
         drawPointers(payload)
       }
 

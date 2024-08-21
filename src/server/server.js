@@ -19,6 +19,7 @@ const debugState = {
     debugging: true,
     openCvEnabled: true,
     showVideo: true,
+    handDebugging: true,
     //rtspUrl: "/Users/defkon/Desktop/mode-tranisition-test.mp4",
   }
 }

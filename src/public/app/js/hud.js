@@ -1,3 +1,5 @@
+let intervalId = false;
+
 const constructHud = (currentScene, nextSceneTime) => {
   // Create the HUD container
   const hud = document.getElementById('hud');
@@ -39,6 +41,8 @@ const constructHud = (currentScene, nextSceneTime) => {
     timeRemainingDiv.id = 'time-remaining';
     hud.appendChild(timeRemainingDiv);
 
+    let lastTimeRemaining = null;  // Keep track of the last time remaining
+
     const updateTimeRemaining = () => {
       const now = new Date();
       const timeRemaining = new Date(nextSceneTime) - now;
@@ -47,20 +51,51 @@ const constructHud = (currentScene, nextSceneTime) => {
         const minutes = Math.floor((timeRemaining / 1000 / 60) % 60);
         const seconds = Math.floor((timeRemaining / 1000) % 60);
         timeRemainingDiv.textContent = `⏰ ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        // Show or hide the HUD based on the time remaining
+        if (timeRemaining > 150000 || timeRemaining < 30000) { // above 2m30s or below 30s
+          hud.classList.remove('slide-up');
+          hud.classList.add('slide-down');
+          console.log("230")
+        } else if (lastTimeRemaining !== null && lastTimeRemaining < 30000 && timeRemaining > 30000) {
+          // Handle case where timer is reset from below 30s to above 2m30s
+          hud.classList.remove('slide-up');
+          hud.classList.add('slide-down');
+          console.log("below")
+        } else {
+          hud.classList.remove('slide-down');
+          hud.classList.add('slide-up');
+          console.log("else")
+        }
+
+        lastTimeRemaining = timeRemaining;
       } else {
         timeRemainingDiv.textContent = `⏰ 00:00`;
+        hud.classList.remove('slide-down');
+        hud.classList.add('slide-up');
       }
     };
 
     updateTimeRemaining();
-    setInterval(updateTimeRemaining, 1000);
+    clearInterval(intervalId);
+    // Continuously update the time and visibility, accounting for timer resets
+    intervalId = setInterval(() => {
+      updateTimeRemaining();
+
+      // Recalculate time remaining in case nextSceneTime is reset
+      const updatedTimeRemaining = new Date(nextSceneTime) - new Date();
+      if (updatedTimeRemaining <= 0) {
+        clearInterval(intervalId); // Stop the interval if the time runs out
+      }
+    }, 1000);
+
     elementsAdded = true;
   }
 
   // Add additional instructions if they exist
-  let instructions = currentScene?.meta?.additional_instructions || []  
+  let instructions = currentScene?.meta?.additional_instructions || [];
   if (!instructions.length) {
-    instructions = ["ℹ️ Make � to change scene"]
+    instructions = ["ℹ️ Make sure to follow the instructions to change the scene."];
   }
 
   if (elementsAdded) hud.appendChild(createDivider());
@@ -70,7 +105,6 @@ const constructHud = (currentScene, nextSceneTime) => {
   additionalInstructionsDiv.textContent = instructions.join(' ');
   hud.appendChild(additionalInstructionsDiv);
 
-
   // Clear the existing HUD if it exists and add the new one
   const existingHud = document.getElementById('hud');
   if (existingHud) {
@@ -79,6 +113,23 @@ const constructHud = (currentScene, nextSceneTime) => {
 
   document.body.appendChild(hud);
 };
+
+// CSS for sliding up and down
+const style = document.createElement('style');
+style.innerHTML = `
+  #hud {
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  }
+  .slide-up {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  .slide-down {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
+document.head.appendChild(style);
 
 // Example usage with the stateChanged function
 const stateChanged = async (state) => {
