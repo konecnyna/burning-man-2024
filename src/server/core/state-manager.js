@@ -134,4 +134,9 @@ module.exports = class StateManager {
   resetNextSceneTime(minutes = DEFAULT_SCENE_TIME) {
     this.updateStateAndBroadcast({ nextSceneTime: this.getFutureDate(minutes) });
   }
+
+
+  setPassiveMode() {
+    this.updateStateAndBroadcast({ detectionMode: "passive", currentScene: scenes.passive });
+  }
 };

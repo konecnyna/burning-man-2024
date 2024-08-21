@@ -41,7 +41,11 @@ module.exports = class EventManager {
           }
           break;
         case "reset_screen_time":
-          this.stateManager.resetNextSceneTime()
+          this.stateManager.resetNextSceneTime();
+          break;
+
+        case "set_detection_mode":
+          this.stateManager.setPassiveMode();
           break;
       }
     });

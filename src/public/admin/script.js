@@ -8,6 +8,7 @@ const sceneButtonsContainer = document.getElementById('sceneButtons');
 const sceneChangeTimer = document.getElementById('sceneChangeTimer');
 const resetTimerBtn = document.getElementById('reset_timer');
 const nextSceneBtn = document.getElementById('next_scene');
+const setModePassiveBtn = document.getElementById("set_mode_passive");
 
 const connectionBanner = document.getElementById('connectionBanner');
 socket.on('connect', () => {
@@ -31,6 +32,13 @@ function initializeEventListeners() {
   nextSceneBtn.addEventListener("click", () => {
     socket.emit('admin_event', { event: "change_scene", payload: {} });
   })
+
+  
+  setModePassiveBtn.addEventListener("click", () => {
+    socket.emit('admin_event', { event: "set_detection_mode", payload: { mode: "passive" } });
+  });
+
+
   socket.on('state_changed', (data) => {
     updateState(JSON.parse(data));
   });
