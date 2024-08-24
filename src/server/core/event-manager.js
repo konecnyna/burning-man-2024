@@ -10,7 +10,7 @@ module.exports = class EventManager {
   }
 
   socketConnection(socket) {
-    socket.on('face_detect', (data) => {
+    socket.on('face_detect', (data) => {      
       this.stateManager.faceDetected(data)
     });
 
@@ -32,10 +32,11 @@ module.exports = class EventManager {
     });
 
     socket.on('admin_event', (data) => {
+      const payload = data.payload
       switch(data.event) {
         case "change_scene":
-          if (data.payload.id) {
-            this.stateManager.nextScene(data.payload.id)
+          if (payload.id) {
+            this.stateManager.nextScene(payload.id)
           } else  {
             this.stateManager.nextActiveScene()
           }
@@ -45,7 +46,10 @@ module.exports = class EventManager {
           break;
 
         case "set_detection_mode":
-          this.stateManager.setPassiveMode();
+          payload.mode === "active" 
+            ? this.stateManager.setActiveMode() 
+            : this.stateManager.setPassiveMode()
+          
           break;
       }
     });

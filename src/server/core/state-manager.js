@@ -31,7 +31,7 @@ module.exports = class StateManager {
     this.startSceneCheckInterval();
     this.resetPassiveModeTimer();  // Initialize the passive mode timer
 
-    
+
     this.showingTransition = false;
   }
 
@@ -53,7 +53,7 @@ module.exports = class StateManager {
     if (!newState) {
       throw Error("no state provided!")
     }
-    
+
     this.state = { ...this.state, ...newState };
     this.broadcastState();
   }
@@ -67,7 +67,7 @@ module.exports = class StateManager {
     }
   }
 
-  getFutureDate(minutes=DEFAULT_SCENE_TIME) {
+  getFutureDate(minutes = DEFAULT_SCENE_TIME) {
     const futureDate = new Date();
     futureDate.setMinutes(futureDate.getMinutes() + minutes);
     return futureDate;
@@ -106,37 +106,35 @@ module.exports = class StateManager {
     }
 
     if (this.state.detectionMode == "active") {
-      this.resetPassiveModeTimer(); 
+      this.resetPassiveModeTimer();
       return;
     }
 
     try {
       this.showingTransition = true
-      this.updateStateAndBroadcast({ detectionMode: "active" })
-      this.nextScene(scenes.whipe.id)
-      console.log("showing next scene")
-      await sleep(15000)
-      console.log("showing kewl scne! scene")
-      this.nextActiveScene();
+      await this.setActiveMode()
     } catch (e) {
       console.trace(e)
     } finally {
       this.showingTransition = false
-    }
-    const lastDectionMode = this.state.detectionMode
-    this.resetPassiveModeTimer();  // Reset the timer whenever a face with a high score is detected
-    if (lastDectionMode === "passive") {
-      this.updateStateAndBroadcast({ detectionMode: "active" });
-      this.nextActiveScene();
-    }
+    }    
   }
 
   resetNextSceneTime(minutes = DEFAULT_SCENE_TIME) {
     this.updateStateAndBroadcast({ nextSceneTime: this.getFutureDate(minutes) });
   }
 
-
   setPassiveMode() {
-    this.updateStateAndBroadcast({ detectionMode: "passive", currentScene: scenes.passive });
+    this.updateStateAndBroadcast({ detectionMode: "passive", currentScene: scenes.passive, nextSceneTime });
   }
+
+  async setActiveMode() {
+    this.updateStateAndBroadcast({ detectionMode: "active" })
+    this.nextScene(scenes.whipe.id)
+    console.log("showing next scene")
+    await sleep(15000)
+    console.log("showing kewl scne! scene")
+    this.nextActiveScene();
+  }
+
 };

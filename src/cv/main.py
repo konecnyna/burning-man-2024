@@ -28,12 +28,16 @@ def main(args):
         # Flip the frame horizontally for a mirror-like effect
         frame = cv2.flip(frame, 1)
         simple_hand_tracking.subscribe(img=frame)
-        motion_detector.subscribe(img=frame)
-       
-        if frame_count % 15 == 0:
-            simple_face_detection.subscribe(img=frame)
-            frame_count = 0
         
+        
+        # Less important tasks
+        # if frame_count % 15 == 0:
+            # simple_face_detection.subscribe(img=frame)
+
+        if frame_count % 60 == 0:
+            motion_detector.subscribe(img=frame)
+            frame_count = 0
+               
  
         if args.show_cv:
             cv2.imshow("Image", frame)

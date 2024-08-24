@@ -6,7 +6,7 @@ const scenes = {
     id: "whipe", url: '/app/scenes/whipe/index.html', instructions: [], name: null, isActive: false,
   },
   passive: {
-    id: "passive", url: '/app/scenes/passive/index.html', instructions: ["Come peer into the looking glass..."], name: null, isActive: false,
+    id: "passive", url: '/app/scenes/passive/index.html', instructions: [], name: null, isActive: false,
   },
   fluidSim: {
     id: "fluid_sim", url: '/app/scenes/fluid-sim/index.html', instructions: ["Wave you hand slowly  (palms out) to move the particles around."], name: "Fluid waves", isActive: true, meta: {
