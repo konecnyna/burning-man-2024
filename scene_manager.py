@@ -68,20 +68,12 @@ class SceneManager:
                 background_color="#0f3460"
             ),
             SceneConfig(
-                id="music_visualizer",
-                name="Music Visualizer",
-                description="Audio-reactive visualization controlled by hand movements",
-                duration=35.0,
-                html_file="scenes/music.html",
-                background_color="#1a1a2e"
-            ),
-            SceneConfig(
-                id="interactive_gallery",
-                name="Interactive Gallery",
-                description="Browse through images and content with hand gestures",
+                id="fluidsim",
+                name="Fluid Simulation",
+                description="WebGL fluid simulation controlled by hand movements",
                 duration=50.0,
-                html_file="scenes/gallery.html",
-                background_color="#16213e"
+                html_file="scenes/fluidsim/index.html",
+                background_color="#000000"
             )
         ]
         

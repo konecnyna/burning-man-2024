@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import threading
 import cv2
@@ -59,7 +59,7 @@ class WebSocketManager:
 
 def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand_tracker=None):
     """Create Flask app with WebSocket support"""
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
     app.config['SECRET_KEY'] = 'hand-tracking-secret'
     socketio = SocketIO(app, cors_allowed_origins="*")
     
@@ -70,6 +70,16 @@ def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand
         # Serve the static HTML file directly for now
         with open('static/index.html', 'r') as f:
             return f.read()
+    
+    @app.route('/scenes/<path:filename>')
+    def serve_scenes(filename):
+        """Serve scene files from static/scenes directory"""
+        return send_from_directory('static/scenes', filename)
+    
+    @app.route('/static/<path:filename>')
+    def serve_static(filename):
+        """Serve static files"""
+        return send_from_directory('static', filename)
     
     @app.route('/health')
     def health():

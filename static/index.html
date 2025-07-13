@@ -471,7 +471,11 @@
             
             async loadScene(scene) {
                 try {
-                    const response = await fetch(`/static/scenes/${scene.html_file}`);
+                    console.log('Loading scene:', scene);
+                    const response = await fetch(`/scenes/${scene.html_file}`);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load scene: ${response.status}`);
+                    }
                     const html = await response.text();
                     
                     const container = document.getElementById('scene-container');
@@ -539,15 +543,33 @@
         }
         
         function nextScene() {
-            window.app.socket.emit('next_scene');
+            console.log('Next scene button clicked');
+            if (window.app && window.app.socket) {
+                window.app.socket.emit('next_scene');
+                console.log('Emitted next_scene event');
+            } else {
+                console.error('Socket not available');
+            }
         }
         
         function previousScene() {
-            window.app.socket.emit('previous_scene');
+            console.log('Previous scene button clicked');
+            if (window.app && window.app.socket) {
+                window.app.socket.emit('previous_scene');
+                console.log('Emitted previous_scene event');
+            } else {
+                console.error('Socket not available');
+            }
         }
         
         function toggleAutoCycle() {
-            window.app.socket.emit('toggle_auto_cycle');
+            console.log('Toggle auto-cycle button clicked');
+            if (window.app && window.app.socket) {
+                window.app.socket.emit('toggle_auto_cycle');
+                console.log('Emitted toggle_auto_cycle event');
+            } else {
+                console.error('Socket not available');
+            }
         }
         
         function toggleVideo() {
