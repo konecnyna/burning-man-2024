@@ -410,8 +410,11 @@
                         break;
                     case 'scene_changed':
                         this.currentScene = event.data.scene;
+                        this.currentSceneIndex = event.data.scene_index;
+                        this.totalScenes = event.data.total_scenes;
                         this.loadScene(event.data.scene);
                         this.updateStatusBar();
+                        this.updateSceneCounter();
                         break;
                     case 'scene_transition_end':
                         this.hideOverlay();
@@ -472,14 +475,21 @@
             async loadScene(scene) {
                 try {
                     console.log('Loading scene:', scene);
-                    const response = await fetch(`/scenes/${scene.html_file}`);
-                    if (!response.ok) {
-                        throw new Error(`Failed to load scene: ${response.status}`);
-                    }
-                    const html = await response.text();
                     
                     const container = document.getElementById('scene-container');
-                    container.innerHTML = html;
+                    
+                    // Handle fluidsim scene differently (it's a complete HTML page)
+                    if (scene.id === 'fluidsim') {
+                        container.innerHTML = `<iframe src="/${scene.html_file}" style="width: 100%; height: 100%; border: none;"></iframe>`;
+                    } else {
+                        // Load HTML fragment for other scenes
+                        const response = await fetch(`/${scene.html_file}`);
+                        if (!response.ok) {
+                            throw new Error(`Failed to load scene: ${response.status}`);
+                        }
+                        const html = await response.text();
+                        container.innerHTML = html;
+                    }
                     
                     // Initialize scene if handler exists
                     this.callSceneHandler('onInit');
@@ -516,6 +526,13 @@
                 document.getElementById('handCounter').textContent = `Hands: ${this.hands.length}`;
                 document.getElementById('currentScene').textContent = 
                     `Scene: ${this.currentScene ? this.currentScene.name : 'Loading'}`;
+            }
+            
+            updateSceneCounter() {
+                if (this.currentSceneIndex !== undefined && this.totalScenes !== undefined) {
+                    const counter = document.getElementById('sceneCounter');
+                    counter.textContent = `Scene ${this.currentSceneIndex + 1} of ${this.totalScenes}`;
+                }
             }
             
             updateDebugPanel() {
