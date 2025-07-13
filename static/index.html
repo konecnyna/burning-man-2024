@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Tracking Kiosk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .scene-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .scene-container.active {
+            opacity: 1;
+        }
+
+        .scene-container.transitioning {
+            opacity: 0.5;
+        }
+
+        .parent-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .parent-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .overlay-content {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .overlay-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #00ff88;
+        }
+
+        .overlay-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .scene-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .scene-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #4ecdc4);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .scene-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .scene-counter {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .scene-timer {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .hand-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #00ff88;
+            transition: all 0.1s ease;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .hand-cursor.hand-0 {
+            background: #00ff88;
+            box-shadow: 0 0 20px #00ff88;
+        }
+
+        .hand-cursor.hand-1 {
+            background: #ff6b6b;
+            box-shadow: 0 0 20px #ff6b6b;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff6b6b;
+        }
+
+        .status-indicator.connected {
+            background: #00ff88;
+        }
+
+        .debug-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .debug-panel {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            z-index: 100;
+            display: none;
+        }
+
+        .debug-panel.visible {
+            display: block;
+        }
+
+        .manual-controls {
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .manual-controls button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .manual-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Scene containers will be dynamically created -->
+        <div class="scene-container active" id="scene-container">
+            <!-- Current scene content will be loaded here -->
+        </div>
+        
+        <!-- Parent overlay for scene transitions -->
+        <div class="parent-overlay" id="parentOverlay">
+            <div class="overlay-content">
+                <h1 id="overlayTitle">Loading...</h1>
+                <p id="overlayDescription">Preparing interactive experience...</p>
+                
+                <div class="scene-progress">
+                    <div class="scene-progress-bar" id="progressBar"></div>
+                </div>
+                
+                <div class="scene-info">
+                    <div class="scene-counter" id="sceneCounter">Scene 1 of 5</div>
+                    <div class="scene-timer" id="sceneTimer">30s remaining</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hand cursors -->
+        <div class="hand-cursors" id="handCursors">
+            <!-- Hand cursors will be created dynamically -->
+        </div>
+        
+        <!-- Status bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator" id="connectionStatus"></div>
+                <span id="connectionText">Disconnected</span>
+            </div>
+            <div class="status-item">
+                <span id="fpsCounter">FPS: 0</span>
+            </div>
+            <div class="status-item">
+                <span id="handCounter">Hands: 0</span>
+            </div>
+            <div class="status-item">
+                <span id="currentScene">Scene: Loading</span>
+            </div>
+        </div>
+        
+        <!-- Debug controls -->
+        <button class="debug-toggle" onclick="toggleDebug()">Debug</button>
+        <div class="debug-panel" id="debugPanel">
+            <div>Events: <span id="eventCount">0</span></div>
+            <div>Scene: <span id="debugScene">-</span></div>
+            <div>Timer: <span id="debugTimer">-</span></div>
+            <div>Auto-cycle: <span id="debugAutoCycle">-</span></div>
+        </div>
+        
+        <!-- Manual controls -->
+        <div class="manual-controls">
+            <button onclick="previousScene()">◀ Prev</button>
+            <button onclick="nextScene()">Next ▶</button>
+            <button onclick="toggleAutoCycle()">Auto</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script>
+        class HandTrackingKiosk {
+            constructor() {
+                this.socket = io();
+                this.isConnected = false;
+                this.currentScene = null;
+                this.scenes = [];
+                this.hands = [];
+                this.fps = 0;
+                this.eventCount = 0;
+                this.debugVisible = false;
+                this.overlayVisible = false;
+                this.sceneHandlers = {};
+                this.overlayTimer = null;
+                
+                // Make scene handlers available globally
+                window.sceneHandlers = this.sceneHandlers;
+                
+                this.initializeSocket();
+                this.startProgressUpdater();
+            }
+            
+            initializeSocket() {
+                this.socket.on('connect', () => {
+                    console.log('Connected to server');
+                    this.isConnected = true;
+                    this.updateConnectionStatus();
+                    
+                    // Subscribe to all events
+                    this.socket.emit('subscribe', {
+                        events: [
+                            'hand_moved', 'hand_detected', 'hand_lost', 'frame_processed',
+                            'scene_changed', 'scene_transition_start', 'scene_transition_end'
+                        ]
+                    });
+                });
+                
+                this.socket.on('disconnect', () => {
+                    console.log('Disconnected from server');
+                    this.isConnected = false;
+                    this.updateConnectionStatus();
+                });
+                
+                this.socket.on('event', (event) => {
+                    this.handleEvent(event);
+                });
+            }
+            
+            handleEvent(event) {
+                this.eventCount++;
+                
+                switch(event.type) {
+                    case 'hand_moved':
+                        this.updateHands(event.data.hands);
+                        break;
+                    case 'hand_detected':
+                        this.updateHands(event.data.hands);
+                        this.callSceneHandler('onHandDetected', event.data.hands);
+                        break;
+                    case 'hand_lost':
+                        this.updateHands(event.data.hands);
+                        this.callSceneHandler('onHandLost');
+                        break;
+                    case 'frame_processed':
+                        this.fps = Math.round(event.data.fps);
+                        this.updateStatusBar();
+                        break;
+                    case 'scene_transition_start':
+                        this.showOverlay(event.data.to_scene);
+                        break;
+                    case 'scene_changed':
+                        this.currentScene = event.data.scene;
+                        this.loadScene(event.data.scene);
+                        this.updateStatusBar();
+                        break;
+                    case 'scene_transition_end':
+                        this.hideOverlay();
+                        break;
+                }
+                
+                this.updateDebugPanel();
+            }
+            
+            updateHands(hands) {
+                this.hands = hands;
+                this.renderHandCursors();
+                this.callSceneHandler('onHandMove', hands);
+            }
+            
+            renderHandCursors() {
+                const container = document.getElementById('handCursors');
+                container.innerHTML = '';
+                
+                this.hands.forEach((hand, index) => {
+                    const cursor = document.createElement('div');
+                    cursor.className = `hand-cursor hand-${index}`;
+                    cursor.style.left = `${hand.palm_center.x * 100}%`;
+                    cursor.style.top = `${hand.palm_center.y * 100}%`;
+                    container.appendChild(cursor);
+                });
+            }
+            
+            showOverlay(scene) {
+                const overlay = document.getElementById('parentOverlay');
+                const title = document.getElementById('overlayTitle');
+                const description = document.getElementById('overlayDescription');
+                
+                title.textContent = scene.name;
+                description.textContent = scene.description;
+                
+                overlay.classList.add('visible');
+                this.overlayVisible = true;
+                
+                // Auto-hide after 3 seconds
+                if (this.overlayTimer) clearTimeout(this.overlayTimer);
+                this.overlayTimer = setTimeout(() => {
+                    this.hideOverlay();
+                }, 3000);
+            }
+            
+            hideOverlay() {
+                const overlay = document.getElementById('parentOverlay');
+                overlay.classList.remove('visible');
+                this.overlayVisible = false;
+                
+                if (this.overlayTimer) {
+                    clearTimeout(this.overlayTimer);
+                    this.overlayTimer = null;
+                }
+            }
+            
+            async loadScene(scene) {
+                try {
+                    const response = await fetch(`/static/scenes/${scene.html_file}`);
+                    const html = await response.text();
+                    
+                    const container = document.getElementById('scene-container');
+                    container.innerHTML = html;
+                    
+                    // Initialize scene if handler exists
+                    this.callSceneHandler('onInit');
+                    
+                } catch (error) {
+                    console.error('Error loading scene:', error);
+                }
+            }
+            
+            callSceneHandler(method, ...args) {
+                if (this.currentScene && this.sceneHandlers[this.currentScene.id]) {
+                    const handler = this.sceneHandlers[this.currentScene.id][method];
+                    if (typeof handler === 'function') {
+                        handler(...args);
+                    }
+                }
+            }
+            
+            updateConnectionStatus() {
+                const indicator = document.getElementById('connectionStatus');
+                const text = document.getElementById('connectionText');
+                
+                if (this.isConnected) {
+                    indicator.classList.add('connected');
+                    text.textContent = 'Connected';
+                } else {
+                    indicator.classList.remove('connected');
+                    text.textContent = 'Disconnected';
+                }
+            }
+            
+            updateStatusBar() {
+                document.getElementById('fpsCounter').textContent = `FPS: ${this.fps}`;
+                document.getElementById('handCounter').textContent = `Hands: ${this.hands.length}`;
+                document.getElementById('currentScene').textContent = 
+                    `Scene: ${this.currentScene ? this.currentScene.name : 'Loading'}`;
+            }
+            
+            updateDebugPanel() {
+                if (!this.debugVisible) return;
+                
+                document.getElementById('eventCount').textContent = this.eventCount;
+                document.getElementById('debugScene').textContent = 
+                    this.currentScene ? this.currentScene.id : 'None';
+            }
+            
+            startProgressUpdater() {
+                setInterval(() => {
+                    // Update scene progress (this would be connected to scene manager)
+                    // For now, just a placeholder
+                }, 1000);
+            }
+        }
+        
+        // Global functions for manual controls
+        function toggleDebug() {
+            const panel = document.getElementById('debugPanel');
+            const isVisible = panel.classList.toggle('visible');
+            window.app.debugVisible = isVisible;
+        }
+        
+        function nextScene() {
+            window.app.socket.emit('next_scene');
+        }
+        
+        function previousScene() {
+            window.app.socket.emit('previous_scene');
+        }
+        
+        function toggleAutoCycle() {
+            window.app.socket.emit('toggle_auto_cycle');
+        }
+        
+        // Initialize the app when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new HandTrackingKiosk();
+        });
+    </script>
+</body>
+</html>
