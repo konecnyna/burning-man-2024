@@ -193,6 +193,7 @@
             font-size: 0.8rem;
             z-index: 100;
             display: none;
+            max-width: 400px;
         }
 
         .debug-panel.visible {
@@ -221,6 +222,44 @@
         }
 
         .manual-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .debug-video {
+            position: fixed;
+            top: 60px;
+            left: 20px;
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            z-index: 100;
+            display: none;
+        }
+        
+        .debug-video.visible {
+            display: block;
+        }
+        
+        .debug-video img {
+            max-width: 320px;
+            max-height: 240px;
+            border-radius: 8px;
+        }
+        
+        .debug-control {
+            margin: 5px 0;
+        }
+        
+        .debug-control button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .debug-control button:hover {
             background: rgba(255, 255, 255, 0.3);
         }
     </style>
@@ -278,6 +317,15 @@
             <div>Scene: <span id="debugScene">-</span></div>
             <div>Timer: <span id="debugTimer">-</span></div>
             <div>Auto-cycle: <span id="debugAutoCycle">-</span></div>
+            <div>Hands detected: <span id="debugHandCount">0</span></div>
+            <div class="debug-control">
+                <button onclick="toggleVideo()">Toggle Video</button>
+            </div>
+        </div>
+        
+        <!-- Debug video display -->
+        <div class="debug-video" id="debugVideo">
+            <img id="videoStream" src="/video_feed" alt="Camera Feed">
         </div>
         
         <!-- Manual controls -->
@@ -300,6 +348,7 @@
                 this.fps = 0;
                 this.eventCount = 0;
                 this.debugVisible = false;
+                this.videoVisible = false;
                 this.overlayVisible = false;
                 this.sceneHandlers = {};
                 this.overlayTimer = null;
@@ -471,6 +520,7 @@
                 document.getElementById('eventCount').textContent = this.eventCount;
                 document.getElementById('debugScene').textContent = 
                     this.currentScene ? this.currentScene.id : 'None';
+                document.getElementById('debugHandCount').textContent = this.hands.length;
             }
             
             startProgressUpdater() {
@@ -498,6 +548,18 @@
         
         function toggleAutoCycle() {
             window.app.socket.emit('toggle_auto_cycle');
+        }
+        
+        function toggleVideo() {
+            const videoDiv = document.getElementById('debugVideo');
+            const isVisible = videoDiv.classList.toggle('visible');
+            window.app.videoVisible = isVisible;
+            
+            // If showing video, refresh the stream
+            if (isVisible) {
+                const videoImg = document.getElementById('videoStream');
+                videoImg.src = '/video_feed?' + new Date().getTime();
+            }
         }
         
         // Initialize the app when page loads

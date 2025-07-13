@@ -104,3 +104,8 @@ python main.py --kiosk
 - **Debug Panel**: Top-right toggle for development info
 - **WebSocket Commands**: `next_scene`, `previous_scene`, `toggle_auto_cycle`
 - **Hand Interactions**: Scene-specific gesture controls
+
+## Development Principles
+
+### Code Organization
+- Python classes should follow single responsibility principal and should be broken up as such.

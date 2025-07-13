@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import threading
+import cv2
 from datetime import datetime
 from typing import Dict, Set
 from event_system import Event, EventBus, HandTrackingEvents
@@ -56,7 +57,7 @@ class WebSocketManager:
                 self.socketio.emit('event', event.to_dict(), room=client_id)
         return handler
 
-def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None):
+def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand_tracker=None):
     """Create Flask app with WebSocket support"""
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'hand-tracking-secret'
@@ -73,6 +74,30 @@ def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None):
     @app.route('/health')
     def health():
         return {'status': 'healthy', 'timestamp': datetime.now().isoformat()}
+    
+    def generate_video_stream():
+        """Generate video stream for OpenCV display"""
+        while True:
+            if hand_tracker:
+                frame = hand_tracker.get_current_frame()
+                if frame is not None:
+                    # Encode frame as JPEG
+                    ret, buffer = cv2.imencode('.jpg', frame)
+                    if ret:
+                        frame_bytes = buffer.tobytes()
+                        yield (b'--frame\r\n'
+                               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+            # Sleep to prevent high CPU usage
+            import time
+            time.sleep(0.033)  # ~30 FPS
+    
+    @app.route('/video_feed')
+    def video_feed():
+        """Video streaming route"""
+        if not hand_tracker:
+            return Response("Hand tracker not available", status=503)
+        return Response(generate_video_stream(),
+                       mimetype='multipart/x-mixed-replace; boundary=frame')
     
     @socketio.on('connect')
     def handle_connect():
@@ -137,9 +162,9 @@ def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None):
         
     return app, socketio
 
-def run_web_app(event_bus: EventBus, scene_manager: SceneManager = None, host: str = 'localhost', port: int = 5000, debug: bool = False):
+def run_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand_tracker=None, host: str = 'localhost', port: int = 5000, debug: bool = False):
     """Run the web application"""
-    app, socketio = create_web_app(event_bus, scene_manager)
+    app, socketio = create_web_app(event_bus, scene_manager, hand_tracker)
     
     def run_server():
         socketio.run(app, host=host, port=port, debug=debug, use_reloader=False, allow_unsafe_werkzeug=True)

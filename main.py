@@ -10,13 +10,7 @@ from event_system import EventBus, HandTrackingEvents
 from web_app import run_web_app
 from scene_manager import SceneManager
 
-# Try to import MediaPipe-based hand tracker, fallback to simple version
-try:
-    from hand_tracker import HandTracker
-    print("✅ Using MediaPipe hand tracker")
-except ImportError:
-    from hand_tracker_fallback import HandTrackerFallback as HandTracker
-    print("⚠️  Using fallback hand tracker (MediaPipe not available)")
+from hand_tracker import HandTracker
 
 class HandTrackingKiosk:
     def __init__(self):
@@ -42,6 +36,7 @@ class HandTrackingKiosk:
             self.web_app, self.socketio, self.server_thread = run_web_app(
                 self.event_bus, 
                 self.scene_manager,
+                self.hand_tracker,
                 host='localhost', 
                 port=5000, 
                 debug=False
