@@ -10,7 +10,7 @@ let transitionTimer = null
 document.addEventListener('DOMContentLoaded', () => {
   const contentFrame = document.getElementById('contentFrame');
   const stateChanged = async (state) => {
-    lastState = state   
+    lastState = state
     try {
       const currentScene = state.currentScene;
       if (currentScene) {
@@ -63,11 +63,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
+  const messages = [
+    "Step into the unknown and unlock the secrets of Atlantis.",
+    "Venture closer—your portal to another realm awaits.",
+    "A hidden world lies beyond—dare to uncover it?",
+    "Only the curious may enter—are you ready to explore?",
+    "Mysteries of the deep call to you—approach and discover.",
+    //"Beyond this veil, Atlantis awakens—will you join us?",
+    "Cross the threshold and let the magic reveal itself.",
+    "The gateway to wonder is near—take a step and see.",
+    "Enter the forgotten world of Atlantis—if you dare.",
+    "A realm of enchantment beckons—come closer to begin."
+  ];
+  let passiveMessageTimer = null;
+  socket.on("object_detected", async (data) => {
+    if (passiveMessageTimer) {
+      return;
+    }
+
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    passiveMessageTimer = setTimeout(() => {
+      passiveMessageTimer = null;
+    }, 15 * 1000);
+    await showToast(randomMessage, 5000);    
+  });
+
+
   socket.on('hand_detect_new', (data) => {
     try {
       const payload = JSON.parse(data);
-
-      console.log(lastState)
       if (lastState?.currentScene?.handCursors || lastState?.handDebugging) {
         drawPointers(payload)
       }

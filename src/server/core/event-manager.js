@@ -10,9 +10,17 @@ module.exports = class EventManager {
   }
 
   socketConnection(socket) {
-    socket.on('face_detect', (data) => {
+    socket.on('face_detect', (data) => {      
       this.stateManager.faceDetected(data)
     });
+
+
+    socket.on('object_detected', (data) => {
+      if (this.stateManager.state.detectionMode === "passive") {
+        this.safeBroadcast("object_detected", data)
+      }      
+    });
+    
 
     socket.on('hand_detect_new', (data) => {
       this.safeBroadcast("hand_detect_new", data.map(it => {
@@ -20,20 +28,28 @@ module.exports = class EventManager {
         return it
       }))
 
-      this.stateManager.faceDetected(data)
+      //this.stateManager.faceDetected(data)
     });
 
     socket.on('admin_event', (data) => {
+      const payload = data.payload
       switch(data.event) {
         case "change_scene":
-          if (data.payload.id) {
-            this.stateManager.nextScene(data.payload.id)
+          if (payload.id) {
+            this.stateManager.nextScene(payload.id)
           } else  {
             this.stateManager.nextActiveScene()
           }
           break;
         case "reset_screen_time":
-          this.stateManager.resetNextSceneTime()
+          this.stateManager.resetNextSceneTime();
+          break;
+
+        case "set_detection_mode":
+          payload.mode === "active" 
+            ? this.stateManager.setActiveMode() 
+            : this.stateManager.setPassiveMode()
+          
           break;
       }
     });

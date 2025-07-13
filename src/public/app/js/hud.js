@@ -56,16 +56,13 @@ const constructHud = (currentScene, nextSceneTime) => {
         if (timeRemaining > 150000 || timeRemaining < 30000) { // above 2m30s or below 30s
           hud.classList.remove('slide-up');
           hud.classList.add('slide-down');
-          console.log("230")
         } else if (lastTimeRemaining !== null && lastTimeRemaining < 30000 && timeRemaining > 30000) {
           // Handle case where timer is reset from below 30s to above 2m30s
           hud.classList.remove('slide-up');
           hud.classList.add('slide-down');
-          console.log("below")
         } else {
           hud.classList.remove('slide-down');
           hud.classList.add('slide-up');
-          console.log("else")
         }
 
         lastTimeRemaining = timeRemaining;
@@ -95,7 +92,7 @@ const constructHud = (currentScene, nextSceneTime) => {
   // Add additional instructions if they exist
   let instructions = currentScene?.meta?.additional_instructions || [];
   if (!instructions.length) {
-    instructions = ["ℹ️ Make sure to follow the instructions to change the scene."];
+    // instructions = ["ℹ️ Make sure to follow the instructions to change the scene."];
   }
 
   if (elementsAdded) hud.appendChild(createDivider());

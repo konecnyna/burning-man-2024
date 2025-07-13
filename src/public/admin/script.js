@@ -8,6 +8,7 @@ const sceneButtonsContainer = document.getElementById('sceneButtons');
 const sceneChangeTimer = document.getElementById('sceneChangeTimer');
 const resetTimerBtn = document.getElementById('reset_timer');
 const nextSceneBtn = document.getElementById('next_scene');
+const setModePassiveBtn = document.getElementById("set_mode_passive");
 
 const connectionBanner = document.getElementById('connectionBanner');
 socket.on('connect', () => {
@@ -31,6 +32,8 @@ function initializeEventListeners() {
   nextSceneBtn.addEventListener("click", () => {
     socket.emit('admin_event', { event: "change_scene", payload: {} });
   })
+
+
   socket.on('state_changed', (data) => {
     updateState(JSON.parse(data));
   });
@@ -68,11 +71,52 @@ function updateModeStatus(detectionMode) {
   modeStatus.textContent = isActive ? "Active" : "Passive";
   modeStatus.classList.toggle('chip-running', isActive);
   modeStatus.classList.toggle('chip-passive', !isActive);
+
+  // Get the container for the mode toggle button
+  const modeToggleContainer = document.getElementById('modeToggleContainer');
+  modeToggleContainer.innerHTML = ''; // Clear existing button
+
+  // Create the appropriate button based on the mode
+  const toggleButton = document.createElement('button');
+  toggleButton.className = 'bg-purple-600 hover:bg-gray-500 text-white py-2 px-4 rounded m-1';
+
+  if (isActive) {
+    toggleButton.textContent = "Switch to Passive Mode";
+    toggleButton.addEventListener('click', () => {
+      socket.emit('admin_event', { event: "set_detection_mode", payload: { mode: "passive" } });
+    });
+  } else {
+    toggleButton.textContent = "Switch to Active Mode";
+    toggleButton.addEventListener('click', () => {
+      socket.emit('admin_event', { event: "set_detection_mode", payload: { mode: "active" } });
+    });
+  }
+
+  // Append the button to the container
+  modeToggleContainer.appendChild(toggleButton);
+
+  // Additional logic to hide or show scene timer and buttons
+  if (!isActive) {
+    sceneChangeTimer.textContent = "Scene changes are disabled in passive mode.";
+    sceneChangeTimer.classList.add('text-red-500', 'text-center');
+    nextSceneBtn.style.display = 'none';
+    resetTimerBtn.style.display = 'none';
+  } else {
+    sceneChangeTimer.classList.remove('text-red-500', 'text-center');
+    nextSceneBtn.style.display = 'inline-block';
+    resetTimerBtn.style.display = 'inline-block';
+  }
 }
+
 
 function updateCurrentScene(currentSceneData) {
   try {
-    currentScene.textContent = currentSceneData.name;
+    if (currentSceneData.id === "passive") {
+      currentScene.textContent = "Passive";
+    } else {
+      currentScene.textContent = currentSceneData.name;
+    }
+    
   } catch {
     currentScene.textContent = "Unknown";
   }
@@ -94,7 +138,6 @@ function createSceneButton(scene) {
   button.className = 'bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 p-4 rounded m-1';
   button.textContent = scene.name;
 
-  console.log(scene)
   button.addEventListener('click', () => {
     socket.emit('admin_event', { event: "change_scene", payload: scene });
   });
@@ -103,7 +146,10 @@ function createSceneButton(scene) {
 }
 
 function setSceneCountdown(state) {
-  if (state.nextSceneTime) {
+  if (state.detectionMode === "passive") {
+    clearSceneCountdown();
+    sceneChangeTimer.textContent = "Scene changes are disabled in passive mode.";
+  } else if (state.nextSceneTime) {
     clearSceneCountdown();
     startSceneCountdown(new Date(state.nextSceneTime).getTime());
   } else {

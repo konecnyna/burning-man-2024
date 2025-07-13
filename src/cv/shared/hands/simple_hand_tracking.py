@@ -106,10 +106,10 @@ class SimpleHandTracking:
                 
                 thumbs_gesture_result = is_thumbs_up_or_down(hand_landmarks=hand_landmarks)
 
-                if (thumbs_gesture_result == "up"):
-                    print(f"{datetime.now()} 👍", flush=True)
-                elif (thumbs_gesture_result == "down"):
-                    print(f"{datetime.now()} 👎", flush=True)
+                # if (thumbs_gesture_result == "up"):
+                #     print(f"{datetime.now()} 👍", flush=True)
+                # elif (thumbs_gesture_result == "down"):
+                #     print(f"{datetime.now()} 👎", flush=True)
 
                 payloads.append({
                     "id": hand_idx,
