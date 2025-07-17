@@ -145,39 +145,57 @@
 		float t = uTime * .005;
 		float elevation =  vUv.y * uDensity * 30.0;
 		
-		float shadow = smoothstep(0.0, .3 + sin(t * 5.0 * 3.14) * .1 , mouseDistance);
-		elevation += shadow * 5.0;
+		// Enhanced but subtle hand interaction effects
+		// Create multiple ripple effects with different frequencies
+		float ripple1 = sin(mouseDistance * 40.0 - t * 15.0) * 0.5 + 0.5;
+		float ripple2 = sin(mouseDistance * 25.0 - t * 12.0) * 0.5 + 0.5;
+		float ripple3 = sin(mouseDistance * 60.0 - t * 18.0) * 0.5 + 0.5;
+		
+		// Create a more subtle shadow/influence area
+		float shadow = smoothstep(0.0, .6 + sin(t * 6.0 * 3.14) * .15 , mouseDistance);
+		float handInfluence = 1.0 - smoothstep(0.0, 0.3, mouseDistance);
+		
+		// Add gentle pulsating effect around hand position
+		float pulse = sin(t * 8.0) * 0.5 + 0.5;
+		float handPulse = handInfluence * pulse * 1.5;
+		
+		// Combine ripples with hand influence (more subtle)
+		float combinedRipples = (ripple1 + ripple2 + ripple3) * handInfluence * 1.0;
+		
+		elevation += shadow * 6.0; // Reduced from 8.0
+		elevation += handPulse * 3.0; // Reduced from 6.0
+		elevation += combinedRipples * 2.0; // Reduced from 4.0
 		
 		float displacement = cnoise( vec2( t + vUv.y * 2.0, t + vUv.x * 3.0 )) * uDisplacement * 3.0 ;
+		// Add subtle hand-influenced displacement
+		displacement += cnoise( vec2( t + mouseDistance * 8.0, t + handInfluence * 3.0 )) * handInfluence * 1.0;
 
 		elevation += displacement * 4.0;
 		elevation *= 2.0 + cnoise( vec2( t + vUv.y * 1.0, t + .5)) * 2.0 ;
 		
-		//elevation += cnoise ( vec2 (elevation * .1, t * 3.0) );
-
 		float light = .9 + fract(elevation) ;
 		light *= .9 + (1.0 - (displacement * displacement)) * .1;
+		// Add gentle lighting changes around hand
+		light += handInfluence * pulse * 0.2;
 		elevation = floor(elevation);
-		//elevation += uGradient * .25;
 	
-		float hue =  uHue + shadow * .1 + cnoise( vec2( elevation * .10, .1 + t)) * uHueVariation;
-		float saturation = .6;;
-		float brightness =  - (1.0 - shadow) * .1 + .5  - smoothstep( 0.0, .9,  cnoise( vec2( elevation * .5, .4 + t * 5.0)) ) * .1;
-
+		// Subtle color changes based on hand position
+		float hue =  uHue + shadow * .2 + cnoise( vec2( elevation * .10, .1 + t)) * uHueVariation;
+		// Add gentle hand-influenced hue shifts
+		hue += handInfluence * sin(t * 8.0) * 0.15;
+		hue += combinedRipples * 0.08;
+		
+		float saturation = .6 + handInfluence * 0.2; // Gentle saturation increase near hand
+		float brightness =  - (1.0 - shadow) * .15 + .5  - smoothstep( 0.0, .9,  cnoise( vec2( elevation * .5, .4 + t * 5.0)) ) * .1;
+		// Add subtle brightness boost around hand
+		brightness += handInfluence * 0.15;
 
 		vec3 hslCol = vec3( hue, saturation, brightness);
 		vec3 col = hsl2rgb(hslCol) * vec3(light, 1.0, 1.0);
 		
-		
-		/* circle:
-		float d = length(vUv- vec2(.5,.5));
-		float radius = .1;// + (t * .1);
-		float stroke = 0.001;
-		float smoothing = .0005;
-		d = smoothstep(radius, radius+smoothing, d) - smoothstep(radius+stroke, radius+stroke+smoothing, d);
-		
-		col += d;// * 10.0;
-		*/
+		// Add a subtle glowing halo effect around the hand
+		float halo = exp(-mouseDistance * 10.0) * handInfluence * pulse;
+		col += vec3(halo * 0.3, halo * 0.15, halo * 0.4); // Softer purple/pink glow
 		
 		gl_FragColor = vec4(col, 1.);
 	}

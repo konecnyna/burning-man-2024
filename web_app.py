@@ -156,6 +156,26 @@ def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand
         ws_manager.handle_client_connect(client_id)
         emit('connected', {'client_id': client_id})
         
+        # Send current scene state to new client
+        if scene_manager:
+            current_scene = scene_manager.get_current_scene()
+            if current_scene:
+                print(f"Sending initial scene to client {client_id}: {current_scene.id}")
+                emit('event', {
+                    'type': 'scene_changed',
+                    'data': {
+                        'scene': current_scene.to_dict(),
+                        'scene_index': scene_manager.current_scene_index,
+                        'total_scenes': len(scene_manager.scenes)
+                    },
+                    'timestamp': datetime.now().isoformat(),
+                    'source': 'scene_manager'
+                }, room=client_id)
+            else:
+                print(f"No current scene available for client {client_id}")
+        else:
+            print(f"No scene manager available for client {client_id}")
+        
     @socketio.on('disconnect')
     def handle_disconnect():
         client_id = request.sid
