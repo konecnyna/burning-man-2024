@@ -516,7 +516,6 @@
             
             updateHands(hands) {
                 this.hands = hands;
-                console.log('Main page: updateHands called with:', hands);
                 this.assignHandColors(hands);
                 this.renderHandVisualization();
                 this.callSceneHandler('onHandMove', hands);
@@ -642,7 +641,6 @@
             }
             
             callSceneHandler(method, ...args) {
-                console.log('Calling scene handler:', method, 'for scene:', this.currentScene ? this.currentScene.id : 'none');
                 
                 if (this.currentScene && this.sceneHandlers[this.currentScene.id]) {
                     const handler = this.sceneHandlers[this.currentScene.id][method];
@@ -658,7 +656,6 @@
                         data = args[0];
                     }
                     
-                    console.log('Sending message to iframe:', messageType, data);
                     this.currentSceneIframe.postMessage({
                         type: messageType,
                         data: data

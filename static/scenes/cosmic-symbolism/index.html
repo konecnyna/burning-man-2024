@@ -3,12 +3,11 @@
 
 <head>
   <title>COSMIC SYMBOLISM FLY-THROUGH</title>
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="/static/socket.io.js"></script>
   <link rel="stylesheet" type="text/css" media="all" href="./content/zoom.css">
   <script src="./content/jquery.min.js"></script>
   <script src="./content/libs.js"></script>
   <script src="./content/coffeelib.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
 
 </head>
 
@@ -40,6 +39,7 @@
     }
 
     function setScrollSpeed(speed) {
+      
       scroll_speed_manual_control = speed;
 
       element.dispatchEvent(new WheelEvent('wheel', {
@@ -60,16 +60,17 @@
       }));
     }
 
-    setTimeout(() => {
-      // Subscribe to hand tracking events
-      socket.on('connect', () => {
-        console.log('Connected to server');
-        socket.emit('subscribe', {
-          events: ['hand_moved', 'hand_detected', 'hand_lost', 'frame_processed']
-        });
+    // Subscribe to hand tracking events
+    socket.on('connect', () => {
+      socket.emit('subscribe', {
+        events: ['hand_moved', 'hand_detected', 'hand_lost', 'frame_processed']
       });
+    });
 
-      socket.on('event', (data) => {
+    
+
+    socket.on('event', (data) => {
+      
         try {
           if (data.type === 'hand_moved' && data.data.hands) {
             handleHandTracking(data.data.hands);
@@ -83,20 +84,13 @@
           // Handle hand detection/loss events
           if (data.type === 'hand_lost') {
             // Reset scroll speed when hands are lost
-            setScrollSpeed(-1);
-            console.log('Hands lost, resetting scroll speed');
+            // setScrollSpeed(-1);
           }
           
-          // Handle scene events
-          if (data.type === 'scene_changed' && data.data.scene && data.data.scene.id === 'cosmic_symbolism') {
-            // Scene activated - reinitialize if needed
-            console.log('Cosmic symbolism scene activated');
-          }
         } catch (e) {
           console.error('Error processing hand tracking event:', e, data);
         }
       });
-    }, 3000)
 
     function handleHandTracking(hands) {
       if (!hands || hands.length === 0) return;
@@ -105,7 +99,6 @@
       const hand = hands[0];
       if (hand.palm_center) {
         const speed = mapPercentageToRange(hand.palm_center.y);
-        console.log('Hand Y position:', hand.palm_center.y, 'Speed:', speed);
         setScrollSpeed(speed);
       }
     }
