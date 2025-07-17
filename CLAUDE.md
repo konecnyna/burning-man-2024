@@ -115,3 +115,4 @@ python main.py --kiosk
 
 ## Project Constraints
 - All libs must be local and not urls. This project will be run offline
+- All websites/scenes/scripts must work offline. This project will not have internet
