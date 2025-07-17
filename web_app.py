@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, Response, send_from_directory
+from flask import Flask, render_template, request, Response, send_from_directory, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import threading
 import cv2
+import json
+import os
 from datetime import datetime
 from typing import Dict, Set
 from event_system import Event, EventBus, HandTrackingEvents
@@ -81,9 +83,46 @@ def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand
         """Serve static files"""
         return send_from_directory('static', filename)
     
+    
     @app.route('/health')
     def health():
         return {'status': 'healthy', 'timestamp': datetime.now().isoformat()}
+    
+    @app.route('/api/debug-settings', methods=['GET'])
+    def get_debug_settings():
+        """Get current debug settings"""
+        debug_settings_file = 'debug_settings.json'
+        
+        if os.path.exists(debug_settings_file):
+            try:
+                with open(debug_settings_file, 'r') as f:
+                    settings = json.load(f)
+                return jsonify(settings)
+            except (json.JSONDecodeError, IOError) as e:
+                return jsonify({'error': f'Failed to read debug settings: {str(e)}'}), 500
+        else:
+            # Return default settings if file doesn't exist
+            default_settings = {
+                'showDebugPoints': False
+            }
+            return jsonify(default_settings)
+    
+    @app.route('/api/debug-settings', methods=['POST'])
+    def save_debug_settings():
+        """Save debug settings"""
+        debug_settings_file = 'debug_settings.json'
+        
+        try:
+            settings = request.get_json()
+            if not settings:
+                return jsonify({'error': 'No settings provided'}), 400
+                
+            with open(debug_settings_file, 'w') as f:
+                json.dump(settings, f, indent=2)
+                
+            return jsonify({'success': True, 'message': 'Debug settings saved successfully'})
+        except (json.JSONDecodeError, IOError) as e:
+            return jsonify({'error': f'Failed to save debug settings: {str(e)}'}), 500
     
     def generate_video_stream():
         """Generate video stream for OpenCV display"""

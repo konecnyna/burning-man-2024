@@ -83,7 +83,7 @@ class HandTrackingKiosk:
             )
             
             # Start webview (this blocks until window is closed)
-            webview.start(debug=False)
+            webview.start(debug=True)
             
         except Exception as e:
             print(f"Error creating window: {e}")

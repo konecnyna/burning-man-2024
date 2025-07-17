@@ -92,6 +92,9 @@ requirements.txt         # Python dependencies
 # Install dependencies
 pip install -r requirements.txt
 
+# activate
+source venv/bin/activate
+
 # Run the application
 python main.py
 
@@ -109,3 +112,6 @@ python main.py --kiosk
 
 ### Code Organization
 - Python classes should follow single responsibility principal and should be broken up as such.
+
+## Project Constraints
+- All libs must be local and not urls. This project will be run offline

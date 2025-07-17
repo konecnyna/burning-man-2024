@@ -138,6 +138,26 @@
             box-shadow: 0 0 20px #ff6b6b;
         }
 
+        .hand-cursor.hand-2 {
+            background: #4ecdc4;
+            box-shadow: 0 0 20px #4ecdc4;
+        }
+
+        .hand-cursor.hand-3 {
+            background: #ffe66d;
+            box-shadow: 0 0 20px #ffe66d;
+        }
+
+        .hand-cursor.hand-4 {
+            background: #a8e6cf;
+            box-shadow: 0 0 20px #a8e6cf;
+        }
+
+        .hand-cursor.hand-5 {
+            background: #ff8b94;
+            box-shadow: 0 0 20px #ff8b94;
+        }
+
         .status-bar {
             position: fixed;
             bottom: 20px;
@@ -262,6 +282,30 @@
         .debug-control button:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+        
+        .debug-points {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            display: none;
+        }
+        
+        .debug-points.visible {
+            display: block;
+        }
+        
+        .debug-point-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -293,6 +337,14 @@
             <!-- Hand cursors will be created dynamically -->
         </div>
         
+        <!-- Debug points -->
+        <div class="debug-points" id="debugPoints">
+            <canvas class="debug-point-canvas" id="debugCanvas1"></canvas>
+            <canvas class="debug-point-canvas" id="debugCanvas2"></canvas>
+            <canvas class="debug-point-canvas" id="debugCanvas3"></canvas>
+            <canvas class="debug-point-canvas" id="debugCanvas4"></canvas>
+        </div>
+        
         <!-- Status bar -->
         <div class="status-bar">
             <div class="status-item">
@@ -318,8 +370,10 @@
             <div>Timer: <span id="debugTimer">-</span></div>
             <div>Auto-cycle: <span id="debugAutoCycle">-</span></div>
             <div>Hands detected: <span id="debugHandCount">0</span></div>
+            <div>Debug points: <span id="debugPointsStatus">Off</span></div>
             <div class="debug-control">
                 <button onclick="toggleVideo()">Toggle Video</button>
+                <button onclick="toggleDebugPoints()">Toggle Debug Points</button>
             </div>
         </div>
         
@@ -336,7 +390,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="/static/socket.io.js"></script>
     <script>
         class HandTrackingKiosk {
             constructor() {
@@ -349,14 +403,23 @@
                 this.eventCount = 0;
                 this.debugVisible = false;
                 this.videoVisible = false;
+                this.debugPointsVisible = false;
                 this.overlayVisible = false;
                 this.sceneHandlers = {};
                 this.overlayTimer = null;
+                this.currentSceneIframe = null;
+                this.debugSettings = {
+                    showDebugPoints: false
+                };
+                this.handColorAssignments = new Map(); // Track hand ID to color assignments
+                this.nextColorIndex = 0;
                 
                 // Make scene handlers available globally
                 window.sceneHandlers = this.sceneHandlers;
                 
                 this.initializeSocket();
+                this.initializeDebugPoints();
+                this.loadDebugSettings();
                 this.startProgressUpdater();
             }
             
@@ -426,21 +489,81 @@
             
             updateHands(hands) {
                 this.hands = hands;
-                this.renderHandCursors();
+                console.log('Main page: updateHands called with:', hands);
+                this.assignHandColors(hands);
+                this.renderHandVisualization();
                 this.callSceneHandler('onHandMove', hands);
             }
             
-            renderHandCursors() {
+            assignHandColors(hands) {
+                // Clean up assignments for hands that no longer exist
+                const currentHandIds = new Set(hands.map(hand => hand.hand_id || `temp_${hands.indexOf(hand)}`));
+                for (const handId of this.handColorAssignments.keys()) {
+                    if (!currentHandIds.has(handId)) {
+                        this.handColorAssignments.delete(handId);
+                    }
+                }
+                
+                // Assign colors to new hands
+                hands.forEach((hand, index) => {
+                    const handId = hand.hand_id || `temp_${index}`;
+                    if (!this.handColorAssignments.has(handId)) {
+                        this.handColorAssignments.set(handId, this.nextColorIndex % 6);
+                        this.nextColorIndex++;
+                    }
+                });
+            }
+            
+            getHandColorIndex(hand, fallbackIndex) {
+                const handId = hand.hand_id || `temp_${fallbackIndex}`;
+                return this.handColorAssignments.get(handId) || fallbackIndex;
+            }
+            
+            renderHandVisualization() {
+                // Render regular hand cursors
                 const container = document.getElementById('handCursors');
                 container.innerHTML = '';
                 
-                this.hands.forEach((hand, index) => {
-                    const cursor = document.createElement('div');
-                    cursor.className = `hand-cursor hand-${index}`;
-                    cursor.style.left = `${hand.palm_center.x * 100}%`;
-                    cursor.style.top = `${hand.palm_center.y * 100}%`;
-                    container.appendChild(cursor);
+                if (this.hands) {
+                    this.hands.forEach((hand, index) => {
+                        const cursor = document.createElement('div');
+                        // Use consistent color assignment
+                        const colorIndex = this.getHandColorIndex(hand, index);
+                        cursor.className = `hand-cursor hand-${colorIndex}`;
+                        cursor.style.left = `${hand.palm_center.x * 100}%`;
+                        cursor.style.top = `${hand.palm_center.y * 100}%`;
+                        container.appendChild(cursor);
+                    });
+                }
+                
+                // Render debug points
+                // Always clear debug canvases first
+                Object.values(this.debugPoints).forEach(point => {
+                    point.ctx.clearRect(0, 0, point.canvas.width, point.canvas.height);
                 });
+                
+                // Only draw debug points if visible and hands exist
+                if (this.debugPointsVisible && this.hands) {
+                    this.hands.forEach((hand, index) => {
+                        // Use consistent color assignment
+                        const colorIndex = this.getHandColorIndex(hand, index);
+                        const debugKey = `hand_${colorIndex + 1}`;
+                        const debugPoint = this.debugPoints[debugKey];
+                        
+                        if (debugPoint && hand.palm_center) {
+                            const posX = hand.palm_center.x * window.innerWidth;
+                            const posY = hand.palm_center.y * window.innerHeight;
+                            
+                            debugPoint.ctx.beginPath();
+                            debugPoint.ctx.arc(posX, posY, 25, 0, Math.PI * 2);
+                            debugPoint.ctx.fillStyle = debugPoint.color;
+                            debugPoint.ctx.fill();
+                            debugPoint.ctx.strokeStyle = 'white';
+                            debugPoint.ctx.lineWidth = 2;
+                            debugPoint.ctx.stroke();
+                        }
+                    });
+                }
             }
             
             showOverlay(scene) {
@@ -478,9 +601,17 @@
                     
                     const container = document.getElementById('scene-container');
                     
-                    // Handle fluidsim scene differently (it's a complete HTML page)
-                    if (scene.id === 'fluidsim') {
-                        container.innerHTML = `<iframe src="/${scene.html_file}" style="width: 100%; height: 100%; border: none;"></iframe>`;
+                    // Handle complete HTML page scenes as iframes
+                    if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism') {
+                        container.innerHTML = `<iframe id="scene-iframe" src="/${scene.html_file}" style="width: 100%; height: 100%; border: none;"></iframe>`;
+                        
+                        // Wait for iframe to load, then set up communication
+                        setTimeout(() => {
+                            const iframe = document.getElementById('scene-iframe');
+                            if (iframe && iframe.contentWindow) {
+                                this.currentSceneIframe = iframe.contentWindow;
+                            }
+                        }, 1000);
                     } else {
                         // Load HTML fragment for other scenes
                         const response = await fetch(`/${scene.html_file}`);
@@ -500,11 +631,27 @@
             }
             
             callSceneHandler(method, ...args) {
+                console.log('Calling scene handler:', method, 'for scene:', this.currentScene ? this.currentScene.id : 'none');
+                
                 if (this.currentScene && this.sceneHandlers[this.currentScene.id]) {
                     const handler = this.sceneHandlers[this.currentScene.id][method];
                     if (typeof handler === 'function') {
                         handler(...args);
                     }
+                } else if (this.currentSceneIframe && (this.currentScene.id === 'fluidsim' || this.currentScene.id === 'cosmic_symbolism')) {
+                    // For iframe scenes, send message to iframe
+                    const messageType = method.replace('on', '').toLowerCase();
+                    let data = {};
+                    
+                    if (args.length > 0) {
+                        data = args[0];
+                    }
+                    
+                    console.log('Sending message to iframe:', messageType, data);
+                    this.currentSceneIframe.postMessage({
+                        type: messageType,
+                        data: data
+                    }, '*');
                 }
             }
             
@@ -542,6 +689,105 @@
                 document.getElementById('debugScene').textContent = 
                     this.currentScene ? this.currentScene.id : 'None';
                 document.getElementById('debugHandCount').textContent = this.hands.length;
+                document.getElementById('debugPointsStatus').textContent = 
+                    this.debugPointsVisible ? 'On' : 'Off';
+            }
+            
+            initializeDebugPoints() {
+                this.debugPoints = {
+                    hand_1: {
+                        canvas: document.getElementById('debugCanvas1'),
+                        ctx: document.getElementById('debugCanvas1').getContext('2d'),
+                        color: 'red'
+                    },
+                    hand_2: {
+                        canvas: document.getElementById('debugCanvas2'),
+                        ctx: document.getElementById('debugCanvas2').getContext('2d'),
+                        color: 'blue'
+                    },
+                    hand_3: {
+                        canvas: document.getElementById('debugCanvas3'),
+                        ctx: document.getElementById('debugCanvas3').getContext('2d'),
+                        color: 'green'
+                    },
+                    hand_4: {
+                        canvas: document.getElementById('debugCanvas4'),
+                        ctx: document.getElementById('debugCanvas4').getContext('2d'),
+                        color: 'yellow'
+                    }
+                };
+                
+                // Set canvas sizes
+                this.resizeDebugCanvases();
+                
+                // Listen for window resize
+                window.addEventListener('resize', () => {
+                    this.resizeDebugCanvases();
+                });
+            }
+            
+            resizeDebugCanvases() {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                
+                Object.values(this.debugPoints).forEach(point => {
+                    point.canvas.width = width;
+                    point.canvas.height = height;
+                });
+            }
+            
+            
+            toggleDebugPoints() {
+                this.debugPointsVisible = !this.debugPointsVisible;
+                this.debugSettings.showDebugPoints = this.debugPointsVisible;
+                
+                const debugPointsDiv = document.getElementById('debugPoints');
+                if (this.debugPointsVisible) {
+                    debugPointsDiv.classList.add('visible');
+                } else {
+                    debugPointsDiv.classList.remove('visible');
+                }
+                
+                // Force a refresh to clear/show debug points
+                this.renderHandVisualization();
+                
+                this.saveDebugSettings();
+                this.updateDebugPanel();
+            }
+            
+            loadDebugSettings() {
+                fetch('/api/debug-settings')
+                    .then(response => response.json())
+                    .then(settings => {
+                        this.debugSettings = { ...this.debugSettings, ...settings };
+                        this.debugPointsVisible = this.debugSettings.showDebugPoints;
+                        
+                        const debugPointsDiv = document.getElementById('debugPoints');
+                        if (this.debugPointsVisible) {
+                            debugPointsDiv.classList.add('visible');
+                        } else {
+                            debugPointsDiv.classList.remove('visible');
+                        }
+                        
+                        this.updateDebugPanel();
+                    })
+                    .catch(error => {
+                        console.log('No debug settings found, using defaults');
+                        this.updateDebugPanel();
+                    });
+            }
+            
+            saveDebugSettings() {
+                fetch('/api/debug-settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.debugSettings)
+                })
+                .catch(error => {
+                    console.error('Failed to save debug settings:', error);
+                });
             }
             
             startProgressUpdater() {
@@ -598,6 +844,12 @@
             if (isVisible) {
                 const videoImg = document.getElementById('videoStream');
                 videoImg.src = '/video_feed?' + new Date().getTime();
+            }
+        }
+        
+        function toggleDebugPoints() {
+            if (window.app) {
+                window.app.toggleDebugPoints();
             }
         }
         

@@ -52,27 +52,19 @@ class SceneManager:
                 background_color="#1e3c72"
             ),
             SceneConfig(
-                id="particle_playground",
-                name="Particle Playground",
-                description="Interactive particle system controlled by hand movements",
-                duration=45.0,
-                html_file="scenes/particles.html",
-                background_color="#2d1b69"
-            ),
-            SceneConfig(
-                id="gesture_paint",
-                name="Gesture Paint",
-                description="Paint with your hands using different gestures",
-                duration=40.0,
-                html_file="scenes/paint.html",
-                background_color="#0f3460"
-            ),
-            SceneConfig(
                 id="fluidsim",
                 name="Fluid Simulation",
                 description="WebGL fluid simulation controlled by hand movements",
                 duration=50.0,
                 html_file="scenes/fluidsim/index.html",
+                background_color="#000000"
+            ),
+            SceneConfig(
+                id="cosmic_symbolism",
+                name="Cosmic Symbolism",
+                description="Navigate through cosmic imagery with hand movements",
+                duration=60.0,
+                html_file="scenes/cosmic-symbolism/index.html",
                 background_color="#000000"
             )
         ]

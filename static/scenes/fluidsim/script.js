@@ -21,24 +21,6 @@ socket.on('connect', () => {
   });
 });
 
-const debugPoint  = {
-  "hand_1": {
-    ctx:  document.getElementById('pointer').getContext('2d'),
-    color: "red"
-  },
-  "hand_2": {
-    ctx:  document.getElementById('pointer1').getContext('2d'),
-    color: "blue"
-  },
-  "hand_3": {
-    ctx:  document.getElementById('pointer2').getContext('2d'),
-    color: "green"
-  },
-  "hand_4": {
-    ctx:  document.getElementById('pointer3').getContext('2d'),
-    color: "yellow"
-  },
-}
 
 // Function to handle hand tracking data
 function handleHandTracking(hands) {
@@ -82,22 +64,12 @@ function handleHandTracking(hands) {
       splatPointer(pointer);
     }
     
-    // Debug visualization for hands
-    const debugKey = `hand_${index + 1}`;
-    if (debugPoint[debugKey]) {
-      drawPoints(debugPoint[debugKey], posX, posY);
-    }
   });
 }
 
 // Listen for hand tracking events
 socket.on('event', (data) => {
   try {
-    // Reduced logging for better performance
-    if (data.type !== 'hand_moved' && data.type !== 'frame_processed') {
-      console.log('Received event:', data.type);
-    }
-    
     if (data.type === 'hand_moved' && data.data.hands) {
       handleHandTracking(data.data.hands);
     }
@@ -136,19 +108,6 @@ const canvas = document.getElementById('sim');
 //const ctxtest = pointerCanvas.getContext('2d');
 resizeCanvas();
 
-function drawPoints(debugPoint, posX, posY) {
-  const { ctx, color } = debugPoint
-  console.log(color)
-  // Clear the canvas for the next frame
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Draw a red dot at the current position
-  ctx.beginPath();
-  ctx.arc(posX, posY, 25, 0, Math.PI * 2, true);
-  ctx.fillStyle = color;
-  ctx.fill();
-
-}
 
 let config = {
   SIM_RESOLUTION: 128,
@@ -160,7 +119,7 @@ let config = {
   PRESSURE_ITERATIONS: 20,
   CURL: 35,
   SPLAT_RADIUS: 0.12,
-  SPLAT_FORCE: 7000,
+  SPLAT_FORCE: 3000,
   SHADING: true,
   COLORFUL: true,
   COLOR_UPDATE_SPEED: 10,
@@ -1220,13 +1179,6 @@ function resizeCanvas() {
   if (canvas.width != width || canvas.height != height) {
     canvas.width = width;
     canvas.height = height;
-
-    Object.keys(debugPoint).forEach(key => {
-        const pt = debugPoint[key]
-        pt.ctx.canvas.width = width
-        pt.ctx.canvas.height = height
-    })
-      
     return true;
   }
   return false;
