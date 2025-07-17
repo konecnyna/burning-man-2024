@@ -1,4 +1,4 @@
-const socket = io();
+// Socket.IO removed for iframe compatibility
 
 window.requestSmoothMouse = (function () {
 //http://code.google.com/p/chromium/issues/detail?id=5598
@@ -21,8 +21,8 @@ var pos = [],
 Mouse = {
   x: -1, 
   y: -1, 
-  xA: [cw / 2], 
-  yA: [ch / 2], 
+  xA: [window.innerWidth / 2], 
+  yA: [window.innerHeight / 2], 
   xDown: -1, 
   xUp: -1, 
   yDown: -1,
@@ -118,17 +118,21 @@ document.addEventListener("mouseup", Mouse.events.up);
 
 
 
-// Handle hand detection data
-socket.on('hand_detect_new', (data) => {
-  try {
-    const payload = JSON.parse(data);
-    const hand = payload[0];
-    let posX = hand.x_percent * window.innerWidth;
-    let posY = hand.y_percent * window.innerHeight;
-    
-    Mouse.x = posX;
-    Mouse.y = posY;
-  } catch (e) {
-    console.trace(e);
+// Handle hand detection data via postMessage from parent window
+window.addEventListener('message', (event) => {
+  if (event.data.type === 'handmove' && event.data.data) {
+    try {
+      const hands = event.data.data;
+      if (hands.length > 0) {
+        const hand = hands[0];
+        let posX = hand.palm_center.x * window.innerWidth;
+        let posY = hand.palm_center.y * window.innerHeight;
+        
+        Mouse.x = posX;
+        Mouse.y = posY;
+      }
+    } catch (e) {
+      console.trace(e);
+    }
   }
 });

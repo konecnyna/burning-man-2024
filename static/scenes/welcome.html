@@ -1,22 +1,29 @@
 <div class="scene welcome-scene">
     <div class="terminal-frame">
         <div class="terminal-header">
-            <div class="terminal-title">HAND TRACKING INTERFACE v2.1.5</div>
+            <div class="terminal-title">ATLANTIS HAND TRACKING INTERFACE v4.20.69</div>
             <div class="terminal-signal">
                 <span class="signal-indicator">●</span>
-                <span class="signal-text">SIGNAL DETECTED</span>
+                <span class="signal-text">PRESENCE DETECTED</span>
             </div>
         </div>
         
         <div class="terminal-content">
             <div class="welcome-header">
                 <div class="ascii-art">
-    ██╗  ██╗ █████╗ ███╗   ██╗██████╗ 
-    ██║  ██║██╔══██╗████╗  ██║██╔══██╗
-    ███████║███████║██╔██╗ ██║██║  ██║
-    ██╔══██║██╔══██║██║╚██╗██║██║  ██║
-    ██║  ██║██║  ██║██║ ╚████║██████╔╝
-    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ 
+     █████╗ ████████╗██╗      █████╗ ███╗   ██╗████████╗██╗███████╗
+    ██╔══██╗╚══██╔══╝██║     ██╔══██╗████╗  ██║╚══██╔══╝██║██╔════╝
+    ███████║   ██║   ██║     ███████║██╔██╗ ██║   ██║   ██║███████╗
+    ██╔══██║   ██║   ██║     ██╔══██║██║╚██╗██║   ██║   ██║╚════██║
+    ██║  ██║   ██║   ███████╗██║  ██║██║ ╚████║   ██║   ██║███████║
+    ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚══════╝
+    
+    ██╗  ██╗██████╗  ██████╗      █████╗ ███╗   ██╗██████╗     ██████╗ 
+    ██║  ██║╚════██╗██╔═████╗    ██╔══██╗████╗  ██║██╔══██╗    ██╔══██╗
+    ███████║ █████╔╝██║██╔██║    ███████║██╔██╗ ██║██║  ██║    ██║  ██║
+    ╚════██║ ╚═══██╗████╔╝██║    ██╔══██║██║╚██╗██║██║  ██║    ██║  ██║
+         ██║██████╔╝╚██████╔╝    ██║  ██║██║ ╚████║██████╔╝    ██████╔╝
+         ╚═╝╚═════╝  ╚═════╝     ╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝     ╚═════╝ 
                 </div>
                 <div class="system-status">
                     <span class="status-line">&gt; TRACKING SYSTEM ONLINE</span>
@@ -97,8 +104,8 @@
 
 .terminal-frame {
     position: relative;
-    width: 90%;
-    height: 90%;
+    width: 75%;
+    height: 75%;
     margin: 5% auto;
     background: #001100;
     border: 3px solid #00ff41;
@@ -161,6 +168,8 @@
     text-shadow: 0 0 10px #00ff41;
     margin-bottom: 30px;
     font-family: monospace;
+    white-space: pre;
+    overflow-x: auto;
 }
 
 .system-status {

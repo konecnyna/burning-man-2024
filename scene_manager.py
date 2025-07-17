@@ -74,6 +74,22 @@ class SceneManager:
                 duration=45.0,
                 html_file="scenes/psychedelic-waves/index.html",
                 background_color="#000000"
+            ),
+            SceneConfig(
+                id="orbits",
+                name="Orbits",
+                description="An interactive flight through attractor orbits using hopalong formula.",
+                duration=45.0,
+                html_file="scenes/orbits/index.html",
+                background_color="#000000"
+            ),
+            SceneConfig(
+                id="tie_dye",
+                name="Tie Dye",
+                description="Use your hands to create a tie dye pattern",
+                duration=45.0,
+                html_file="scenes/tie-dye/index.html",
+                background_color="#000000"
             )
         ]
         

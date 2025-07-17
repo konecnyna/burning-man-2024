@@ -49,7 +49,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 17, 0, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -58,6 +58,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
+            font-family: 'Share Tech Mono', monospace;
         }
 
         .parent-overlay.visible {
@@ -68,34 +69,48 @@
         .overlay-content {
             text-align: center;
             max-width: 600px;
+            background: #001100;
+            border: 3px solid #00ff41;
+            border-radius: 10px;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 65, 0.5),
+                inset 0 0 30px rgba(0, 255, 65, 0.1);
+            padding: 40px;
+            position: relative;
         }
 
         .overlay-content h1 {
             font-size: 3rem;
             margin-bottom: 1rem;
-            color: #00ff88;
+            color: #00ff41;
+            text-shadow: 0 0 20px #00ff41;
+            font-weight: bold;
         }
 
         .overlay-content p {
             font-size: 1.2rem;
             margin-bottom: 2rem;
+            color: #00dd33;
             opacity: 0.9;
         }
 
         .scene-progress {
             width: 100%;
             height: 4px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 255, 65, 0.2);
+            border: 1px solid #00ff41;
             border-radius: 2px;
             overflow: hidden;
             margin-bottom: 1rem;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
         }
 
         .scene-progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #00ff88, #4ecdc4);
+            background: linear-gradient(90deg, #00ff41, #00dd33);
             border-radius: 2px;
             transition: width 0.3s ease;
+            box-shadow: 0 0 10px #00ff41;
         }
 
         .scene-info {
@@ -103,16 +118,20 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            color: #00ff41;
+            text-shadow: 0 0 5px #00ff41;
         }
 
         .scene-counter {
             font-size: 1rem;
             opacity: 0.8;
+            color: #00ff41;
         }
 
         .scene-timer {
             font-size: 1rem;
             opacity: 0.8;
+            color: #00ff41;
         }
 
         .hand-cursor {
@@ -163,19 +182,29 @@
             bottom: 20px;
             left: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
+            background: #001100;
+            border: 2px solid #00ff41;
             border-radius: 10px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 65, 0.3),
+                inset 0 0 20px rgba(0, 255, 65, 0.1);
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 50;
+            font-family: 'Share Tech Mono', monospace;
+            color: #00ff41;
+            max-height: 60px;
+            overflow: visible;
         }
 
         .status-item {
             display: flex;
             align-items: center;
             gap: 10px;
+            color: #00ff41;
+            text-shadow: 0 0 5px #00ff41;
         }
 
         .status-indicator {
@@ -183,34 +212,53 @@
             height: 10px;
             border-radius: 50%;
             background: #ff6b6b;
+            box-shadow: 0 0 10px #ff6b6b;
+            animation: pulse 2s ease-in-out infinite;
         }
 
         .status-indicator.connected {
-            background: #00ff88;
+            background: #00ff41;
+            box-shadow: 0 0 10px #00ff41;
         }
 
         .debug-toggle {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            padding: 10px 15px;
+            background: #001100;
+            border: 2px solid #00ff41;
             border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+            color: #00ff41;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ff41;
+            padding: 10px 15px;
             cursor: pointer;
             z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .debug-toggle:hover {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.5);
         }
 
         .debug-panel {
             position: fixed;
             top: 60px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
+            background: #001100;
+            border: 2px solid #00ff41;
             border-radius: 10px;
-            font-family: monospace;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 65, 0.3),
+                inset 0 0 20px rgba(0, 255, 65, 0.1);
+            padding: 15px;
+            font-family: 'Share Tech Mono', monospace;
             font-size: 0.8rem;
+            color: #00ff41;
+            text-shadow: 0 0 5px #00ff41;
             z-index: 100;
             display: none;
             max-width: 400px;
@@ -229,28 +277,47 @@
             flex-direction: column;
             gap: 10px;
             z-index: 100;
+            background: #001100;
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 65, 0.3),
+                inset 0 0 20px rgba(0, 255, 65, 0.1);
+            padding: 15px;
+            width: auto;
         }
 
         .manual-controls button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 10px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
             border-radius: 5px;
+            color: #00ff41;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ff41;
+            padding: 10px 15px;
             cursor: pointer;
             transition: all 0.3s ease;
+            width: auto;
+            white-space: nowrap;
         }
 
         .manual-controls button:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
         }
         
         .debug-video {
             position: fixed;
             top: 60px;
             left: 20px;
-            border: 2px solid #00ff88;
+            background: #001100;
+            border: 2px solid #00ff41;
             border-radius: 10px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 65, 0.3),
+                inset 0 0 20px rgba(0, 255, 65, 0.1);
+            padding: 10px;
             z-index: 100;
             display: none;
         }
@@ -270,17 +337,22 @@
         }
         
         .debug-control button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 5px 10px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
             border-radius: 3px;
+            color: #00ff41;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ff41;
+            padding: 5px 10px;
             cursor: pointer;
             font-size: 0.8rem;
+            transition: all 0.3s ease;
         }
         
         .debug-control button:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
         }
         
         .debug-points {
@@ -315,9 +387,54 @@
         .controls-hud-hidden .parent-overlay {
             display: none !important;
         }
+        
+        /* Add pulse animation for pipboy style */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Add scanlines effect to HUD elements */
+        .status-bar::before,
+        .debug-panel::before,
+        .manual-controls::before,
+        .debug-video::before,
+        .overlay-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%, 
+                rgba(0, 255, 65, 0.03) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* .status-bar,
+        .debug-panel,
+        .manual-controls,
+        .debug-video,
+        .overlay-content {
+            position: relative;
+        } */
+        
+        .status-bar > *,
+        .debug-panel > *,
+        .manual-controls > *,
+        .debug-video > *,
+        .overlay-content > * {
+            position: relative;
+            z-index: 2;
+        }
     </style>
 </head>
 <body>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono:wght@400&display=swap" rel="stylesheet">
     <div class="app-container">
         <!-- Scene containers will be dynamically created -->
         <div class="scene-container active" id="scene-container">
@@ -398,9 +515,9 @@
         
         <!-- Manual controls -->
         <div class="manual-controls">
-            <button onclick="previousScene()">◀ Prev</button>
+            <button onclick="previousScene()">Prev ◀</button>
             <button onclick="nextScene()">Next ▶</button>
-            <button onclick="toggleAutoCycle()">Auto</button>
+            <!-- <button onclick="toggleAutoCycle()">Auto</button> -->
         </div>
     </div>
 
@@ -612,7 +729,7 @@
                     const container = document.getElementById('scene-container');
                     
                     // Handle complete HTML page scenes as iframes
-                    if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism' || scene.id === 'psychedelic_waves') {
+                    if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism' || scene.id === 'psychedelic_waves' || scene.id === 'tie_dye' || scene.id === 'orbits') {
                         container.innerHTML = `<iframe id="scene-iframe" src="/${scene.html_file}" style="width: 100%; height: 100%; border: none;"></iframe>`;
                         
                         // Wait for iframe to load, then set up communication
@@ -647,7 +764,7 @@
                     if (typeof handler === 'function') {
                         handler(...args);
                     }
-                } else if (this.currentSceneIframe && (this.currentScene.id === 'fluidsim' || this.currentScene.id === 'cosmic_symbolism' || this.currentScene.id === 'psychedelic_waves')) {
+                } else if (this.currentSceneIframe && (this.currentScene.id === 'fluidsim' || this.currentScene.id === 'cosmic_symbolism' || this.currentScene.id === 'psychedelic_waves' || this.currentScene.id === 'tie_dye' || this.currentScene.id === 'orbits')) {
                     // For iframe scenes, send message to iframe
                     const messageType = method.replace('on', '').toLowerCase();
                     let data = {};
