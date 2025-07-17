@@ -66,6 +66,14 @@ class SceneManager:
                 duration=60.0,
                 html_file="scenes/cosmic-symbolism/index.html",
                 background_color="#000000"
+            ),
+            SceneConfig(
+                id="psychedelic_waves",
+                name="Psychedelic Waves",
+                description="WebGL shader-based wave visualization controlled by hand movements",
+                duration=45.0,
+                html_file="scenes/psychedelic-waves/index.html",
+                background_color="#000000"
             )
         ]
         

@@ -1,3 +1,4 @@
 {
-  "showDebugPoints": false
+  "showDebugPoints": true,
+  "showControlsHUD": true
 }

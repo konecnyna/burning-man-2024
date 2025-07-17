@@ -13,7 +13,7 @@ from scene_manager import SceneManager
 from hand_tracker import HandTracker
 
 class HandTrackingKiosk:
-    def __init__(self):
+    def __init__(self, headless=False):
         self.event_bus = EventBus()
         self.hand_tracker = HandTracker(self.event_bus)
         self.scene_manager = SceneManager(self.event_bus)
@@ -21,6 +21,7 @@ class HandTrackingKiosk:
         self.socketio = None
         self.server_thread = None
         self.running = False
+        self.headless = headless
         
     def start(self):
         """Start the hand tracking kiosk application"""
@@ -56,9 +57,13 @@ class HandTrackingKiosk:
             print("Starting scene manager...")
             self.scene_manager.start()
             
-            # Create webview window
-            print("Creating application window...")
-            self.create_window()
+            # Create webview window (unless headless)
+            if not self.headless:
+                print("Creating application window...")
+                self.create_window()
+            else:
+                print("Running in headless mode - no window will be created")
+                self.run_headless()
             
         except Exception as e:
             print(f"Error starting application: {e}")
@@ -110,6 +115,21 @@ class HandTrackingKiosk:
         # Note: Flask-SocketIO server will stop when main thread ends
         print("Application stopped.")
         
+    def run_headless(self):
+        """Run in headless mode - keep the application running without webview"""
+        try:
+            print("Application running in headless mode...")
+            print("Web server available at http://localhost:5000")
+            print("Press Ctrl+C to exit")
+            
+            # Keep the main thread alive
+            while not self.running:
+                time.sleep(1)
+                
+        except KeyboardInterrupt:
+            print("\nShutdown requested by user")
+            self.stop()
+        
     def _signal_handler(self, signum, frame):
         """Handle system signals for graceful shutdown"""
         print(f"Received signal {signum}, shutting down...")
@@ -122,8 +142,9 @@ def main():
     print("Hand Tracking Kiosk v1.0")
     print("=" * 50)
     
-    # Check if running in kiosk mode
+    # Check command line arguments
     kiosk_mode = '--kiosk' in sys.argv
+    headless_mode = '--headless' in sys.argv
     
     if kiosk_mode:
         print("Running in KIOSK MODE")
@@ -132,8 +153,11 @@ def main():
         # - Disable window controls
         # - Add auto-restart logic
     
+    if headless_mode:
+        print("Running in HEADLESS MODE")
+    
     # Create and start the application
-    app = HandTrackingKiosk()
+    app = HandTrackingKiosk(headless=headless_mode)
     
     try:
         app.start()

@@ -546,23 +546,7 @@
                 return this.handColorAssignments.get(handId) || fallbackIndex;
             }
             
-            renderHandVisualization() {
-                // Render regular hand cursors
-                const container = document.getElementById('handCursors');
-                container.innerHTML = '';
-                
-                if (this.hands) {
-                    this.hands.forEach((hand, index) => {
-                        const cursor = document.createElement('div');
-                        // Use consistent color assignment
-                        const colorIndex = this.getHandColorIndex(hand, index);
-                        cursor.className = `hand-cursor hand-${colorIndex}`;
-                        cursor.style.left = `${hand.palm_center.x * 100}%`;
-                        cursor.style.top = `${hand.palm_center.y * 100}%`;
-                        container.appendChild(cursor);
-                    });
-                }
-                
+            renderHandVisualization() {                
                 // Render debug points
                 // Always clear debug canvases first
                 Object.values(this.debugPoints).forEach(point => {
@@ -629,7 +613,7 @@
                     const container = document.getElementById('scene-container');
                     
                     // Handle complete HTML page scenes as iframes
-                    if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism') {
+                    if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism' || scene.id === 'psychedelic_waves') {
                         container.innerHTML = `<iframe id="scene-iframe" src="/${scene.html_file}" style="width: 100%; height: 100%; border: none;"></iframe>`;
                         
                         // Wait for iframe to load, then set up communication
@@ -665,7 +649,7 @@
                     if (typeof handler === 'function') {
                         handler(...args);
                     }
-                } else if (this.currentSceneIframe && (this.currentScene.id === 'fluidsim' || this.currentScene.id === 'cosmic_symbolism')) {
+                } else if (this.currentSceneIframe && (this.currentScene.id === 'fluidsim' || this.currentScene.id === 'cosmic_symbolism' || this.currentScene.id === 'psychedelic_waves')) {
                     // For iframe scenes, send message to iframe
                     const messageType = method.replace('on', '').toLowerCase();
                     let data = {};
