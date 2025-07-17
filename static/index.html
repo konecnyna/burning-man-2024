@@ -306,6 +306,15 @@
             height: 100%;
             pointer-events: none;
         }
+        
+        .controls-hud-hidden .status-bar,
+        .controls-hud-hidden .debug-toggle,
+        .controls-hud-hidden .debug-panel,
+        .controls-hud-hidden .debug-video,
+        .controls-hud-hidden .manual-controls,
+        .controls-hud-hidden .parent-overlay {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -371,9 +380,14 @@
             <div>Auto-cycle: <span id="debugAutoCycle">-</span></div>
             <div>Hands detected: <span id="debugHandCount">0</span></div>
             <div>Debug points: <span id="debugPointsStatus">Off</span></div>
+            <div>Controls/HUD: <span id="controlsHUDStatus">On</span></div>
             <div class="debug-control">
                 <button onclick="toggleVideo()">Toggle Video</button>
                 <button onclick="toggleDebugPoints()">Toggle Debug Points</button>
+                <button onclick="toggleControlsHUD()">Toggle Controls/HUD</button>
+            </div>
+            <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 5px;">
+                Tip: Ctrl+Shift+H to toggle Controls/HUD
             </div>
         </div>
         
@@ -404,12 +418,14 @@
                 this.debugVisible = false;
                 this.videoVisible = false;
                 this.debugPointsVisible = false;
+                this.controlsHUDVisible = true;
                 this.overlayVisible = false;
                 this.sceneHandlers = {};
                 this.overlayTimer = null;
                 this.currentSceneIframe = null;
                 this.debugSettings = {
-                    showDebugPoints: false
+                    showDebugPoints: false,
+                    showControlsHUD: true
                 };
                 this.handColorAssignments = new Map(); // Track hand ID to color assignments
                 this.nextColorIndex = 0;
@@ -419,6 +435,7 @@
                 
                 this.initializeSocket();
                 this.initializeDebugPoints();
+                this.initializeKeyboardShortcuts();
                 this.loadDebugSettings();
                 this.startProgressUpdater();
             }
@@ -485,6 +502,16 @@
                 }
                 
                 this.updateDebugPanel();
+            }
+            
+            initializeKeyboardShortcuts() {
+                document.addEventListener('keydown', (event) => {
+                    // Ctrl + Shift + H to toggle controls/HUD
+                    if (event.ctrlKey && event.shiftKey && event.key === 'H') {
+                        event.preventDefault();
+                        this.toggleControlsHUD();
+                    }
+                });
             }
             
             updateHands(hands) {
@@ -691,6 +718,8 @@
                 document.getElementById('debugHandCount').textContent = this.hands.length;
                 document.getElementById('debugPointsStatus').textContent = 
                     this.debugPointsVisible ? 'On' : 'Off';
+                document.getElementById('controlsHUDStatus').textContent = 
+                    this.controlsHUDVisible ? 'On' : 'Off';
             }
             
             initializeDebugPoints() {
@@ -755,18 +784,41 @@
                 this.updateDebugPanel();
             }
             
+            toggleControlsHUD() {
+                this.controlsHUDVisible = !this.controlsHUDVisible;
+                this.debugSettings.showControlsHUD = this.controlsHUDVisible;
+                
+                const appContainer = document.querySelector('.app-container');
+                if (this.controlsHUDVisible) {
+                    appContainer.classList.remove('controls-hud-hidden');
+                } else {
+                    appContainer.classList.add('controls-hud-hidden');
+                }
+                
+                this.saveDebugSettings();
+                this.updateDebugPanel();
+            }
+            
             loadDebugSettings() {
                 fetch('/api/debug-settings')
                     .then(response => response.json())
                     .then(settings => {
                         this.debugSettings = { ...this.debugSettings, ...settings };
                         this.debugPointsVisible = this.debugSettings.showDebugPoints;
+                        this.controlsHUDVisible = this.debugSettings.showControlsHUD !== false; // Default to true
                         
                         const debugPointsDiv = document.getElementById('debugPoints');
                         if (this.debugPointsVisible) {
                             debugPointsDiv.classList.add('visible');
                         } else {
                             debugPointsDiv.classList.remove('visible');
+                        }
+                        
+                        const appContainer = document.querySelector('.app-container');
+                        if (this.controlsHUDVisible) {
+                            appContainer.classList.remove('controls-hud-hidden');
+                        } else {
+                            appContainer.classList.add('controls-hud-hidden');
                         }
                         
                         this.updateDebugPanel();
@@ -850,6 +902,12 @@
         function toggleDebugPoints() {
             if (window.app) {
                 window.app.toggleDebugPoints();
+            }
+        }
+        
+        function toggleControlsHUD() {
+            if (window.app) {
+                window.app.toggleControlsHUD();
             }
         }
         

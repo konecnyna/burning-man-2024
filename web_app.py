@@ -103,7 +103,8 @@ def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand
         else:
             # Return default settings if file doesn't exist
             default_settings = {
-                'showDebugPoints': False
+                'showDebugPoints': False,
+                'showControlsHUD': True
             }
             return jsonify(default_settings)
     
