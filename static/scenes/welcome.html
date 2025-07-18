@@ -80,7 +80,18 @@
                 <div class="footer-line">
                     <span class="prompt">&gt;</span>
                     <span class="typing-cursor">_</span>
-                    <span class="footer-text">MOVE YOUR HAND HERE TO BEGIN</span>
+                    <span class="footer-text" id="beginText">MOVE YOUR HAND HERE TO BEGIN</span>
+                    <div class="countdown-overlay" id="countdownOverlay">
+                        <div class="countdown-circle">
+                            <div class="countdown-number" id="countdownNumber">3</div>
+                            <svg class="countdown-progress" width="80" height="80">
+                                <circle cx="40" cy="40" r="35" stroke="#00ff41" stroke-width="3" fill="none" opacity="0.3"/>
+                                <circle cx="40" cy="40" r="35" stroke="#00ff41" stroke-width="3" fill="none" 
+                                        stroke-dasharray="220" stroke-dashoffset="220" 
+                                        class="countdown-progress-ring" id="countdownRing"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -295,6 +306,79 @@
     color: #00ff41;
     font-weight: bold;
     text-shadow: 0 0 5px #00ff41;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.footer-text:hover {
+    color: #00ff88;
+    text-shadow: 0 0 15px #00ff88;
+}
+
+/* Hand cursor */
+.hand-cursor {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #00ff41;
+    border-radius: 50%;
+    background: rgba(0, 255, 65, 0.3);
+    pointer-events: none;
+    z-index: 9999;
+    transition: all 0.1s ease;
+    box-shadow: 0 0 10px #00ff41;
+}
+
+.hand-cursor.hovering {
+    background: rgba(0, 255, 65, 0.6);
+    transform: scale(1.5);
+    box-shadow: 0 0 20px #00ff41;
+}
+
+/* Countdown overlay */
+.countdown-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.countdown-overlay.visible {
+    opacity: 1;
+}
+
+.countdown-circle {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.countdown-number {
+    position: absolute;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #00ff41;
+    text-shadow: 0 0 10px #00ff41;
+    z-index: 1;
+}
+
+.countdown-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotate(-90deg);
+}
+
+.countdown-progress-ring {
+    transition: stroke-dashoffset 0.1s ease;
+    stroke-linecap: round;
 }
 
 /* Screen effects */
@@ -378,53 +462,3 @@
 }
 </style>
 
-<script>
-// Scene-specific interaction logic
-if (window.sceneHandlers) {
-    window.sceneHandlers.welcome = {
-        onHandMove: function(hands) {
-            // Highlight instruction modules based on hand position
-            const modules = document.querySelectorAll('.instruction-module');
-            modules.forEach(module => module.classList.remove('active'));
-            
-            hands.forEach(hand => {
-                const palmX = hand.palm_center.x;
-                const palmY = hand.palm_center.y;
-                
-                // Check if hand is over any instruction module
-                if (palmY > 0.3 && palmY < 0.8) {
-                    if (palmX < 0.33) {
-                        document.getElementById('instruction1').classList.add('active');
-                    } else if (palmX < 0.66) {
-                        document.getElementById('instruction2').classList.add('active');
-                    } else {
-                        document.getElementById('instruction3').classList.add('active');
-                    }
-                }
-            });
-        },
-        
-        onHandDetected: function(hands) {
-            console.log('Welcome scene: Hand detected');
-            // Update signal status
-            const signalText = document.querySelector('.signal-text');
-            if (signalText) {
-                signalText.textContent = 'TRACKING ACTIVE';
-            }
-        },
-        
-        onHandLost: function() {
-            // Remove all active states
-            document.querySelectorAll('.instruction-module').forEach(module => {
-                module.classList.remove('active');
-            });
-            
-            // Reset signal status
-            const signalText = document.querySelector('.signal-text');
-            if (signalText) {
-                signalText.textContent = 'SIGNAL DETECTED';
-            }
-        }
-    };
-}
-</script>

@@ -556,6 +556,9 @@
                 // Make scene handlers available globally
                 window.sceneHandlers = this.sceneHandlers;
                 
+                // Initialize scene handlers
+                this.initializeSceneHandlers();
+                
                 this.initializeSocket();
                 this.initializeDebugPoints();
                 this.initializeKeyboardShortcuts();
@@ -664,6 +667,218 @@
                         this.toggleControlsHUD();
                     }
                 });
+            }
+            
+            initializeSceneHandlers() {
+                // Welcome scene handler with hand cursor
+                this.sceneHandlers.welcome = {
+                    handCursor: null,
+                    countdownTimer: null,
+                    countdownStartTime: null,
+                    isHovering: false,
+                    
+                    onInit: () => {
+                        // Create hand cursor
+                        this.sceneHandlers.welcome.handCursor = document.createElement('div');
+                        this.sceneHandlers.welcome.handCursor.className = 'hand-cursor';
+                        this.sceneHandlers.welcome.handCursor.style.cssText = `
+                            position: fixed;
+                            width: 20px;
+                            height: 20px;
+                            border: 2px solid #00ff41;
+                            border-radius: 50%;
+                            background: rgba(0, 255, 65, 0.3);
+                            pointer-events: none;
+                            z-index: 9999;
+                            transition: all 0.1s ease;
+                            box-shadow: 0 0 10px #00ff41;
+                            display: none;
+                        `;
+                        document.body.appendChild(this.sceneHandlers.welcome.handCursor);
+                        console.log('Welcome scene cursor initialized');
+                    },
+                    
+                    onHandMove: (hands) => {
+                        // Highlight instruction modules based on hand position
+                        const modules = document.querySelectorAll('.instruction-module');
+                        modules.forEach(module => module.classList.remove('active'));
+                        
+                        if (hands.length > 0) {
+                            const hand = hands[0]; // Use first hand
+                            const palmX = hand.palm_center.x;
+                            const palmY = hand.palm_center.y;
+                            
+                            // Show and position hand cursor
+                            if (this.sceneHandlers.welcome.handCursor) {
+                                this.sceneHandlers.welcome.handCursor.style.display = 'block';
+                                this.sceneHandlers.welcome.handCursor.style.left = (palmX * window.innerWidth) + 'px';
+                                this.sceneHandlers.welcome.handCursor.style.top = (palmY * window.innerHeight) + 'px';
+                            }
+                            
+                            // Check if hand is over any instruction module
+                            if (palmY > 0.3 && palmY < 0.8) {
+                                if (palmX < 0.33) {
+                                    const module1 = document.getElementById('instruction1');
+                                    if (module1) module1.classList.add('active');
+                                } else if (palmX < 0.66) {
+                                    const module2 = document.getElementById('instruction2');
+                                    if (module2) module2.classList.add('active');
+                                } else {
+                                    const module3 = document.getElementById('instruction3');
+                                    if (module3) module3.classList.add('active');
+                                }
+                            }
+                            
+                            // Check if hand is over begin text
+                            const beginText = document.getElementById('beginText');
+                            if (beginText) {
+                                const rect = beginText.getBoundingClientRect();
+                                const screenX = palmX * window.innerWidth;
+                                const screenY = palmY * window.innerHeight;
+                                
+                                const isOverBeginText = screenX >= rect.left && screenX <= rect.right &&
+                                                      screenY >= rect.top && screenY <= rect.bottom;
+                                
+                                if (isOverBeginText && !this.sceneHandlers.welcome.isHovering) {
+                                    this.sceneHandlers.welcome.startCountdown();
+                                } else if (!isOverBeginText && this.sceneHandlers.welcome.isHovering) {
+                                    this.sceneHandlers.welcome.stopCountdown();
+                                }
+                            }
+                        } else {
+                            // Hide cursor when no hands detected
+                            if (this.sceneHandlers.welcome.handCursor) {
+                                this.sceneHandlers.welcome.handCursor.style.display = 'none';
+                            }
+                            this.sceneHandlers.welcome.stopCountdown();
+                        }
+                    },
+                    
+                    startCountdown: () => {
+                        if (this.sceneHandlers.welcome.isHovering) return;
+                        
+                        console.log('Starting countdown...');
+                        this.sceneHandlers.welcome.isHovering = true;
+                        this.sceneHandlers.welcome.countdownStartTime = Date.now();
+                        
+                        // Show countdown overlay
+                        const overlay = document.getElementById('countdownOverlay');
+                        if (overlay) {
+                            overlay.classList.add('visible');
+                        }
+                        
+                        // Add hovering class to cursor
+                        if (this.sceneHandlers.welcome.handCursor) {
+                            this.sceneHandlers.welcome.handCursor.style.background = 'rgba(0, 255, 65, 0.6)';
+                            this.sceneHandlers.welcome.handCursor.style.transform = 'scale(1.5)';
+                            this.sceneHandlers.welcome.handCursor.style.boxShadow = '0 0 20px #00ff41';
+                        }
+                        
+                        // Start countdown timer
+                        this.sceneHandlers.welcome.updateCountdown();
+                    },
+                    
+                    updateCountdown: () => {
+                        if (!this.sceneHandlers.welcome.isHovering) return;
+                        
+                        const elapsed = (Date.now() - this.sceneHandlers.welcome.countdownStartTime) / 1000;
+                        const remaining = Math.max(0, 3 - elapsed);
+                        const progress = (elapsed / 3) * 220; // 220 is the stroke-dasharray value
+                        
+                        // Update countdown number
+                        const countdownNumber = document.getElementById('countdownNumber');
+                        if (countdownNumber) {
+                            countdownNumber.textContent = Math.ceil(remaining);
+                        }
+                        
+                        // Update progress ring
+                        const progressRing = document.getElementById('countdownRing');
+                        if (progressRing) {
+                            progressRing.style.strokeDashoffset = 220 - progress;
+                        }
+                        
+                        if (remaining > 0) {
+                            this.sceneHandlers.welcome.countdownTimer = setTimeout(() => this.sceneHandlers.welcome.updateCountdown(), 50);
+                        } else {
+                            this.sceneHandlers.welcome.completeCountdown();
+                        }
+                    },
+                    
+                    completeCountdown: () => {
+                        console.log('Countdown complete! Moving to next scene...');
+                        this.sceneHandlers.welcome.stopCountdown();
+                        
+                        // Emit next scene event
+                        if (this.socket) {
+                            this.socket.emit('next_scene');
+                        }
+                    },
+                    
+                    stopCountdown: () => {
+                        if (!this.sceneHandlers.welcome.isHovering) return;
+                        
+                        console.log('Stopping countdown...');
+                        this.sceneHandlers.welcome.isHovering = false;
+                        
+                        // Clear timer
+                        if (this.sceneHandlers.welcome.countdownTimer) {
+                            clearTimeout(this.sceneHandlers.welcome.countdownTimer);
+                            this.sceneHandlers.welcome.countdownTimer = null;
+                        }
+                        
+                        // Hide countdown overlay
+                        const overlay = document.getElementById('countdownOverlay');
+                        if (overlay) {
+                            overlay.classList.remove('visible');
+                        }
+                        
+                        // Remove hovering class from cursor
+                        if (this.sceneHandlers.welcome.handCursor) {
+                            this.sceneHandlers.welcome.handCursor.style.background = 'rgba(0, 255, 65, 0.3)';
+                            this.sceneHandlers.welcome.handCursor.style.transform = 'scale(1)';
+                            this.sceneHandlers.welcome.handCursor.style.boxShadow = '0 0 10px #00ff41';
+                        }
+                        
+                        // Reset countdown display
+                        const countdownNumber = document.getElementById('countdownNumber');
+                        if (countdownNumber) {
+                            countdownNumber.textContent = '3';
+                        }
+                        
+                        const progressRing = document.getElementById('countdownRing');
+                        if (progressRing) {
+                            progressRing.style.strokeDashoffset = '220';
+                        }
+                    },
+                    
+                    onHandDetected: (hands) => {
+                        console.log('Welcome scene: Hand detected');
+                        // Update signal status
+                        const signalText = document.querySelector('.signal-text');
+                        if (signalText) {
+                            signalText.textContent = 'TRACKING ACTIVE';
+                        }
+                    },
+                    
+                    onHandLost: () => {
+                        // Remove all active states
+                        document.querySelectorAll('.instruction-module').forEach(module => {
+                            module.classList.remove('active');
+                        });
+                        
+                        // Reset signal status
+                        const signalText = document.querySelector('.signal-text');
+                        if (signalText) {
+                            signalText.textContent = 'SIGNAL DETECTED';
+                        }
+                        
+                        // Hide cursor and stop countdown
+                        if (this.sceneHandlers.welcome.handCursor) {
+                            this.sceneHandlers.welcome.handCursor.style.display = 'none';
+                        }
+                        this.sceneHandlers.welcome.stopCountdown();
+                    }
+                };
             }
             
             updateHands(hands) {
