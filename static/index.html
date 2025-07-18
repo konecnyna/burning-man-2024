@@ -549,7 +549,7 @@
                 
                 // Idle management
                 this.isIdle = true;  // Start in idle mode
-                this.idleTimeout = 30_000; // 15 seconds in milliseconds
+                this.idleTimeout = 45000; // 15 seconds in milliseconds
                 this.idleTimer = null;
                 this.normalScenes = []; // Will store non-idle scenes
                 
@@ -729,15 +729,23 @@
                                 }
                             }
                             
-                            // Check if hand is over begin text
+                            // Check if hand is over begin text (with expanded detection area)
                             const beginText = document.getElementById('beginText');
                             if (beginText) {
                                 const rect = beginText.getBoundingClientRect();
                                 const screenX = palmX * window.innerWidth;
                                 const screenY = palmY * window.innerHeight;
                                 
-                                const isOverBeginText = screenX >= rect.left && screenX <= rect.right &&
-                                                      screenY >= rect.top && screenY <= rect.bottom;
+                                // Expand detection area by 50 pixels on all sides
+                                const expandedRect = {
+                                    left: rect.left - 50,
+                                    right: rect.right + 50,
+                                    top: rect.top - 50,
+                                    bottom: rect.bottom + 50
+                                };
+                                
+                                const isOverBeginText = screenX >= expandedRect.left && screenX <= expandedRect.right &&
+                                                      screenY >= expandedRect.top && screenY <= expandedRect.bottom;
                                 
                                 if (isOverBeginText && !this.sceneHandlers.welcome.isHovering) {
                                     this.sceneHandlers.welcome.startCountdown();

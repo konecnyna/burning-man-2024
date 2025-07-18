@@ -1,6 +1,205 @@
-# Hand Tracking Kiosk App - Architecture Checkpoint
+# Claude AI Assistant Instructions
 
-## Project Overview
+## Project Context
+This is the ATLANTIS Hand Tracking Kiosk project - a Python-based interactive installation that uses MediaPipe for hand tracking and displays multiple visual scenes controlled by hand gestures.
+
+## Core Workflow Instructions
+
+### Session Startup
+1. **ALWAYS** read `planning.md` at the start of every new conversation
+2. **ALWAYS** check `tasks.md` before starting work to understand current priorities
+3. **ALWAYS** review recent session summaries in this file to understand progress
+4. **NEVER** start coding without understanding the current project state
+
+### Task Management
+1. **ALWAYS** check `tasks.md` before beginning any work
+2. **IMMEDIATELY** mark tasks as completed when finished
+3. **ADD** any new tasks discovered during development to `tasks.md`
+4. **PRIORITIZE** tasks marked as "high" priority first
+5. **BREAK DOWN** large tasks into smaller, actionable items
+
+### Code Guidelines
+1. **FOLLOW** the existing code patterns and architecture
+2. **MAINTAIN** the single-app Python architecture (no build process)
+3. **ENSURE** all libraries are local and work offline
+4. **PRESERVE** the pipboy/terminal aesthetic throughout
+5. **TEST** changes before marking tasks complete
+
+### File Management
+1. **PREFER** editing existing files over creating new ones
+2. **MAINTAIN** the project structure defined in `planning.md`
+3. **DOCUMENT** any architectural changes in `planning.md`
+4. **UPDATE** `tasks.md` with any new requirements discovered
+
+### Quality Standards
+1. **ENSURE** hand tracking remains responsive (30-60 FPS)
+2. **MAINTAIN** kiosk mode compatibility
+3. **PRESERVE** offline functionality
+4. **HANDLE** errors gracefully for unattended operation
+
+## Session History
+
+### Session 1 (Initial Development)
+- Implemented core hand tracking system using MediaPipe
+- Created scene management system with auto-cycling
+- Built Flask + WebSocket communication layer
+- Established basic kiosk interface structure
+
+### Session 2 (UI Enhancement)
+- Applied pipboy-style terminal aesthetics
+- Fixed CSS loading issues in iframe scenes
+- Implemented comprehensive idle management system
+- Added HUD visibility controls for idle/active states
+
+### Session 3 (Interaction Improvements)
+- Added hand cursor visualization for welcome scene
+- Implemented 3-second countdown interface
+- Created hover detection for interactive elements
+- Integrated scene transition triggers via countdown
+
+### Session 4 (Documentation Structure)
+- Created comprehensive PRD with user stories and requirements
+- Established AI assistant workflow with claude.md
+- Documented technical architecture and constraints
+- Set up project management structure with tasks.md
+
+## Current Project Status
+
+### Completed Features
+- ✅ Real-time hand tracking with MediaPipe
+- ✅ Multiple interactive scenes (welcome, fluid sim, cosmic, waves, orbits, tie-dye)
+- ✅ Scene auto-cycling with configurable timing
+- ✅ Idle timeout system (15 seconds)
+- ✅ Pipboy-style terminal UI aesthetic
+- ✅ Hand cursor with hover effects
+- ✅ Countdown interface for scene transitions
+- ✅ WebSocket communication between Python and browser
+- ✅ Kiosk mode operation
+
+### In Progress
+- 🔄 Performance optimization and testing
+- 🔄 Error handling improvements
+- 🔄 Installation automation
+
+### Pending
+- ⏳ Remote monitoring capabilities
+- ⏳ Advanced gesture recognition
+- ⏳ Scene configuration interface
+- ⏳ Analytics and usage tracking
+
+## Debugging Notes
+
+### Common Issues
+1. **Hand cursor not visible**: Ensure scene handlers are initialized in main app, not iframe
+2. **Idle timeout not working**: Check JavaScript idle management in index.html
+3. **Scene transitions failing**: Verify WebSocket connection and event handling
+4. **Performance drops**: Monitor MediaPipe processing and frame rate
+
+### Testing Checklist
+- [ ] Hand tracking responsive at 30+ FPS
+- [ ] All scenes load without errors
+- [ ] Idle timeout activates after 15 seconds
+- [ ] Hand cursor appears and follows movement
+- [ ] Countdown triggers scene transitions
+- [ ] All scenes work offline
+- [ ] Kiosk mode operates fullscreen
+
+## Key File Locations
+
+### Core Application Files
+- `main.py` - Application entry point
+- `hand_tracker.py` - MediaPipe hand tracking implementation
+- `scene_manager.py` - Scene cycling and management
+- `web_app.py` - Flask server and WebSocket handling
+- `event_system.py` - Event bus for component communication
+
+### Frontend Files
+- `static/index.html` - Main kiosk interface
+- `static/scenes/welcome.html` - Welcome screen with instructions
+- `static/scenes/idle.html` - Screensaver mode
+- `static/scenes/*/index.html` - Individual scene implementations
+
+### Configuration Files
+- `requirements.txt` - Python dependencies
+- `debug_settings.json` - Debug configuration
+- `CLAUDE.md` - Original project instructions (legacy)
+
+## Common Commands
+
+### Development
+```bash
+# Activate virtual environment
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run application
+python main.py
+
+# Run in kiosk mode
+python main.py --kiosk
+```
+
+### Debugging
+```bash
+# Check hand tracking
+python -c "import mediapipe; print('MediaPipe OK')"
+
+# Test Flask server
+curl http://localhost:5000/health
+
+# Monitor logs
+tail -f application.log
+```
+
+## Prompt Templates
+
+### Continue Work
+```
+Review `claude.md`, `planning.md`, and `tasks.md`, then complete the next uncompleted task.
+```
+
+### Specific Task
+```
+Complete the task named '[Task Description]' from `tasks.md` and mark it as complete.
+```
+
+### Add New Task
+```
+Add a new task to `tasks.md`: '[Task Description]'. Do not start working on it yet.
+```
+
+### End Session
+```
+Add a session summary of our work to `claude.md`.
+```
+
+## Project Constraints Reminder
+
+### Technical Constraints
+- Must work offline (no internet dependencies)
+- Single Python application (no build process)
+- M4 Mac Mini target hardware
+- Camera-only input (no touch/keyboard)
+
+### Performance Requirements
+- 30-60 FPS hand tracking
+- <33ms latency for interactions
+- <500MB RAM usage
+- 99.9% uptime for unattended operation
+
+### User Experience
+- Zero-instruction operation
+- Immediate hand detection feedback
+- Clear visual indicators
+- Accessible to all ages
+
+Remember: This is a kiosk installation that must operate reliably without supervision. Every change should consider the unattended operation requirement.
+
+## Original Project Architecture
+
+### Project Overview
 Building a single-app hand tracking system that captures hand movements via camera and translates them to coordinates for real-time interaction. Will run on M4 Mac Mini in kiosk mode.
 
 ## Final Architecture Decision
