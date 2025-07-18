@@ -85,8 +85,8 @@
                         <div class="countdown-circle">
                             <div class="countdown-number" id="countdownNumber">3</div>
                             <svg class="countdown-progress" width="80" height="80">
-                                <circle cx="40" cy="40" r="35" stroke="#00ff41" stroke-width="3" fill="none" opacity="0.3"/>
-                                <circle cx="40" cy="40" r="35" stroke="#00ff41" stroke-width="3" fill="none" 
+                                <circle cx="40" cy="40" r="35" stroke="var(--pipboy-orange)" stroke-width="3" fill="none" opacity="0.3"/>
+                                <circle cx="40" cy="40" r="35" stroke="var(--pipboy-orange)" stroke-width="3" fill="none" 
                                         stroke-dasharray="220" stroke-dashoffset="220" 
                                         class="countdown-progress-ring" id="countdownRing"/>
                             </svg>
@@ -357,11 +357,11 @@
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
-    background: rgba(0, 17, 0, 0.8);
-    border: 2px solid #00ff41;
+    background: rgba(51, 34, 0, 0.8);
+    border: 2px solid var(--pipboy-orange);
     border-radius: 10px;
     padding: 30px;
-    box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+    box-shadow: 0 0 30px var(--pipboy-orange-glow);
 }
 
 .countdown-overlay.visible {
@@ -381,8 +381,8 @@
     position: absolute;
     font-size: 2rem;
     font-weight: bold;
-    color: #00ff41;
-    text-shadow: 0 0 10px #00ff41;
+    color: var(--pipboy-orange);
+    text-shadow: 0 0 10px var(--pipboy-orange);
     z-index: 1;
 }
 
