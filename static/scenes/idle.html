@@ -1,0 +1,209 @@
+<div class="scene idle-scene">
+    <div class="screensaver-container">
+        <div class="floating-logo">
+            <div class="logo-text">ATLANTIS</div>
+            <div class="logo-subtext">4:30 & D</div>
+        </div>
+        
+        <div class="floating-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        
+        <div class="idle-message">
+            <div class="message-text">Show your hands to begin</div>
+            <div class="message-pulse">●</div>
+        </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono:wght@400&display=swap');
+
+.message-text {
+    font-size: 4rem;
+}
+.idle-scene {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #000, #001100, #000);
+    background-size: 400% 400%;
+    animation: gradientShift 10s ease infinite;
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+}
+
+.screensaver-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.floating-logo {
+    position: absolute;
+    text-align: center;
+    color: #00ff41;
+    text-shadow: 0 0 20px #00ff41;
+    animation: float 8s ease-in-out infinite;
+}
+
+.logo-text {
+    font-size: 6rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    letter-spacing: 0.2em;
+}
+
+.logo-subtext {
+    font-size: 3.5rem;
+    opacity: 0.8;
+    letter-spacing: 0.1em;
+}
+
+.floating-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #00ff41;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00ff41;
+    animation: particleFloat 12s linear infinite;
+}
+
+.particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 15s; }
+.particle:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 12s; }
+.particle:nth-child(3) { left: 30%; animation-delay: 4s; animation-duration: 18s; }
+.particle:nth-child(4) { left: 40%; animation-delay: 1s; animation-duration: 14s; }
+.particle:nth-child(5) { left: 60%; animation-delay: 3s; animation-duration: 16s; }
+.particle:nth-child(6) { left: 70%; animation-delay: 5s; animation-duration: 13s; }
+.particle:nth-child(7) { left: 80%; animation-delay: 1.5s; animation-duration: 17s; }
+.particle:nth-child(8) { left: 90%; animation-delay: 3.5s; animation-duration: 11s; }
+
+.idle-message {
+    position: absolute;
+    bottom: 10%;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #00ff41;
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px #00ff41;
+}
+
+.message-pulse {
+    font-size: 1.5rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0px) translateX(0px);
+        opacity: 0.8;
+    }
+    25% { 
+        transform: translateY(-20px) translateX(30px);
+        opacity: 1;
+    }
+    50% { 
+        transform: translateY(0px) translateX(60px);
+        opacity: 0.9;
+    }
+    75% { 
+        transform: translateY(20px) translateX(30px);
+        opacity: 1;
+    }
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(100vh) translateX(0px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(100px);
+        opacity: 0;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.3;
+        transform: scale(1.2);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .logo-text {
+        font-size: 2.5rem;
+    }
+    
+    .logo-subtext {
+        font-size: 1rem;
+    }
+    
+    .idle-message {
+        font-size: 1rem;
+        bottom: 15%;
+    }
+}
+</style>
+
+<script>
+// Scene-specific interaction logic
+if (window.sceneHandlers) {
+    window.sceneHandlers.idle = {
+        onInit: function() {
+            console.log('Idle scene initialized');
+        },
+        
+        onHandDetected: function(hands) {
+            console.log('Idle scene: Hand detected, should exit idle mode');
+            // The scene manager will handle exiting idle mode
+        },
+        
+        onHandMove: function(hands) {
+            // No interaction needed in idle mode
+        },
+        
+        onHandLost: function() {
+            // No action needed - scene manager handles this
+        }
+    };
+}
+</script>

@@ -229,6 +229,18 @@ def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand
                 'remaining_time': scene_manager.get_remaining_time(),
                 'auto_cycle': scene_manager.auto_cycle
             })
+    
+    @socketio.on('pause_scene_cycling')
+    def handle_pause_scene_cycling():
+        if scene_manager:
+            scene_manager.pause_cycling()
+            print("[WebApp] Scene cycling paused")
+    
+    @socketio.on('restart_scene_cycling')
+    def handle_restart_scene_cycling():
+        if scene_manager:
+            scene_manager.restart_cycling()
+            print("[WebApp] Scene cycling restarted")
         
     return app, socketio
 

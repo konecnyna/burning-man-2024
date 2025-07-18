@@ -34,6 +34,10 @@ class HandTrackingEvents:
     SCENE_TRANSITION_START = "scene_transition_start"
     SCENE_TRANSITION_END = "scene_transition_end"
     SCENE_INTERACTION = "scene_interaction"
+    
+    # System state events
+    SYSTEM_IDLE = "system_idle"
+    SYSTEM_ACTIVE = "system_active"
 
 class EventBus:
     def __init__(self):

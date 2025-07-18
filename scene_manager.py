@@ -36,6 +36,7 @@ class SceneManager:
         self.cycle_thread = None
         self.scene_start_time = None
         self.auto_cycle = True
+        self.cycling_paused = False
         
         # Load default scenes
         self._load_default_scenes()
@@ -101,8 +102,8 @@ class SceneManager:
         self.is_running = True
         self.scene_start_time = time.time()
         
-        # Start with first scene
-        self.change_scene(0)
+        # Start with welcome scene
+        self.change_scene(0)  # Welcome scene is first
         
         # Start cycling thread if auto-cycle is enabled
         if self.auto_cycle:
@@ -119,6 +120,7 @@ class SceneManager:
     def change_scene(self, scene_index: int):
         """Change to a specific scene"""
         if not self.scenes or scene_index >= len(self.scenes):
+            print(f"[SceneManager] change_scene failed: scene_index={scene_index}, scenes_count={len(self.scenes)}")
             return
             
         old_scene = self.get_current_scene()
@@ -126,8 +128,10 @@ class SceneManager:
         new_scene = self.get_current_scene()
         self.scene_start_time = time.time()
         
+        print(f"[SceneManager] Changing scene from {old_scene.id if old_scene else 'None'} to {new_scene.id if new_scene else 'None'}")
+        
         # Emit transition start event
-        self.event_bus.emit(Event(
+        transition_start_event = Event(
             type=HandTrackingEvents.SCENE_TRANSITION_START,
             data={
                 "from_scene": old_scene.to_dict() if old_scene else None,
@@ -136,13 +140,15 @@ class SceneManager:
             },
             timestamp=datetime.now(),
             source="scene_manager"
-        ))
+        )
+        print(f"[SceneManager] Emitting SCENE_TRANSITION_START event")
+        self.event_bus.emit(transition_start_event)
         
         # Small delay for transition effect
         time.sleep(0.5)
         
         # Emit scene changed event
-        self.event_bus.emit(Event(
+        scene_changed_event = Event(
             type=HandTrackingEvents.SCENE_CHANGED,
             data={
                 "scene": new_scene.to_dict(),
@@ -151,7 +157,9 @@ class SceneManager:
             },
             timestamp=datetime.now(),
             source="scene_manager"
-        ))
+        )
+        print(f"[SceneManager] Emitting SCENE_CHANGED event")
+        self.event_bus.emit(scene_changed_event)
         
         # Emit transition end event
         self.event_bus.emit(Event(
@@ -202,6 +210,11 @@ class SceneManager:
     def _cycle_scenes(self):
         """Background thread to cycle through scenes"""
         while self.is_running:
+            # Don't cycle if paused
+            if self.cycling_paused:
+                time.sleep(1.0)
+                continue
+                
             current_scene = self.get_current_scene()
             
             if current_scene and current_scene.duration > 0:
@@ -250,3 +263,15 @@ class SceneManager:
         # Adjust current index if needed
         if self.current_scene_index >= len(self.scenes):
             self.current_scene_index = 0
+            
+    def pause_cycling(self):
+        """Pause scene cycling"""
+        self.cycling_paused = True
+        print("[SceneManager] Scene cycling paused")
+        
+    def restart_cycling(self):
+        """Restart scene cycling from welcome scene"""
+        self.cycling_paused = False
+        # Reset to welcome scene (index 0)
+        self.change_scene(0)
+        print("[SceneManager] Scene cycling restarted from welcome scene")

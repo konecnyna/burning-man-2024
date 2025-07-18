@@ -547,6 +547,12 @@
                 this.handColorAssignments = new Map(); // Track hand ID to color assignments
                 this.nextColorIndex = 0;
                 
+                // Idle management
+                this.isIdle = true;  // Start in idle mode
+                this.idleTimeout = 30_000; // 15 seconds in milliseconds
+                this.idleTimer = null;
+                this.normalScenes = []; // Will store non-idle scenes
+                
                 // Make scene handlers available globally
                 window.sceneHandlers = this.sceneHandlers;
                 
@@ -555,6 +561,7 @@
                 this.initializeKeyboardShortcuts();
                 this.loadDebugSettings();
                 this.startProgressUpdater();
+                this.startInIdleMode();
             }
             
             initializeSocket() {
@@ -564,11 +571,14 @@
                     this.updateConnectionStatus();
                     
                     // Subscribe to all events
+                    const eventsToSubscribe = [
+                        'hand_moved', 'hand_detected', 'hand_lost', 'frame_processed',
+                        'scene_changed', 'scene_transition_start', 'scene_transition_end',
+                        'system_idle', 'system_active'
+                    ];
+                    console.log('[JS] Subscribing to events:', eventsToSubscribe);
                     this.socket.emit('subscribe', {
-                        events: [
-                            'hand_moved', 'hand_detected', 'hand_lost', 'frame_processed',
-                            'scene_changed', 'scene_transition_start', 'scene_transition_end'
-                        ]
+                        events: eventsToSubscribe
                     });
                 });
                 
@@ -585,16 +595,33 @@
             
             handleEvent(event) {
                 this.eventCount++;
-                
                 switch(event.type) {
                     case 'hand_moved':
+                        console.log('hand_moved ', event);
                         this.updateHands(event.data.hands);
+                        
+                        if (this.isIdle) {
+                            this.exitIdleMode();
+                        } else {
+                            // Only reset timer if not in idle mode
+                            this.resetIdleTimer();
+                        }
                         break;
                     case 'hand_detected':
+                        console.log('[JS] Hand detected event received, current scene:', this.currentScene?.id);
                         this.updateHands(event.data.hands);
+                        
+                        if (this.isIdle) {
+                            this.exitIdleMode();
+                        } else {
+                            // Only reset timer if not in idle mode
+                            this.resetIdleTimer();
+                        }
+                        
                         this.callSceneHandler('onHandDetected', event.data.hands);
                         break;
                     case 'hand_lost':
+                        console.log('[JS] Hand lost event received, current scene:', this.currentScene?.id);
                         this.updateHands(event.data.hands);
                         this.callSceneHandler('onHandLost');
                         break;
@@ -603,9 +630,11 @@
                         this.updateStatusBar();
                         break;
                     case 'scene_transition_start':
+                        console.log('[JS] Scene transition start:', event.data.to_scene?.id);
                         this.showOverlay(event.data.to_scene);
                         break;
                     case 'scene_changed':
+                        console.log('[JS] Scene changed to:', event.data.scene?.id);
                         this.currentScene = event.data.scene;
                         this.currentSceneIndex = event.data.scene_index;
                         this.totalScenes = event.data.total_scenes;
@@ -615,6 +644,12 @@
                         break;
                     case 'scene_transition_end':
                         this.hideOverlay();
+                        break;
+                    case 'system_idle':
+                        console.log('[JS] System entered idle mode');
+                        break;
+                    case 'system_active':
+                        console.log('[JS] System entered active mode');
                         break;
                 }
                 
@@ -728,6 +763,13 @@
                     
                     const container = document.getElementById('scene-container');
                     
+                    // Handle idle mode HUD visibility
+                    if (scene.id === 'idle') {
+                        this.hideHUDForIdle();
+                    } else {
+                        this.showHUDForActive();
+                    }
+                    
                     // Handle complete HTML page scenes as iframes
                     if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism' || scene.id === 'psychedelic_waves' || scene.id === 'tie_dye' || scene.id === 'orbits') {
                         container.innerHTML = `<iframe id="scene-iframe" src="/${scene.html_file}" style="width: 100%; height: 100%; border: none;"></iframe>`;
@@ -755,6 +797,8 @@
                 } catch (error) {
                     console.error('Error loading scene:', error);
                 }
+
+                console.log("current scene: ", this.currentScene)
             }
             
             callSceneHandler(method, ...args) {
@@ -938,6 +982,127 @@
                 .catch(error => {
                     console.error('Failed to save debug settings:', error);
                 });
+            }
+            
+            hideHUDForIdle() {
+                console.log('[JS] Hiding HUD for idle mode');
+                // Hide HUD elements during idle mode
+                const elementsToHide = [
+                    'status-bar',
+                    'debug-toggle',
+                    'debug-panel',
+                    'debug-video',
+                    'manual-controls'
+                ];
+                
+                elementsToHide.forEach(id => {
+                    const element = document.getElementById(id) || document.querySelector(`.${id}`);
+                    if (element) {
+                        element.style.display = 'none';
+                    }
+                });
+            }
+            
+            showHUDForActive() {
+                console.log('[JS] Showing HUD for active mode');
+                // Show HUD elements when not in idle mode
+                const elementsToShow = [
+                    { id: 'status-bar', className: 'status-bar' },
+                    { id: 'debug-toggle', className: 'debug-toggle' },
+                    { id: 'manual-controls', className: 'manual-controls' }
+                ];
+                
+                elementsToShow.forEach(item => {
+                    const element = document.getElementById(item.id) || document.querySelector(`.${item.className}`);
+                    if (element) {
+                        element.style.display = '';
+                    }
+                });
+                
+                // Debug panel and video remain hidden unless explicitly toggled
+                const debugPanel = document.getElementById('debugPanel');
+                if (debugPanel && !debugPanel.classList.contains('visible')) {
+                    debugPanel.style.display = 'none';
+                }
+                
+                const debugVideo = document.getElementById('debugVideo');
+                if (debugVideo && !debugVideo.classList.contains('visible')) {
+                    debugVideo.style.display = 'none';
+                }
+            }
+            
+            startInIdleMode() {
+                console.log('[JS] Starting in idle mode');
+                this.isIdle = true;
+                this.loadIdleScene();
+            }
+            
+            resetIdleTimer() {
+                console.log('[JS] Resetting idle timer');
+                if (this.idleTimer) {
+                    clearTimeout(this.idleTimer);
+                }
+                
+                if (!this.isIdle) {
+                    this.idleTimer = setTimeout(() => {
+                        this.enterIdleMode();
+                    }, this.idleTimeout);
+                }
+            }
+            
+            enterIdleMode() {
+                console.log('[JS] Entering idle mode');
+                this.isIdle = true;
+                this.pauseSceneSystem();
+                this.loadIdleScene();
+            }
+            
+            exitIdleMode() {
+                console.log('[JS] Exiting idle mode');
+                this.isIdle = false;
+                if (this.idleTimer) {
+                    clearTimeout(this.idleTimer);
+                }
+                this.restartSceneSystem();
+                this.resetIdleTimer();
+            }
+            
+            pauseSceneSystem() {
+                console.log('[JS] Pausing scene system');
+                // Tell the backend to pause scene cycling
+                if (this.socket) {
+                    this.socket.emit('pause_scene_cycling');
+                }
+            }
+            
+            restartSceneSystem() {
+                console.log('[JS] Restarting scene system');
+                // Tell the backend to restart scene cycling from welcome scene
+                if (this.socket) {
+                    this.socket.emit('restart_scene_cycling');
+                }
+            }
+            
+            loadIdleScene() {
+                console.log('[JS] Loading idle scene');
+                const idleScene = {
+                    id: 'idle',
+                    name: 'Idle Screen',
+                    description: 'Screensaver mode - show hands to begin',
+                    html_file: 'scenes/idle.html'
+                };
+                this.loadScene(idleScene);
+            }
+            
+            loadWelcomeScene() {
+                console.log('[JS] Loading welcome scene');
+                const welcomeScene = {
+                    id: 'welcome',
+                    name: 'Welcome Scene',
+                    description: 'Interactive welcome screen',
+                    html_file: 'scenes/welcome.html'
+                };
+                this.loadScene(welcomeScene);
             }
             
             startProgressUpdater() {
