@@ -104,6 +104,13 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono:wght@400&display=swap');
 
+:root {
+    --pipboy-green: #00ff41;
+    --pipboy-green-dark: #00dd33;
+    --pipboy-orange: rgb(255, 170, 60);
+    --pipboy-orange-glow: rgba(255, 170, 60, 0.5);
+}
+
 .welcome-scene {
     position: relative;
     width: 100%;
@@ -153,6 +160,8 @@
 }
 
 .signal-indicator {
+    color: var(--pipboy-orange);
+    text-shadow: 0 0 10px var(--pipboy-orange);
     animation: pulse 2s ease-in-out infinite;
 }
 
@@ -290,22 +299,24 @@
     align-items: center;
     gap: 10px;
     font-size: 2.1rem;
+    color: var(--pipboy-orange);
+    text-shadow: 0 0 10px var(--pipboy-orange);
 }
 
 .prompt {
-    color: #00ff41;
+    /* color: #00ff41; */
     font-weight: bold;
 }
 
 .typing-cursor {
     animation: blink 1s step-end infinite;
-    color: #00ff41;
+    /* color: #00ff41; */
 }
 
 .footer-text {
-    color: #00ff41;
+    color: var(--pipboy-orange);
     font-weight: bold;
-    text-shadow: 0 0 5px #00ff41;
+    text-shadow: 0 0 5px var(--pipboy-orange);
     position: relative;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -444,17 +455,17 @@
 @keyframes pulse-attention {
     0% { 
         opacity: 1;
-        text-shadow: 0 0 5px #00ff41;
+        text-shadow: 0 0 5px var(--pipboy-orange);
         transform: scale(1);
     }
     50% { 
         opacity: 0.7;
-        text-shadow: 0 0 20px #00ff41, 0 0 30px #00ff41;
+        text-shadow: 0 0 20px var(--pipboy-orange), 0 0 30px var(--pipboy-orange);
         transform: scale(1.02);
     }
     100% { 
         opacity: 1;
-        text-shadow: 0 0 5px #00ff41;
+        text-shadow: 0 0 5px var(--pipboy-orange);
         transform: scale(1);
     }
 }

@@ -11,6 +11,13 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --pipboy-green: #00ff41;
+            --pipboy-green-dark: #00dd33;
+            --pipboy-orange: rgb(255, 170, 60);
+            --pipboy-orange-glow: rgba(255, 170, 60, 0.5);
+        }
+
         body {
             font-family: 'Arial', sans-serif;
             background: #000;
@@ -211,14 +218,14 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #ff6b6b;
-            box-shadow: 0 0 10px #ff6b6b;
+            background: var(--pipboy-orange);
+            box-shadow: 0 0 10px var(--pipboy-orange);
             animation: pulse 2s ease-in-out infinite;
         }
 
         .status-indicator.connected {
-            background: #00ff41;
-            box-shadow: 0 0 10px #00ff41;
+            background: var(--pipboy-orange);
+            box-shadow: 0 0 10px var(--pipboy-orange);
         }
 
         .debug-toggle {
@@ -552,7 +559,7 @@
                 
                 // Idle management
                 this.isIdle = true;  // Start in idle mode
-                this.idleTimeout = 45000; // 15 seconds in milliseconds
+                this.idleTimeout = 10000; // 15 seconds in milliseconds
                 this.idleTimer = null;
                 this.normalScenes = []; // Will store non-idle scenes
                 
