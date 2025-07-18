@@ -206,6 +206,49 @@
             overflow: visible;
         }
 
+        .idle-warning {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(51, 34, 0, 0.95);
+            border: 2px solid var(--pipboy-orange);
+            border-radius: 8px;
+            box-shadow: 
+                0 0 20px var(--pipboy-orange-glow),
+                inset 0 0 15px rgba(255, 170, 60, 0.1);
+            padding: 12px 20px;
+            z-index: 60;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--pipboy-orange);
+            text-shadow: 0 0 8px var(--pipboy-orange);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            animation: warning-pulse 1s ease-in-out infinite;
+        }
+
+        .idle-warning.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .warning-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-icon {
+            font-size: 1.2rem;
+            animation: warning-flash 0.5s ease-in-out infinite alternate;
+        }
+
+        .warning-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
         .status-item {
             display: flex;
             align-items: center;
@@ -397,7 +440,8 @@
         .controls-hud-hidden .debug-panel,
         .controls-hud-hidden .debug-video,
         .controls-hud-hidden .manual-controls,
-        .controls-hud-hidden .parent-overlay {
+        .controls-hud-hidden .parent-overlay,
+        .controls-hud-hidden .idle-warning {
             display: none !important;
         }
         
@@ -418,6 +462,20 @@
                 box-shadow: 0 0 25px var(--pipboy-green), 0 0 35px rgba(0, 255, 65, 0.3);
                 transform: scale(1.1);
             }
+        }
+
+        @keyframes warning-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px var(--pipboy-orange-glow), inset 0 0 15px rgba(255, 170, 60, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 30px var(--pipboy-orange-glow), 0 0 40px rgba(255, 170, 60, 0.2), inset 0 0 20px rgba(255, 170, 60, 0.2);
+            }
+        }
+
+        @keyframes warning-flash {
+            0% { opacity: 1; }
+            100% { opacity: 0.6; }
         }
         
         /* Add scanlines effect to HUD elements */
@@ -517,6 +575,14 @@
             </div>
         </div>
         
+        <!-- Idle warning notification -->
+        <div class="idle-warning" id="idleWarning">
+            <div class="warning-content">
+                <span class="warning-icon">⚠</span>
+                <span class="warning-text">Entering idle mode in <span id="idleWarningCountdown">3</span>s</span>
+            </div>
+        </div>
+        
         <!-- Debug controls -->
         <button class="debug-toggle" onclick="toggleDebug()">Debug</button>
         <div class="debug-panel" id="debugPanel">
@@ -581,6 +647,8 @@
                 this.idleTimeout = 10000; // 15 seconds in milliseconds
                 this.idleTimer = null;
                 this.normalScenes = []; // Will store non-idle scenes
+                this.idleTimeoutStartTime = null; // Track when idle countdown started
+                this.idleWarningVisible = false; // Track if warning is showing
                 
                 // Scene timing
                 this.sceneStartTime = null;
@@ -1127,6 +1195,7 @@
                 document.getElementById('currentScene').textContent = 
                     `Scene: ${this.currentScene ? this.currentScene.name : 'Loading'}`;
                 this.updateSceneCountdown();
+                this.updateIdleWarning();
             }
             
             updateSceneCounter() {
@@ -1185,6 +1254,44 @@
                         countdownElement.textContent = `Next: ${minutes}:${seconds.toString().padStart(2, '0')}`;
                     } else {
                         countdownElement.textContent = `Next: ${seconds}s`;
+                    }
+                }
+            }
+            
+            updateIdleWarning() {
+                const idleWarning = document.getElementById('idleWarning');
+                const warningCountdown = document.getElementById('idleWarningCountdown');
+                
+                if (this.isIdle || !this.idleTimeoutStartTime) {
+                    if (this.idleWarningVisible) {
+                        idleWarning.classList.remove('visible');
+                        this.idleWarningVisible = false;
+                    }
+                    return;
+                }
+                
+                // Calculate time remaining until idle timeout
+                const elapsed = (Date.now() - this.idleTimeoutStartTime) / 1000;
+                const remaining = Math.max(0, (this.idleTimeout / 1000) - elapsed);
+                
+                // Log the countdown every second
+                const remainingSeconds = Math.floor(remaining);
+                console.log(`[JS] Idle timeout countdown: ${remainingSeconds}s remaining (${remaining.toFixed(1)}s precise)`);
+                
+                if (remaining <= 5 && remaining > 0) {
+                    // Show warning when under 3 seconds
+                    if (!this.idleWarningVisible) {
+                        console.log('[JS] Showing idle warning - under 3 seconds');
+                        idleWarning.classList.add('visible');
+                        this.idleWarningVisible = true;
+                    }
+                    warningCountdown.textContent = Math.ceil(remaining);
+                } else {
+                    // Hide warning when over 3 seconds or at 0
+                    if (this.idleWarningVisible) {
+                        console.log('[JS] Hiding idle warning - over 3 seconds or timeout reached');
+                        idleWarning.classList.remove('visible');
+                        this.idleWarningVisible = false;
                     }
                 }
             }
@@ -1392,6 +1499,7 @@
                 }
                 
                 if (!this.isIdle) {
+                    this.idleTimeoutStartTime = Date.now();
                     this.idleTimer = setTimeout(() => {
                         this.enterIdleMode();
                     }, this.idleTimeout);
@@ -1401,6 +1509,14 @@
             enterIdleMode() {
                 console.log('[JS] Entering idle mode');
                 this.isIdle = true;
+                this.idleTimeoutStartTime = null;
+                
+                // Hide idle warning
+                const idleWarning = document.getElementById('idleWarning');
+                if (this.idleWarningVisible) {
+                    idleWarning.classList.remove('visible');
+                    this.idleWarningVisible = false;
+                }
                 
                 // Pause scene countdown
                 if (this.sceneCountdownTimer) {
