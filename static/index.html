@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hand Tracking Kiosk</title>
+    <title>Atlantis Hand Tracking Program</title>
     <style>
         * {
             margin: 0;
@@ -659,8 +659,6 @@
                 window.sceneHandlers = this.sceneHandlers;
                 
                 // Initialize scene handlers
-                this.initializeSceneHandlers();
-                
                 this.initializeSocket();
                 this.initializeDebugPoints();
                 this.initializeKeyboardShortcuts();
@@ -1549,6 +1547,8 @@
                 if (this.idleTimer) {
                     clearTimeout(this.idleTimer);
                 }
+                
+                this.initializeSceneHandlers();
                 
                 // Reset session welcome flag - new session starts
                 this.sessionWelcomeShown = false;

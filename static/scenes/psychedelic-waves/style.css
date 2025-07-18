@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Poppins:400,900');
+/* Using local fonts for offline compatibility */
 
 body {
     overflow: hidden;
@@ -21,7 +21,7 @@ canvas {
     width: calc (100%-80);
     font-size: 24px;
     font-weight: 900;
-    font-family: "Poppins";
+    font-family: 'Arial', sans-serif;
     letter-spacing: 1px;
     bottom: 40px;
     left: 40px;
@@ -31,7 +31,7 @@ canvas {
     position: relative;
     color: white;
     font-size: 10px;
-    font-family: "Poppins";
+    font-family: 'Arial', sans-serif;
     font-weight: 400;
     letter-spacing: 1px;
     line-height: 1.5;
@@ -42,7 +42,7 @@ canvas {
     color: white;
     margin-top: 20px;
     font-size: 10px;
-    font-family: "Poppins", sans-serif;
+    font-family: 'Arial', sans-serif;
     font-weight: 900;
     letter-spacing: 3px;
     text-transform: uppercase;
