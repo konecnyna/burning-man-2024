@@ -6,19 +6,21 @@
         </div>
         
         <div class="floating-particles">
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
+            <canvas id="particleCanvas"></canvas>
+            <div class="simple-particles">
+                <div class="simple-particle"></div>
+                <div class="simple-particle"></div>
+                <div class="simple-particle"></div>
+                <div class="simple-particle"></div>
+                <div class="simple-particle"></div>
+                <div class="simple-particle"></div>
+                <div class="simple-particle"></div>
+                <div class="simple-particle"></div>
+            </div>
         </div>
         
         <div class="idle-message">
-            <div class="message-text">Show your hands to begin</div>
-            <div class="message-pulse">●</div>
+            <div class="message-text">Show your hands to begin</div>            
         </div>
     </div>
 </div>
@@ -26,9 +28,20 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono:wght@400&display=swap');
 
+:root {
+    --pipboy-green: #00ff41;
+    --pipboy-green-dark: #00dd33;
+    --pipboy-orange: rgb(255, 170, 60);
+    --pipboy-orange-glow: rgba(255, 170, 60, 0.5);
+}
+
 .message-text {
     font-size: 4rem;
+    color: var(--pipboy-orange);
+    text-shadow: 0 0 10px var(--pipboy-orange);
+    /* animation: pulse 5s ease-in-out infinite; */
 }
+
 .idle-scene {
     position: relative;
     width: 100%;
@@ -59,14 +72,14 @@
 }
 
 .logo-text {
-    font-size: 8rem;
+    font-size: 14rem;
     font-weight: bold;
     margin-bottom: 1rem;
     letter-spacing: 0.2em;
 }
 
 .logo-subtext {
-    font-size: 4.5rem;
+    font-size: 9.5rem;
     opacity: 0.8;
     letter-spacing: 0.1em;
 }
@@ -78,24 +91,40 @@
     pointer-events: none;
 }
 
-.particle {
+#particleCanvas {
     position: absolute;
-    width: 4px;
-    height: 4px;
-    background: #00ff41;
-    border-radius: 50%;
-    box-shadow: 0 0 10px #00ff41;
-    animation: particleFloat 12s linear infinite;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
 }
 
-.particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 15s; }
-.particle:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 12s; }
-.particle:nth-child(3) { left: 30%; animation-delay: 4s; animation-duration: 18s; }
-.particle:nth-child(4) { left: 40%; animation-delay: 1s; animation-duration: 14s; }
-.particle:nth-child(5) { left: 60%; animation-delay: 3s; animation-duration: 16s; }
-.particle:nth-child(6) { left: 70%; animation-delay: 5s; animation-duration: 13s; }
-.particle:nth-child(7) { left: 80%; animation-delay: 1.5s; animation-duration: 17s; }
-.particle:nth-child(8) { left: 90%; animation-delay: 3.5s; animation-duration: 11s; }
+.simple-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.simple-particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #00ff41;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #00ff41;
+    animation: simpleParticleFloat 12s linear infinite;
+}
+
+.simple-particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 15s; }
+.simple-particle:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 12s; }
+.simple-particle:nth-child(3) { left: 30%; animation-delay: 4s; animation-duration: 18s; }
+.simple-particle:nth-child(4) { left: 40%; animation-delay: 1s; animation-duration: 14s; }
+.simple-particle:nth-child(5) { left: 60%; animation-delay: 3s; animation-duration: 16s; }
+.simple-particle:nth-child(6) { left: 70%; animation-delay: 5s; animation-duration: 13s; }
+.simple-particle:nth-child(7) { left: 80%; animation-delay: 1.5s; animation-duration: 17s; }
+.simple-particle:nth-child(8) { left: 90%; animation-delay: 3.5s; animation-duration: 11s; }
 
 .idle-message {
     position: absolute;
@@ -108,10 +137,6 @@
     text-shadow: 0 0 10px #00ff41;
 }
 
-.message-pulse {
-    font-size: 1.5rem;
-    animation: pulse 2s ease-in-out infinite;
-}
 
 /* Animations */
 @keyframes gradientShift {
@@ -139,7 +164,8 @@
     }
 }
 
-@keyframes particleFloat {
+
+@keyframes simpleParticleFloat {
     0% {
         transform: translateY(100vh) translateX(0px);
         opacity: 0;
@@ -151,7 +177,7 @@
         opacity: 1;
     }
     100% {
-        transform: translateY(-100px) translateX(100px);
+        transform: translateY(-100px) translateX(50px);
         opacity: 0;
     }
 }
@@ -185,11 +211,146 @@
 </style>
 
 <script>
+// Comet particle system
+class CometParticles {
+    constructor() {
+        this.canvas = document.getElementById('particleCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.trailLength = 40; // Longer tail
+        
+        this.resize();
+        this.createParticles();
+        this.animate();
+        
+        window.addEventListener('resize', () => this.resize());
+    }
+    
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+    
+    createParticles() {
+        // Only create 1 comet particle
+        this.particles.push({
+            x: Math.random() * this.canvas.width,
+            y: this.canvas.height + Math.random() * 200,
+            baseVx: (Math.random() - 0.5) * 1.5, // Base horizontal velocity
+            vy: -Math.random() * 2 - 0.5, // Slower vertical movement
+            trail: [],
+            delay: Math.random() * 3000, // Initial delay
+            startTime: Date.now(),
+            duration: 20000 + Math.random() * 10000, // Longer duration for single comet
+            waveOffset: Math.random() * Math.PI * 2, // Random wave phase
+            waveAmplitude: 30 + Math.random() * 50, // Wave amplitude
+            waveFrequency: 0.01 + Math.random() * 0.02, // Wave frequency
+            time: 0
+        });
+    }
+    
+    updateParticle(particle) {
+        const elapsed = Date.now() - particle.startTime;
+        
+        if (elapsed < particle.delay) return;
+        
+        // Add current position to trail
+        particle.trail.push({ x: particle.x, y: particle.y });
+        if (particle.trail.length > this.trailLength) {
+            particle.trail.shift();
+        }
+        
+        // Update time for wave calculations
+        particle.time += 0.5;
+        
+        // Calculate sinusoidal horizontal movement
+        const waveX = Math.sin(particle.time * particle.waveFrequency + particle.waveOffset) * particle.waveAmplitude;
+        
+        // Update position with curved path
+        particle.x += particle.baseVx + waveX * 0.05; // Apply wave effect gradually
+        particle.y += particle.vy;
+        
+        // Reset particle if it goes off screen or duration exceeded
+        if (particle.y < -100 || particle.x < -200 || particle.x > this.canvas.width + 200 || 
+            elapsed > particle.duration + particle.delay) {
+            particle.x = Math.random() * this.canvas.width;
+            particle.y = this.canvas.height + Math.random() * 200;
+            particle.baseVx = (Math.random() - 0.5) * 1.5;
+            particle.vy = -Math.random() * 2 - 0.5;
+            particle.trail = [];
+            particle.startTime = Date.now();
+            particle.delay = Math.random() * 10000 + 5000; // Longer delay between comets (5-15 seconds)
+            particle.duration = 20000 + Math.random() * 10000;
+            particle.waveOffset = Math.random() * Math.PI * 2;
+            particle.waveAmplitude = 30 + Math.random() * 50;
+            particle.waveFrequency = 0.01 + Math.random() * 0.02;
+            particle.time = 0;
+        }
+    }
+    
+    drawParticle(particle) {
+        const elapsed = Date.now() - particle.startTime;
+        if (elapsed < particle.delay) return;
+        
+        // Draw trail with more subtle effect
+        for (let i = 0; i < particle.trail.length; i++) {
+            const alpha = (i / particle.trail.length) * 0.4; // Reduced from 0.8 to 0.4
+            const size = (i / particle.trail.length) * 3; // Reduced from 4 to 3
+            
+            this.ctx.beginPath();
+            this.ctx.arc(particle.trail[i].x, particle.trail[i].y, size, 0, Math.PI * 2);
+            this.ctx.fillStyle = `rgba(0, 255, 65, ${alpha})`;
+            this.ctx.fill();
+            
+            // More subtle glow effect
+            this.ctx.shadowBlur = 8; // Reduced from 15 to 8
+            this.ctx.shadowColor = 'rgba(0, 255, 65, 0.3)'; // More transparent
+        }
+        
+        // Draw main particle - also more subtle
+        this.ctx.beginPath();
+        this.ctx.arc(particle.x, particle.y, 3, 0, Math.PI * 2); // Reduced from 4 to 3
+        this.ctx.fillStyle = 'rgba(0, 255, 65, 0.8)'; // Slightly transparent
+        this.ctx.shadowBlur = 12; // Reduced from 20 to 12
+        this.ctx.shadowColor = 'rgba(0, 255, 65, 0.6)'; // More transparent glow
+        this.ctx.fill();
+        
+        // Reset shadow
+        this.ctx.shadowBlur = 0;
+    }
+    
+    animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        for (let particle of this.particles) {
+            this.updateParticle(particle);
+            this.drawParticle(particle);
+        }
+        
+        requestAnimationFrame(() => this.animate());
+    }
+}
+
+// Initialize particles when canvas is ready
+let cometParticles;
+document.addEventListener('DOMContentLoaded', () => {
+    // Small delay to ensure canvas is rendered
+    setTimeout(() => {
+        cometParticles = new CometParticles();
+    }, 100);
+});
+
 // Scene-specific interaction logic
 if (window.sceneHandlers) {
     window.sceneHandlers.idle = {
         onInit: function() {
             console.log('Idle scene initialized');
+            // Reinitialize particles if needed
+            if (document.getElementById('particleCanvas') && !cometParticles) {
+                setTimeout(() => {
+                    cometParticles = new CometParticles();
+                }, 100);
+            }
         },
         
         onHandDetected: function(hands) {

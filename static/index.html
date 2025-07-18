@@ -649,6 +649,7 @@
                 this.normalScenes = []; // Will store non-idle scenes
                 this.idleTimeoutStartTime = null; // Track when idle countdown started
                 this.idleWarningVisible = false; // Track if warning is showing
+                this.sessionWelcomeShown = false; // Track if welcome was shown this session
                 
                 // Scene timing
                 this.sceneStartTime = null;
@@ -740,6 +741,17 @@
                     case 'scene_changed':
                         console.log('[JS] Scene changed to:', event.data.scene?.id);
                         console.log('[JS] Scene data received:', event.data.scene);
+                        
+                        // Check if this is a welcome scene during an active session
+                        if (event.data.scene?.id === 'welcome' && this.sessionWelcomeShown && !this.isIdle) {
+                            console.log('[JS] Skipping welcome scene - already shown this session');
+                            // Tell backend to move to next scene
+                            if (this.socket) {
+                                this.socket.emit('next_scene');
+                            }
+                            return;
+                        }
+                        
                         this.currentScene = event.data.scene;
                         this.currentSceneIndex = event.data.scene_index;
                         this.totalScenes = event.data.total_scenes;
@@ -747,6 +759,11 @@
                         this.updateStatusBar();
                         this.updateSceneCounter();
                         this.startSceneCountdown();
+                        
+                        // Mark welcome as shown if this is the welcome scene
+                        if (event.data.scene?.id === 'welcome') {
+                            this.sessionWelcomeShown = true;
+                        }
                         break;
                     case 'scene_transition_end':
                         this.hideOverlay();
@@ -916,13 +933,11 @@
                     },
                     
                     completeCountdown: () => {
-                        console.log('Countdown complete! Moving to next scene...');
+                        console.log('Countdown complete! Starting scene cycling...');
                         this.sceneHandlers.welcome.stopCountdown();
                         
-                        // Emit next scene event
-                        if (this.socket) {
-                            this.socket.emit('next_scene');
-                        }
+                        // Start the scene system after welcome screen
+                        this.restartSceneSystem();
                     },
                     
                     stopCountdown: () => {
@@ -1507,7 +1522,7 @@
             }
             
             enterIdleMode() {
-                console.log('[JS] Entering idle mode');
+                console.log('[JS] Entering idle mode - ending session');
                 this.isIdle = true;
                 this.idleTimeoutStartTime = null;
                 
@@ -1529,12 +1544,17 @@
             }
             
             exitIdleMode() {
-                console.log('[JS] Exiting idle mode');
+                console.log('[JS] Exiting idle mode - starting new session');
                 this.isIdle = false;
                 if (this.idleTimer) {
                     clearTimeout(this.idleTimer);
                 }
-                this.restartSceneSystem();
+                
+                // Reset session welcome flag - new session starts
+                this.sessionWelcomeShown = false;
+                
+                // Show welcome screen first, then restart scene system
+                this.showWelcomeScreen();
                 this.resetIdleTimer();
                 
                 // Restart scene countdown when exiting idle mode
@@ -1553,7 +1573,7 @@
             
             restartSceneSystem() {
                 console.log('[JS] Restarting scene system');
-                // Tell the backend to restart scene cycling from welcome scene
+                // Tell the backend to restart scene cycling
                 if (this.socket) {
                     this.socket.emit('restart_scene_cycling');
                 }
@@ -1579,6 +1599,13 @@
                     html_file: 'scenes/welcome.html'
                 };
                 this.loadScene(welcomeScene);
+            }
+            
+            showWelcomeScreen() {
+                console.log('[JS] Showing welcome screen for new session');
+                this.sessionWelcomeShown = true;
+                this.loadWelcomeScene();
+                this.showHUDForActive();
             }
             
             startProgressUpdater() {
