@@ -486,6 +486,9 @@
             <div class="status-item">
                 <span id="currentScene">Scene: Loading</span>
             </div>
+            <div class="status-item">
+                <span id="sceneCountdown">Next: --</span>
+            </div>
         </div>
         
         <!-- Debug controls -->
@@ -552,6 +555,10 @@
                 this.idleTimeout = 45000; // 15 seconds in milliseconds
                 this.idleTimer = null;
                 this.normalScenes = []; // Will store non-idle scenes
+                
+                // Scene timing
+                this.sceneStartTime = null;
+                this.sceneCountdownTimer = null;
                 
                 // Make scene handlers available globally
                 window.sceneHandlers = this.sceneHandlers;
@@ -638,12 +645,14 @@
                         break;
                     case 'scene_changed':
                         console.log('[JS] Scene changed to:', event.data.scene?.id);
+                        console.log('[JS] Scene data received:', event.data.scene);
                         this.currentScene = event.data.scene;
                         this.currentSceneIndex = event.data.scene_index;
                         this.totalScenes = event.data.total_scenes;
                         this.loadScene(event.data.scene);
                         this.updateStatusBar();
                         this.updateSceneCounter();
+                        this.startSceneCountdown();
                         break;
                     case 'scene_transition_end':
                         this.hideOverlay();
@@ -885,6 +894,27 @@
                             this.sceneHandlers.welcome.handCursor.style.display = 'none';
                         }
                         this.sceneHandlers.welcome.stopCountdown();
+                    },
+                    
+                    onDestroy: () => {
+                        // Clean up hand cursor when leaving welcome scene
+                        if (this.sceneHandlers.welcome.handCursor) {
+                            console.log('Removing welcome scene hand cursor');
+                            this.sceneHandlers.welcome.handCursor.remove();
+                            this.sceneHandlers.welcome.handCursor = null;
+                        }
+                        
+                        // Clean up countdown timer
+                        this.sceneHandlers.welcome.stopCountdown();
+                        
+                        // Also clean up any other hand cursors that might exist
+                        const existingCursors = document.querySelectorAll('.hand-cursor');
+                        existingCursors.forEach(cursor => {
+                            console.log('Removing existing hand cursor:', cursor);
+                            cursor.remove();
+                        });
+                        
+                        console.log('Welcome scene cleaned up');
                     }
                 };
             }
@@ -984,6 +1014,11 @@
                 try {
                     console.log('Loading scene:', scene);
                     
+                    // Clean up previous scene
+                    if (this.currentScene) {
+                        this.callSceneHandler('onDestroy');
+                    }
+                    
                     const container = document.getElementById('scene-container');
                     
                     // Handle idle mode HUD visibility
@@ -1065,12 +1100,66 @@
                 document.getElementById('handCounter').textContent = `Hands: ${this.hands.length}`;
                 document.getElementById('currentScene').textContent = 
                     `Scene: ${this.currentScene ? this.currentScene.name : 'Loading'}`;
+                this.updateSceneCountdown();
             }
             
             updateSceneCounter() {
                 if (this.currentSceneIndex !== undefined && this.totalScenes !== undefined) {
                     const counter = document.getElementById('sceneCounter');
                     counter.textContent = `Scene ${this.currentSceneIndex + 1} of ${this.totalScenes}`;
+                }
+            }
+            
+            startSceneCountdown() {
+                // Clear any existing countdown timer
+                if (this.sceneCountdownTimer) {
+                    clearInterval(this.sceneCountdownTimer);
+                }
+                
+                // Set scene start time
+                this.sceneStartTime = Date.now();
+                
+                // Log scene info for debugging
+                if (this.currentScene) {
+                    console.log('[JS] Starting countdown for scene:', this.currentScene.id, 'duration:', this.currentScene.duration);
+                }
+                
+                // Start countdown timer (update every second)
+                this.sceneCountdownTimer = setInterval(() => {
+                    this.updateSceneCountdown();
+                }, 1000);
+                
+                // Initial update
+                this.updateSceneCountdown();
+            }
+            
+            updateSceneCountdown() {
+                const countdownElement = document.getElementById('sceneCountdown');
+                
+                if (!this.currentScene || !this.sceneStartTime || this.isIdle) {
+                    countdownElement.textContent = 'Next: --';
+                    return;
+                }
+                
+                // Get scene duration (default to 45 seconds if not specified)
+                const sceneDuration = this.currentScene.duration || 45;
+                console.log('[JS] Scene duration for', this.currentScene.id, ':', sceneDuration, 'seconds');
+                
+                // Calculate elapsed time
+                const elapsed = (Date.now() - this.sceneStartTime) / 1000;
+                const remaining = Math.max(0, sceneDuration - elapsed);
+                
+                if (remaining <= 0) {
+                    countdownElement.textContent = 'Next: Now';
+                } else {
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = Math.floor(remaining % 60);
+                    
+                    if (minutes > 0) {
+                        countdownElement.textContent = `Next: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    } else {
+                        countdownElement.textContent = `Next: ${seconds}s`;
+                    }
                 }
             }
             
@@ -1232,6 +1321,8 @@
                 const elementsToShow = [
                     { id: 'status-bar', className: 'status-bar' },
                     { id: 'debug-toggle', className: 'debug-toggle' },
+                    { id: 'debug-panel', className: 'debug-panel' },
+                    { id: 'debug-video', className: 'debug-video' },
                     { id: 'manual-controls', className: 'manual-controls' }
                 ];
                 
@@ -1239,10 +1330,18 @@
                     const element = document.getElementById(item.id) || document.querySelector(`.${item.className}`);
                     if (element) {
                         element.style.display = '';
+                        
+                        // Special handling for debug panel and video - respect their visibility state
+                        if (item.id === 'debug-panel' && !element.classList.contains('visible')) {
+                            element.style.display = 'none';
+                        }
+                        if (item.id === 'debug-video' && !element.classList.contains('visible')) {
+                            element.style.display = 'none';
+                        }
                     }
                 });
                 
-                // Debug panel and video remain hidden unless explicitly toggled
+                // Keep reference for debugging
                 const debugPanel = document.getElementById('debugPanel');
                 if (debugPanel && !debugPanel.classList.contains('visible')) {
                     debugPanel.style.display = 'none';
@@ -1276,6 +1375,13 @@
             enterIdleMode() {
                 console.log('[JS] Entering idle mode');
                 this.isIdle = true;
+                
+                // Pause scene countdown
+                if (this.sceneCountdownTimer) {
+                    clearInterval(this.sceneCountdownTimer);
+                    this.sceneCountdownTimer = null;
+                }
+                
                 this.pauseSceneSystem();
                 this.loadIdleScene();
             }
@@ -1288,6 +1394,11 @@
                 }
                 this.restartSceneSystem();
                 this.resetIdleTimer();
+                
+                // Restart scene countdown when exiting idle mode
+                setTimeout(() => {
+                    this.startSceneCountdown();
+                }, 1000); // Give scene time to load
             }
             
             pauseSceneSystem() {

@@ -56,7 +56,7 @@ class SceneManager:
                 id="fluidsim",
                 name="Fluid Simulation",
                 description="WebGL fluid simulation controlled by hand movements",
-                duration=50.0,
+                duration=5.0,
                 html_file="scenes/fluidsim/index.html",
                 background_color="#000000"
             ),
@@ -64,7 +64,7 @@ class SceneManager:
                 id="cosmic_symbolism",
                 name="Cosmic Symbolism",
                 description="Navigate through cosmic imagery with hand movements",
-                duration=60.0,
+                duration=5.0,
                 html_file="scenes/cosmic-symbolism/index.html",
                 background_color="#000000"
             ),
@@ -72,7 +72,7 @@ class SceneManager:
                 id="psychedelic_waves",
                 name="Psychedelic Waves",
                 description="WebGL shader-based wave visualization controlled by hand movements",
-                duration=45.0,
+                duration=5.0,
                 html_file="scenes/psychedelic-waves/index.html",
                 background_color="#000000"
             ),
@@ -80,7 +80,7 @@ class SceneManager:
                 id="orbits",
                 name="Orbits",
                 description="An interactive flight through attractor orbits using hopalong formula.",
-                duration=45.0,
+                duration=5.0,
                 html_file="scenes/orbits/index.html",
                 background_color="#000000"
             ),
@@ -88,7 +88,7 @@ class SceneManager:
                 id="tie_dye",
                 name="Tie Dye",
                 description="Use your hands to create a tie dye pattern",
-                duration=45.0,
+                duration=5.0,
                 html_file="scenes/tie-dye/index.html",
                 background_color="#000000"
             )

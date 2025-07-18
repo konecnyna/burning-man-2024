@@ -74,6 +74,11 @@
 
 ## Milestone 4: Polish & Deployment = IN PROGRESS
 
+### Priority tasks 
+- [ ] TASK: Add object tracking event. Make it into particle trails scene.
+- [ ] BUG: Add object tracking event. Make it into particle trails scene.
+
+
 ### Performance Optimization =
 - [ ] Frame rate consistency monitoring and optimization
 - [ ] Memory leak detection and prevention
@@ -102,23 +107,23 @@
 - [ ] User acceptance testing
 - [ ] Accessibility testing
 
-## Milestone 5: Advanced Features ó PENDING
+## Milestone 5: Advanced Features ï¿½ PENDING
 
-### Monitoring & Analytics ó
+### Monitoring & Analytics ï¿½
 - [ ] Remote monitoring dashboard
 - [ ] Usage analytics collection
 - [ ] Performance metrics tracking
 - [ ] Error reporting system
 - [ ] Health check endpoints
 
-### Enhanced Interactions ó
+### Enhanced Interactions ï¿½
 - [ ] Advanced gesture recognition
 - [ ] Multi-person tracking support
 - [ ] Scene configuration interface
 - [ ] Custom scene creation tools
 - [ ] Voice feedback integration
 
-### System Administration ó
+### System Administration ï¿½
 - [ ] Remote configuration management
 - [ ] Scene content updates
 - [ ] System maintenance tools
