@@ -261,8 +261,8 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #ff0000;
-            box-shadow: 0 0 10px #ff0000;
+            background: var(--pipboy-orange);
+            box-shadow: 0 0 10px var(--pipboy-orange);
             animation: pulse 2s ease-in-out infinite;
         }
 
@@ -1196,13 +1196,9 @@
                 if (this.isConnected) {
                     indicator.classList.add('connected');
                     text.textContent = 'Connected';
-                    text.style.color = '#00ff41';
-                    text.style.textShadow = '0 0 5px #00ff41';
                 } else {
                     indicator.classList.remove('connected');
                     text.textContent = 'Disconnected';
-                    text.style.color = '#ff0000';
-                    text.style.textShadow = '0 0 5px #ff0000';
                 }
             }
             
