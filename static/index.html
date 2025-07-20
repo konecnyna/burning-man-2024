@@ -1477,25 +1477,25 @@
                     if (element) {
                         element.style.display = '';
                         
-                        // Special handling for debug panel and video - respect their visibility state
+                        // Special handling for debug panel and video - let CSS handle visibility
                         if (item.id === 'debug-panel' && !element.classList.contains('visible')) {
-                            element.style.display = 'none';
+                            element.style.display = '';
                         }
                         if (item.id === 'debug-video' && !element.classList.contains('visible')) {
-                            element.style.display = 'none';
+                            element.style.display = '';
                         }
                     }
                 });
                 
-                // Keep reference for debugging
+                // Keep reference for debugging - let CSS handle visibility
                 const debugPanel = document.getElementById('debugPanel');
                 if (debugPanel && !debugPanel.classList.contains('visible')) {
-                    debugPanel.style.display = 'none';
+                    debugPanel.style.display = '';
                 }
                 
                 const debugVideo = document.getElementById('debugVideo');
                 if (debugVideo && !debugVideo.classList.contains('visible')) {
-                    debugVideo.style.display = 'none';
+                    debugVideo.style.display = '';
                 }
             }
             
