@@ -312,6 +312,31 @@ python main.py --kiosk
 ### Code Organization
 - Python classes should follow single responsibility principal and should be broken up as such.
 
+## Apple Notifier MCP Integration
+
+### Notification Requirements
+- **ALWAYS** send notification when task is completed or stopped
+- **ALWAYS** send notification when prompting user for input
+- If apple-notifier-mcp is not installed, tell user to run:
+  ```bash
+  claude mcp add notification -- npx -y @smithery/cli install apple-notifier-mcp --client claude
+  ```
+
+### Notification Steps
+1. Use apple-notifier-mcp library
+2. Import the necessary module  
+3. Call the notification function with title and message
+4. Customize notification parameters as needed
+
+### Usage Examples
+```python
+# Task completion notification
+send_notification("Task Complete", "Hand tracking optimization finished")
+
+# User prompt notification  
+send_notification("Input Required", "Please review the changes and confirm")
+```
+
 ## Project Constraints
 - All libs must be local and not urls. This project will be run offline
 - All websites/scenes/scripts must work offline. This project will not have internet
