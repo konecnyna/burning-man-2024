@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -79,7 +80,7 @@
             background: #001100;
             border: 3px solid #00ff41;
             border-radius: 10px;
-            box-shadow: 
+            box-shadow:
                 0 0 30px rgba(0, 255, 65, 0.5),
                 inset 0 0 30px rgba(0, 255, 65, 0.1);
             padding: 40px;
@@ -192,7 +193,7 @@
             background: #001100;
             border: 2px solid #00ff41;
             border-radius: 10px;
-            box-shadow: 
+            box-shadow:
                 0 0 20px rgba(0, 255, 65, 0.3),
                 inset 0 0 20px rgba(0, 255, 65, 0.1);
             padding: 10px 20px;
@@ -214,7 +215,7 @@
             background: rgba(51, 34, 0, 0.95);
             border: 2px solid var(--pipboy-orange);
             border-radius: 8px;
-            box-shadow: 
+            box-shadow:
                 0 0 20px var(--pipboy-orange-glow),
                 inset 0 0 15px rgba(255, 170, 60, 0.1);
             padding: 12px 20px;
@@ -307,7 +308,7 @@
             background: #001100;
             border: 2px solid #00ff41;
             border-radius: 10px;
-            box-shadow: 
+            box-shadow:
                 0 0 20px rgba(0, 255, 65, 0.3),
                 inset 0 0 20px rgba(0, 255, 65, 0.1);
             padding: 15px;
@@ -336,7 +337,7 @@
             background: #001100;
             border: 2px solid #00ff41;
             border-radius: 10px;
-            box-shadow: 
+            box-shadow:
                 0 0 20px rgba(0, 255, 65, 0.3),
                 inset 0 0 20px rgba(0, 255, 65, 0.1);
             padding: 15px;
@@ -362,7 +363,7 @@
             background: rgba(0, 255, 65, 0.2);
             box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
         }
-        
+
         .debug-video {
             position: fixed;
             top: 60px;
@@ -370,28 +371,28 @@
             background: #001100;
             border: 2px solid #00ff41;
             border-radius: 10px;
-            box-shadow: 
+            box-shadow:
                 0 0 20px rgba(0, 255, 65, 0.3),
                 inset 0 0 20px rgba(0, 255, 65, 0.1);
             padding: 10px;
             z-index: 100;
             display: none;
         }
-        
+
         .debug-video.visible {
             display: block;
         }
-        
+
         .debug-video img {
             max-width: 320px;
             max-height: 240px;
             border-radius: 8px;
         }
-        
+
         .debug-control {
             margin: 5px 0;
         }
-        
+
         .debug-control button {
             background: rgba(0, 255, 65, 0.1);
             border: 1px solid #00ff41;
@@ -405,12 +406,12 @@
             font-size: 0.8rem;
             transition: all 0.3s ease;
         }
-        
+
         .debug-control button:hover {
             background: rgba(0, 255, 65, 0.2);
             box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
         }
-        
+
         .debug-points {
             position: fixed;
             top: 0;
@@ -421,11 +422,11 @@
             z-index: 99;
             display: none;
         }
-        
+
         .debug-points.visible {
             display: block;
         }
-        
+
         .debug-point-canvas {
             position: absolute;
             top: 0;
@@ -434,7 +435,7 @@
             height: 100%;
             pointer-events: none;
         }
-        
+
         .controls-hud-hidden .status-bar,
         .controls-hud-hidden .debug-toggle,
         .controls-hud-hidden .debug-panel,
@@ -444,40 +445,58 @@
         .controls-hud-hidden .idle-warning {
             display: none !important;
         }
-        
+
         /* Add pulse animation for pipboy style */
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         @keyframes ready-pulse {
-            0%, 100% { 
-                opacity: 1; 
+
+            0%,
+            100% {
+                opacity: 1;
                 box-shadow: 0 0 15px var(--pipboy-green);
                 transform: scale(1);
             }
-            50% { 
-                opacity: 0.7; 
+
+            50% {
+                opacity: 0.7;
                 box-shadow: 0 0 25px var(--pipboy-green), 0 0 35px rgba(0, 255, 65, 0.3);
                 transform: scale(1.1);
             }
         }
 
         @keyframes warning-pulse {
-            0%, 100% { 
+
+            0%,
+            100% {
                 box-shadow: 0 0 20px var(--pipboy-orange-glow), inset 0 0 15px rgba(255, 170, 60, 0.1);
             }
-            50% { 
+
+            50% {
                 box-shadow: 0 0 30px var(--pipboy-orange-glow), 0 0 40px rgba(255, 170, 60, 0.2), inset 0 0 20px rgba(255, 170, 60, 0.2);
             }
         }
 
         @keyframes warning-flash {
-            0% { opacity: 1; }
-            100% { opacity: 0.6; }
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.6;
+            }
         }
-        
+
         /* Add scanlines effect to HUD elements */
         .status-bar::before,
         .debug-panel::before,
@@ -490,15 +509,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                transparent 50%, 
-                rgba(0, 255, 65, 0.03) 50%
-            );
+            background: linear-gradient(transparent 50%,
+                    rgba(0, 255, 65, 0.03) 50%);
             background-size: 100% 4px;
             pointer-events: none;
             z-index: 1;
         }
-        
+
         /* .status-bar,
         .debug-panel,
         .manual-controls,
@@ -506,17 +523,18 @@
         .overlay-content {
             position: relative;
         } */
-        
-        .status-bar > *,
-        .debug-panel > *,
-        .manual-controls > *,
-        .debug-video > *,
-        .overlay-content > * {
+
+        .status-bar>*,
+        .debug-panel>*,
+        .manual-controls>*,
+        .debug-video>*,
+        .overlay-content>* {
             position: relative;
             z-index: 2;
         }
     </style>
 </head>
+
 <body>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono:wght@400&display=swap" rel="stylesheet">
     <div class="app-container">
@@ -524,29 +542,29 @@
         <div class="scene-container active" id="scene-container">
             <!-- Current scene content will be loaded here -->
         </div>
-        
+
         <!-- Parent overlay for scene transitions -->
         <div class="parent-overlay" id="parentOverlay">
             <div class="overlay-content">
                 <h1 id="overlayTitle">Loading...</h1>
                 <p id="overlayDescription">Preparing interactive experience...</p>
-                
+
                 <div class="scene-progress">
                     <div class="scene-progress-bar" id="progressBar"></div>
                 </div>
-                
+
                 <div class="scene-info">
                     <div class="scene-counter" id="sceneCounter">Scene 1 of 5</div>
                     <div class="scene-timer" id="sceneTimer">30s remaining</div>
                 </div>
             </div>
         </div>
-        
+
         <!-- Hand cursors -->
         <div class="hand-cursors" id="handCursors">
             <!-- Hand cursors will be created dynamically -->
         </div>
-        
+
         <!-- Debug points -->
         <div class="debug-points" id="debugPoints">
             <canvas class="debug-point-canvas" id="debugCanvas1"></canvas>
@@ -554,7 +572,7 @@
             <canvas class="debug-point-canvas" id="debugCanvas3"></canvas>
             <canvas class="debug-point-canvas" id="debugCanvas4"></canvas>
         </div>
-        
+
         <!-- Status bar -->
         <div class="status-bar">
             <div class="status-item">
@@ -574,15 +592,16 @@
                 <span id="sceneCountdown">Next: --</span>
             </div>
         </div>
-        
+
         <!-- Idle warning notification -->
         <div class="idle-warning" id="idleWarning">
             <div class="warning-content">
                 <span class="warning-icon">⚠</span>
-                <span class="warning-text">No hands detected. Entering idle mode in <span id="idleWarningCountdown">3</span>s</span>
+                <span class="warning-text">No hands detected. Entering idle mode in <span
+                        id="idleWarningCountdown">3</span>s</span>
             </div>
         </div>
-        
+
         <!-- Debug controls -->
         <button class="debug-toggle" onclick="toggleDebug()">Debug</button>
         <div class="debug-panel" id="debugPanel">
@@ -602,12 +621,12 @@
                 Tip: Ctrl+Shift+H to toggle Controls/HUD
             </div>
         </div>
-        
+
         <!-- Debug video display -->
         <div class="debug-video" id="debugVideo">
             <img id="videoStream" src="/video_feed" alt="Camera Feed">
         </div>
-        
+
         <!-- Manual controls -->
         <div class="manual-controls">
             <button onclick="previousScene()">Prev ◀</button>
@@ -641,7 +660,7 @@
                 };
                 this.handColorAssignments = new Map(); // Track hand ID to color assignments
                 this.nextColorIndex = 0;
-                
+
                 // Idle management
                 this.isIdle = true;  // Start in idle mode
                 this.idleTimeout = 10000; // 15 seconds in milliseconds
@@ -650,29 +669,30 @@
                 this.idleTimeoutStartTime = null; // Track when idle countdown started
                 this.idleWarningVisible = false; // Track if warning is showing
                 this.sessionWelcomeShown = false; // Track if welcome was shown this session
-                
+
                 // Scene timing
                 this.sceneStartTime = null;
                 this.sceneCountdownTimer = null;
-                
+
                 // Make scene handlers available globally
                 window.sceneHandlers = this.sceneHandlers;
-                
+
                 // Initialize scene handlers
+                
                 this.initializeSocket();
                 this.initializeDebugPoints();
-                this.initializeKeyboardShortcuts();
-                this.loadDebugSettings();
-                this.startProgressUpdater();
+                // this.initializeKeyboardShortcuts();
+                // this.loadDebugSettings();
+                // this.startProgressUpdater();
                 this.startInIdleMode();
             }
-            
+
             initializeSocket() {
                 this.socket.on('connect', () => {
                     console.log('Connected to server');
                     this.isConnected = true;
                     this.updateConnectionStatus();
-                    
+
                     // Subscribe to all events
                     const eventsToSubscribe = [
                         'hand_moved', 'hand_detected', 'hand_lost', 'frame_processed',
@@ -684,25 +704,25 @@
                         events: eventsToSubscribe
                     });
                 });
-                
+
                 this.socket.on('disconnect', () => {
                     console.log('Disconnected from server');
                     this.isConnected = false;
                     this.updateConnectionStatus();
                 });
-                
+
                 this.socket.on('event', (event) => {
                     this.handleEvent(event);
                 });
             }
-            
+
             handleEvent(event) {
                 this.eventCount++;
-                switch(event.type) {
+                switch (event.type) {
                     case 'hand_moved':
                         console.log('hand_moved ', event);
                         this.updateHands(event.data.hands);
-                        
+
                         if (this.isIdle) {
                             this.exitIdleMode();
                         } else {
@@ -713,14 +733,14 @@
                     case 'hand_detected':
                         console.log('[JS] Hand detected event received, current scene:', this.currentScene?.id);
                         this.updateHands(event.data.hands);
-                        
+
                         if (this.isIdle) {
                             this.exitIdleMode();
                         } else {
                             // Only reset timer if not in idle mode
                             this.resetIdleTimer();
                         }
-                        
+
                         this.callSceneHandler('onHandDetected', event.data.hands);
                         break;
                     case 'hand_lost':
@@ -739,7 +759,13 @@
                     case 'scene_changed':
                         console.log('[JS] Scene changed to:', event.data.scene?.id);
                         console.log('[JS] Scene data received:', event.data.scene);
-                        
+
+                        // If we're in idle mode, ignore non-idle scene changes from backend
+                        if (this.isIdle && event.data.scene?.id !== 'idle') {
+                            console.log('[JS] Ignoring scene change while in idle mode');
+                            return;
+                        }
+
                         // Check if this is a welcome scene during an active session
                         if (event.data.scene?.id === 'welcome' && this.sessionWelcomeShown && !this.isIdle) {
                             console.log('[JS] Skipping welcome scene - already shown this session');
@@ -749,7 +775,7 @@
                             }
                             return;
                         }
-                        
+
                         this.currentScene = event.data.scene;
                         this.currentSceneIndex = event.data.scene_index;
                         this.totalScenes = event.data.total_scenes;
@@ -757,7 +783,7 @@
                         this.updateStatusBar();
                         this.updateSceneCounter();
                         this.startSceneCountdown();
-                        
+
                         // Mark welcome as shown if this is the welcome scene
                         if (event.data.scene?.id === 'welcome') {
                             this.sessionWelcomeShown = true;
@@ -773,10 +799,10 @@
                         console.log('[JS] System entered active mode');
                         break;
                 }
-                
+
                 this.updateDebugPanel();
             }
-            
+
             initializeKeyboardShortcuts() {
                 document.addEventListener('keydown', (event) => {
                     // Ctrl + Shift + H to toggle controls/HUD
@@ -786,20 +812,44 @@
                     }
                 });
             }
-            
+
             initializeSceneHandlers() {
+                // Store reference to main app for scene handlers
+                const app = this;
+                
+                // Idle scene handler
+                this.sceneHandlers.idle = {
+                    onInit: function() {
+                        console.log('Idle scene initialized');
+                    },
+                    
+                    onHandDetected: function(hands) {
+                        console.log('Idle scene: Hand detected, should exit idle mode');
+                        // The scene manager will handle exiting idle mode via events
+                    },
+                    
+                    onHandMove: function(hands) {
+                        // No interaction needed in idle mode - just detect presence
+                    },
+                    
+                    onHandLost: function() {
+                        console.log('Idle scene: Hand lost');
+                    }
+                };
+
                 // Welcome scene handler with hand cursor
                 this.sceneHandlers.welcome = {
                     handCursor: null,
                     countdownTimer: null,
                     countdownStartTime: null,
                     isHovering: false,
-                    
-                    onInit: () => {
+
+                    onInit: function() {
+                        console.log('Welcome scene onInit called!');
                         // Create hand cursor
-                        this.sceneHandlers.welcome.handCursor = document.createElement('div');
-                        this.sceneHandlers.welcome.handCursor.className = 'hand-cursor';
-                        this.sceneHandlers.welcome.handCursor.style.cssText = `
+                        app.sceneHandlers.welcome.handCursor = document.createElement('div');
+                        app.sceneHandlers.welcome.handCursor.className = 'hand-cursor';
+                        app.sceneHandlers.welcome.handCursor.style.cssText = `
                             position: fixed;
                             width: 20px;
                             height: 20px;
@@ -812,27 +862,32 @@
                             box-shadow: 0 0 10px #00ff41;
                             display: none;
                         `;
-                        document.body.appendChild(this.sceneHandlers.welcome.handCursor);
-                        console.log('Welcome scene cursor initialized');
+                        document.body.appendChild(app.sceneHandlers.welcome.handCursor);
+                        console.log('Welcome scene cursor initialized:', app.sceneHandlers.welcome.handCursor);
                     },
-                    
-                    onHandMove: (hands) => {
+
+                    onHandMove: function(hands) {
+                        console.log('Welcome scene onHandMove called with hands:', hands.length);
                         // Highlight instruction modules based on hand position
                         const modules = document.querySelectorAll('.instruction-module');
                         modules.forEach(module => module.classList.remove('active'));
-                        
+
                         if (hands.length > 0) {
                             const hand = hands[0]; // Use first hand
                             const palmX = hand.palm_center.x;
                             const palmY = hand.palm_center.y;
-                            
+                            console.log('Hand position:', palmX, palmY);
+
                             // Show and position hand cursor
-                            if (this.sceneHandlers.welcome.handCursor) {
-                                this.sceneHandlers.welcome.handCursor.style.display = 'block';
-                                this.sceneHandlers.welcome.handCursor.style.left = (palmX * window.innerWidth) + 'px';
-                                this.sceneHandlers.welcome.handCursor.style.top = (palmY * window.innerHeight) + 'px';
+                            if (app.sceneHandlers.welcome.handCursor) {
+                                app.sceneHandlers.welcome.handCursor.style.display = 'block';
+                                app.sceneHandlers.welcome.handCursor.style.left = (palmX * window.innerWidth) + 'px';
+                                app.sceneHandlers.welcome.handCursor.style.top = (palmY * window.innerHeight) + 'px';
+                                console.log('Updated cursor position');
+                            } else {
+                                console.log('Hand cursor not found!');
                             }
-                            
+
                             // Check if hand is over any instruction module
                             if (palmY > 0.3 && palmY < 0.8) {
                                 if (palmX < 0.33) {
@@ -846,14 +901,14 @@
                                     if (module3) module3.classList.add('active');
                                 }
                             }
-                            
+
                             // Check if hand is over begin text (with expanded detection area)
                             const beginText = document.getElementById('beginText');
                             if (beginText) {
                                 const rect = beginText.getBoundingClientRect();
                                 const screenX = palmX * window.innerWidth;
                                 const screenY = palmY * window.innerHeight;
-                                
+
                                 // Expand detection area by 50 pixels on all sides
                                 const expandedRect = {
                                     left: rect.left - 50,
@@ -861,121 +916,121 @@
                                     top: rect.top - 50,
                                     bottom: rect.bottom + 50
                                 };
-                                
+
                                 const isOverBeginText = screenX >= expandedRect.left && screenX <= expandedRect.right &&
-                                                      screenY >= expandedRect.top && screenY <= expandedRect.bottom;
-                                
-                                if (isOverBeginText && !this.sceneHandlers.welcome.isHovering) {
-                                    this.sceneHandlers.welcome.startCountdown();
-                                } else if (!isOverBeginText && this.sceneHandlers.welcome.isHovering) {
-                                    this.sceneHandlers.welcome.stopCountdown();
+                                    screenY >= expandedRect.top && screenY <= expandedRect.bottom;
+
+                                if (isOverBeginText && !app.sceneHandlers.welcome.isHovering) {
+                                    app.sceneHandlers.welcome.startCountdown();
+                                } else if (!isOverBeginText && app.sceneHandlers.welcome.isHovering) {
+                                    app.sceneHandlers.welcome.stopCountdown();
                                 }
                             }
                         } else {
                             // Hide cursor when no hands detected
-                            if (this.sceneHandlers.welcome.handCursor) {
-                                this.sceneHandlers.welcome.handCursor.style.display = 'none';
+                            if (app.sceneHandlers.welcome.handCursor) {
+                                app.sceneHandlers.welcome.handCursor.style.display = 'none';
                             }
-                            this.sceneHandlers.welcome.stopCountdown();
+                            app.sceneHandlers.welcome.stopCountdown();
                         }
                     },
-                    
-                    startCountdown: () => {
-                        if (this.sceneHandlers.welcome.isHovering) return;
-                        
+
+                    startCountdown: function() {
+                        if (app.sceneHandlers.welcome.isHovering) return;
+
                         console.log('Starting countdown...');
-                        this.sceneHandlers.welcome.isHovering = true;
-                        this.sceneHandlers.welcome.countdownStartTime = Date.now();
-                        
+                        app.sceneHandlers.welcome.isHovering = true;
+                        app.sceneHandlers.welcome.countdownStartTime = Date.now();
+
                         // Show countdown overlay
                         const overlay = document.getElementById('countdownOverlay');
                         if (overlay) {
                             overlay.classList.add('visible');
                         }
-                        
+
                         // Add hovering class to cursor
-                        if (this.sceneHandlers.welcome.handCursor) {
-                            this.sceneHandlers.welcome.handCursor.style.background = 'rgba(0, 255, 65, 0.6)';
-                            this.sceneHandlers.welcome.handCursor.style.transform = 'scale(1.5)';
-                            this.sceneHandlers.welcome.handCursor.style.boxShadow = '0 0 20px #00ff41';
+                        if (app.sceneHandlers.welcome.handCursor) {
+                            app.sceneHandlers.welcome.handCursor.style.background = 'rgba(0, 255, 65, 0.6)';
+                            app.sceneHandlers.welcome.handCursor.style.transform = 'scale(1.5)';
+                            app.sceneHandlers.welcome.handCursor.style.boxShadow = '0 0 20px #00ff41';
                         }
-                        
+
                         // Start countdown timer
-                        this.sceneHandlers.welcome.updateCountdown();
+                        app.sceneHandlers.welcome.updateCountdown();
                     },
-                    
-                    updateCountdown: () => {
-                        if (!this.sceneHandlers.welcome.isHovering) return;
-                        
-                        const elapsed = (Date.now() - this.sceneHandlers.welcome.countdownStartTime) / 1000;
+
+                    updateCountdown: function() {
+                        if (!app.sceneHandlers.welcome.isHovering) return;
+
+                        const elapsed = (Date.now() - app.sceneHandlers.welcome.countdownStartTime) / 1000;
                         const remaining = Math.max(0, 3 - elapsed);
                         const progress = (elapsed / 3) * 220; // 220 is the stroke-dasharray value
-                        
+
                         // Update countdown number
                         const countdownNumber = document.getElementById('countdownNumber');
                         if (countdownNumber) {
                             countdownNumber.textContent = Math.ceil(remaining);
                         }
-                        
+
                         // Update progress ring
                         const progressRing = document.getElementById('countdownRing');
                         if (progressRing) {
                             progressRing.style.strokeDashoffset = 220 - progress;
                         }
-                        
+
                         if (remaining > 0) {
-                            this.sceneHandlers.welcome.countdownTimer = setTimeout(() => this.sceneHandlers.welcome.updateCountdown(), 50);
+                            app.sceneHandlers.welcome.countdownTimer = setTimeout(() => app.sceneHandlers.welcome.updateCountdown(), 50);
                         } else {
-                            this.sceneHandlers.welcome.completeCountdown();
+                            app.sceneHandlers.welcome.completeCountdown();
                         }
                     },
-                    
-                    completeCountdown: () => {
+
+                    completeCountdown: function() {
                         console.log('Countdown complete! Starting scene cycling...');
-                        this.sceneHandlers.welcome.stopCountdown();
-                        
+                        app.sceneHandlers.welcome.stopCountdown();
+
                         // Start the scene system after welcome screen
-                        this.restartSceneSystem();
+                        app.restartSceneSystem();
                     },
-                    
-                    stopCountdown: () => {
-                        if (!this.sceneHandlers.welcome.isHovering) return;
-                        
+
+                    stopCountdown: function() {
+                        if (!app.sceneHandlers.welcome.isHovering) return;
+
                         console.log('Stopping countdown...');
-                        this.sceneHandlers.welcome.isHovering = false;
-                        
+                        app.sceneHandlers.welcome.isHovering = false;
+
                         // Clear timer
-                        if (this.sceneHandlers.welcome.countdownTimer) {
-                            clearTimeout(this.sceneHandlers.welcome.countdownTimer);
-                            this.sceneHandlers.welcome.countdownTimer = null;
+                        if (app.sceneHandlers.welcome.countdownTimer) {
+                            clearTimeout(app.sceneHandlers.welcome.countdownTimer);
+                            app.sceneHandlers.welcome.countdownTimer = null;
                         }
-                        
+
                         // Hide countdown overlay
                         const overlay = document.getElementById('countdownOverlay');
                         if (overlay) {
                             overlay.classList.remove('visible');
                         }
-                        
+
                         // Remove hovering class from cursor
-                        if (this.sceneHandlers.welcome.handCursor) {
-                            this.sceneHandlers.welcome.handCursor.style.background = 'rgba(0, 255, 65, 0.3)';
-                            this.sceneHandlers.welcome.handCursor.style.transform = 'scale(1)';
-                            this.sceneHandlers.welcome.handCursor.style.boxShadow = '0 0 10px #00ff41';
+                        if (app.sceneHandlers.welcome.handCursor) {
+                            app.sceneHandlers.welcome.handCursor.style.background = 'rgba(0, 255, 65, 0.3)';
+                            app.sceneHandlers.welcome.handCursor.style.transform = 'scale(1)';
+                            app.sceneHandlers.welcome.handCursor.style.boxShadow = '0 0 10px #00ff41';
                         }
-                        
+
                         // Reset countdown display
                         const countdownNumber = document.getElementById('countdownNumber');
                         if (countdownNumber) {
                             countdownNumber.textContent = '3';
                         }
-                        
+
                         const progressRing = document.getElementById('countdownRing');
                         if (progressRing) {
                             progressRing.style.strokeDashoffset = '220';
                         }
                     },
-                    
-                    onHandDetected: (hands) => {
+
+                    onHandDetected: function(hands) {
                         console.log('Welcome scene: Hand detected');
                         // Update signal status
                         const signalText = document.querySelector('.signal-text');
@@ -983,56 +1038,56 @@
                             signalText.textContent = 'TRACKING ACTIVE';
                         }
                     },
-                    
-                    onHandLost: () => {
+
+                    onHandLost: function() {
                         // Remove all active states
                         document.querySelectorAll('.instruction-module').forEach(module => {
                             module.classList.remove('active');
                         });
-                        
+
                         // Reset signal status
                         const signalText = document.querySelector('.signal-text');
                         if (signalText) {
                             signalText.textContent = 'SIGNAL DETECTED';
                         }
-                        
+
                         // Hide cursor and stop countdown
-                        if (this.sceneHandlers.welcome.handCursor) {
-                            this.sceneHandlers.welcome.handCursor.style.display = 'none';
+                        if (app.sceneHandlers.welcome.handCursor) {
+                            app.sceneHandlers.welcome.handCursor.style.display = 'none';
                         }
-                        this.sceneHandlers.welcome.stopCountdown();
+                        app.sceneHandlers.welcome.stopCountdown();
                     },
-                    
-                    onDestroy: () => {
+
+                    onDestroy: function() {
                         // Clean up hand cursor when leaving welcome scene
-                        if (this.sceneHandlers.welcome.handCursor) {
+                        if (app.sceneHandlers.welcome.handCursor) {
                             console.log('Removing welcome scene hand cursor');
-                            this.sceneHandlers.welcome.handCursor.remove();
-                            this.sceneHandlers.welcome.handCursor = null;
+                            app.sceneHandlers.welcome.handCursor.remove();
+                            app.sceneHandlers.welcome.handCursor = null;
                         }
-                        
+
                         // Clean up countdown timer
-                        this.sceneHandlers.welcome.stopCountdown();
-                        
+                        app.sceneHandlers.welcome.stopCountdown();
+
                         // Also clean up any other hand cursors that might exist
                         const existingCursors = document.querySelectorAll('.hand-cursor');
                         existingCursors.forEach(cursor => {
                             console.log('Removing existing hand cursor:', cursor);
                             cursor.remove();
                         });
-                        
+
                         console.log('Welcome scene cleaned up');
                     }
                 };
             }
-            
+
             updateHands(hands) {
                 this.hands = hands;
                 this.assignHandColors(hands);
                 this.renderHandVisualization();
                 this.callSceneHandler('onHandMove', hands);
             }
-            
+
             assignHandColors(hands) {
                 // Clean up assignments for hands that no longer exist
                 const currentHandIds = new Set(hands.map(hand => hand.hand_id || `temp_${hands.indexOf(hand)}`));
@@ -1041,7 +1096,7 @@
                         this.handColorAssignments.delete(handId);
                     }
                 }
-                
+
                 // Assign colors to new hands
                 hands.forEach((hand, index) => {
                     const handId = hand.hand_id || `temp_${index}`;
@@ -1051,19 +1106,19 @@
                     }
                 });
             }
-            
+
             getHandColorIndex(hand, fallbackIndex) {
                 const handId = hand.hand_id || `temp_${fallbackIndex}`;
                 return this.handColorAssignments.get(handId) || fallbackIndex;
             }
-            
-            renderHandVisualization() {                
+
+            renderHandVisualization() {
                 // Render debug points
                 // Always clear debug canvases first
                 Object.values(this.debugPoints).forEach(point => {
                     point.ctx.clearRect(0, 0, point.canvas.width, point.canvas.height);
                 });
-                
+
                 // Only draw debug points if visible and hands exist
                 if (this.debugPointsVisible && this.hands) {
                     this.hands.forEach((hand, index) => {
@@ -1071,11 +1126,11 @@
                         const colorIndex = this.getHandColorIndex(hand, index);
                         const debugKey = `hand_${colorIndex + 1}`;
                         const debugPoint = this.debugPoints[debugKey];
-                        
+
                         if (debugPoint && hand.palm_center) {
                             const posX = hand.palm_center.x * window.innerWidth;
                             const posY = hand.palm_center.y * window.innerHeight;
-                            
+
                             debugPoint.ctx.beginPath();
                             debugPoint.ctx.arc(posX, posY, 25, 0, Math.PI * 2);
                             debugPoint.ctx.fillStyle = debugPoint.color;
@@ -1087,58 +1142,58 @@
                     });
                 }
             }
-            
+
             showOverlay(scene) {
                 const overlay = document.getElementById('parentOverlay');
                 const title = document.getElementById('overlayTitle');
                 const description = document.getElementById('overlayDescription');
-                
+
                 title.textContent = scene.name;
                 description.textContent = scene.description;
-                
+
                 overlay.classList.add('visible');
                 this.overlayVisible = true;
-                
+
                 // Auto-hide after 3 seconds
                 if (this.overlayTimer) clearTimeout(this.overlayTimer);
                 this.overlayTimer = setTimeout(() => {
                     this.hideOverlay();
                 }, 3000);
             }
-            
+
             hideOverlay() {
                 const overlay = document.getElementById('parentOverlay');
                 overlay.classList.remove('visible');
                 this.overlayVisible = false;
-                
+
                 if (this.overlayTimer) {
                     clearTimeout(this.overlayTimer);
                     this.overlayTimer = null;
                 }
             }
-            
+
             async loadScene(scene) {
                 try {
                     console.log('Loading scene:', scene);
-                    
+
                     // Clean up previous scene
                     if (this.currentScene) {
                         this.callSceneHandler('onDestroy');
                     }
-                    
+
                     const container = document.getElementById('scene-container');
-                    
+
                     // Handle idle mode HUD visibility
                     if (scene.id === 'idle') {
                         this.hideHUDForIdle();
                     } else {
                         this.showHUDForActive();
                     }
-                    
+
                     // Handle complete HTML page scenes as iframes
                     if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism' || scene.id === 'psychedelic_waves' || scene.id === 'tie_dye' || scene.id === 'orbits') {
                         container.innerHTML = `<iframe id="scene-iframe" src="/${scene.html_file}" style="width: 100%; height: 100%; border: none;"></iframe>`;
-                        
+
                         // Wait for iframe to load, then set up communication
                         setTimeout(() => {
                             const iframe = document.getElementById('scene-iframe');
@@ -1155,19 +1210,19 @@
                         const html = await response.text();
                         container.innerHTML = html;
                     }
-                    
+
                     // Initialize scene if handler exists
                     this.callSceneHandler('onInit');
-                    
+
                 } catch (error) {
                     console.error('Error loading scene:', error);
                 }
 
                 console.log("current scene: ", this.currentScene)
             }
-            
+
             callSceneHandler(method, ...args) {
-                
+
                 if (this.currentScene && this.sceneHandlers[this.currentScene.id]) {
                     const handler = this.sceneHandlers[this.currentScene.id][method];
                     if (typeof handler === 'function') {
@@ -1177,22 +1232,22 @@
                     // For iframe scenes, send message to iframe
                     const messageType = method.replace('on', '').toLowerCase();
                     let data = {};
-                    
+
                     if (args.length > 0) {
                         data = args[0];
                     }
-                    
+
                     this.currentSceneIframe.postMessage({
                         type: messageType,
                         data: data
                     }, '*');
                 }
             }
-            
+
             updateConnectionStatus() {
                 const indicator = document.getElementById('connectionStatus');
                 const text = document.getElementById('connectionText');
-                
+
                 if (this.isConnected) {
                     indicator.classList.add('connected');
                     text.textContent = 'Connected';
@@ -1201,68 +1256,70 @@
                     text.textContent = 'Disconnected';
                 }
             }
-            
+
             updateStatusBar() {
                 document.getElementById('fpsCounter').textContent = `FPS: ${this.fps}`;
                 document.getElementById('handCounter').textContent = `Hands: ${this.hands.length}`;
-                document.getElementById('currentScene').textContent = 
+                document.getElementById('currentScene').textContent =
                     `Scene: ${this.currentScene ? this.currentScene.name : 'Loading'}`;
                 this.updateSceneCountdown();
                 this.updateIdleWarning();
             }
-            
+
             updateSceneCounter() {
                 if (this.currentSceneIndex !== undefined && this.totalScenes !== undefined) {
                     const counter = document.getElementById('sceneCounter');
                     counter.textContent = `Scene ${this.currentSceneIndex + 1} of ${this.totalScenes}`;
                 }
             }
-            
+
             startSceneCountdown() {
                 // Clear any existing countdown timer
                 if (this.sceneCountdownTimer) {
                     clearInterval(this.sceneCountdownTimer);
                 }
-                
+
                 // Set scene start time
                 this.sceneStartTime = Date.now();
-                
+
                 // Log scene info for debugging
                 if (this.currentScene) {
                     console.log('[JS] Starting countdown for scene:', this.currentScene.id, 'duration:', this.currentScene.duration);
                 }
-                
+
                 // Start countdown timer (update every second)
                 this.sceneCountdownTimer = setInterval(() => {
                     this.updateSceneCountdown();
                 }, 1000);
-                
+
                 // Initial update
                 this.updateSceneCountdown();
             }
-            
+
             updateSceneCountdown() {
                 const countdownElement = document.getElementById('sceneCountdown');
+                
+                console.log("updateSceneCountdown" ,!this.sceneStartTime ,this.isIdle)
                 
                 if (!this.currentScene || !this.sceneStartTime || this.isIdle) {
                     countdownElement.textContent = 'Next: --';
                     return;
                 }
-                
+
                 // Get scene duration (default to 45 seconds if not specified)
                 const sceneDuration = this.currentScene.duration || 45;
                 console.log('[JS] Scene duration for', this.currentScene.id, ':', sceneDuration, 'seconds');
-                
+
                 // Calculate elapsed time
                 const elapsed = (Date.now() - this.sceneStartTime) / 1000;
                 const remaining = Math.max(0, sceneDuration - elapsed);
-                
+
                 if (remaining <= 0) {
                     countdownElement.textContent = 'Next: Now';
                 } else {
                     const minutes = Math.floor(remaining / 60);
                     const seconds = Math.floor(remaining % 60);
-                    
+
                     if (minutes > 0) {
                         countdownElement.textContent = `Next: ${minutes}:${seconds.toString().padStart(2, '0')}`;
                     } else {
@@ -1270,11 +1327,11 @@
                     }
                 }
             }
-            
+
             updateIdleWarning() {
                 const idleWarning = document.getElementById('idleWarning');
                 const warningCountdown = document.getElementById('idleWarningCountdown');
-                
+
                 if (this.isIdle || !this.idleTimeoutStartTime) {
                     if (this.idleWarningVisible) {
                         idleWarning.classList.remove('visible');
@@ -1282,15 +1339,15 @@
                     }
                     return;
                 }
-                
+
                 // Calculate time remaining until idle timeout
                 const elapsed = (Date.now() - this.idleTimeoutStartTime) / 1000;
                 const remaining = Math.max(0, (this.idleTimeout / 1000) - elapsed);
-                
+
                 // Log the countdown every second
                 const remainingSeconds = Math.floor(remaining);
-                console.log(`[JS] Idle timeout countdown: ${remainingSeconds}s remaining (${remaining.toFixed(1)}s precise)`);
-                
+                //console.log(`[JS] Idle timeout countdown: ${remainingSeconds}s remaining (${remaining.toFixed(1)}s precise)`);
+
                 if (remaining <= 5 && remaining > 0) {
                     // Show warning when under 3 seconds
                     if (!this.idleWarningVisible) {
@@ -1308,20 +1365,20 @@
                     }
                 }
             }
-            
+
             updateDebugPanel() {
                 if (!this.debugVisible) return;
-                
+
                 document.getElementById('eventCount').textContent = this.eventCount;
-                document.getElementById('debugScene').textContent = 
+                document.getElementById('debugScene').textContent =
                     this.currentScene ? this.currentScene.id : 'None';
                 document.getElementById('debugHandCount').textContent = this.hands.length;
-                document.getElementById('debugPointsStatus').textContent = 
+                document.getElementById('debugPointsStatus').textContent =
                     this.debugPointsVisible ? 'On' : 'Off';
-                document.getElementById('controlsHUDStatus').textContent = 
+                document.getElementById('controlsHUDStatus').textContent =
                     this.controlsHUDVisible ? 'On' : 'Off';
             }
-            
+
             initializeDebugPoints() {
                 this.debugPoints = {
                     hand_1: {
@@ -1345,60 +1402,60 @@
                         color: 'yellow'
                     }
                 };
-                
+
                 // Set canvas sizes
                 this.resizeDebugCanvases();
-                
+
                 // Listen for window resize
                 window.addEventListener('resize', () => {
                     this.resizeDebugCanvases();
                 });
             }
-            
+
             resizeDebugCanvases() {
                 const width = window.innerWidth;
                 const height = window.innerHeight;
-                
+
                 Object.values(this.debugPoints).forEach(point => {
                     point.canvas.width = width;
                     point.canvas.height = height;
                 });
             }
-            
-            
+
+
             toggleDebugPoints() {
                 this.debugPointsVisible = !this.debugPointsVisible;
                 this.debugSettings.showDebugPoints = this.debugPointsVisible;
-                
+
                 const debugPointsDiv = document.getElementById('debugPoints');
                 if (this.debugPointsVisible) {
                     debugPointsDiv.classList.add('visible');
                 } else {
                     debugPointsDiv.classList.remove('visible');
                 }
-                
+
                 // Force a refresh to clear/show debug points
                 this.renderHandVisualization();
-                
+
                 this.saveDebugSettings();
                 this.updateDebugPanel();
             }
-            
+
             toggleControlsHUD() {
                 this.controlsHUDVisible = !this.controlsHUDVisible;
                 this.debugSettings.showControlsHUD = this.controlsHUDVisible;
-                
+
                 const appContainer = document.querySelector('.app-container');
                 if (this.controlsHUDVisible) {
                     appContainer.classList.remove('controls-hud-hidden');
                 } else {
                     appContainer.classList.add('controls-hud-hidden');
                 }
-                
+
                 this.saveDebugSettings();
                 this.updateDebugPanel();
             }
-            
+
             loadDebugSettings() {
                 fetch('/api/debug-settings')
                     .then(response => response.json())
@@ -1406,21 +1463,21 @@
                         this.debugSettings = { ...this.debugSettings, ...settings };
                         this.debugPointsVisible = this.debugSettings.showDebugPoints;
                         this.controlsHUDVisible = this.debugSettings.showControlsHUD !== false; // Default to true
-                        
+
                         const debugPointsDiv = document.getElementById('debugPoints');
                         if (this.debugPointsVisible) {
                             debugPointsDiv.classList.add('visible');
                         } else {
                             debugPointsDiv.classList.remove('visible');
                         }
-                        
+
                         const appContainer = document.querySelector('.app-container');
                         if (this.controlsHUDVisible) {
                             appContainer.classList.remove('controls-hud-hidden');
                         } else {
                             appContainer.classList.add('controls-hud-hidden');
                         }
-                        
+
                         this.updateDebugPanel();
                     })
                     .catch(error => {
@@ -1428,7 +1485,7 @@
                         this.updateDebugPanel();
                     });
             }
-            
+
             saveDebugSettings() {
                 fetch('/api/debug-settings', {
                     method: 'POST',
@@ -1437,11 +1494,11 @@
                     },
                     body: JSON.stringify(this.debugSettings)
                 })
-                .catch(error => {
-                    console.error('Failed to save debug settings:', error);
-                });
+                    .catch(error => {
+                        console.error('Failed to save debug settings:', error);
+                    });
             }
-            
+
             hideHUDForIdle() {
                 console.log('[JS] Hiding HUD for idle mode');
                 // Hide HUD elements during idle mode
@@ -1452,7 +1509,7 @@
                     'debug-video',
                     'manual-controls'
                 ];
-                
+
                 elementsToHide.forEach(id => {
                     const element = document.getElementById(id) || document.querySelector(`.${id}`);
                     if (element) {
@@ -1460,7 +1517,7 @@
                     }
                 });
             }
-            
+
             showHUDForActive() {
                 console.log('[JS] Showing HUD for active mode');
                 // Show HUD elements when not in idle mode
@@ -1471,12 +1528,12 @@
                     { id: 'debug-video', className: 'debug-video' },
                     { id: 'manual-controls', className: 'manual-controls' }
                 ];
-                
+
                 elementsToShow.forEach(item => {
                     const element = document.getElementById(item.id) || document.querySelector(`.${item.className}`);
                     if (element) {
                         element.style.display = '';
-                        
+
                         // Special handling for debug panel and video - let CSS handle visibility
                         if (item.id === 'debug-panel' && !element.classList.contains('visible')) {
                             element.style.display = '';
@@ -1486,31 +1543,31 @@
                         }
                     }
                 });
-                
+
                 // Keep reference for debugging - let CSS handle visibility
                 const debugPanel = document.getElementById('debugPanel');
                 if (debugPanel && !debugPanel.classList.contains('visible')) {
                     debugPanel.style.display = '';
                 }
-                
+
                 const debugVideo = document.getElementById('debugVideo');
                 if (debugVideo && !debugVideo.classList.contains('visible')) {
                     debugVideo.style.display = '';
                 }
             }
-            
+
             startInIdleMode() {
                 console.log('[JS] Starting in idle mode');
                 this.isIdle = true;
                 this.loadIdleScene();
             }
-            
+
             resetIdleTimer() {
                 console.log('[JS] Resetting idle timer');
                 if (this.idleTimer) {
                     clearTimeout(this.idleTimer);
                 }
-                
+
                 if (!this.isIdle) {
                     this.idleTimeoutStartTime = Date.now();
                     this.idleTimer = setTimeout(() => {
@@ -1518,51 +1575,51 @@
                     }, this.idleTimeout);
                 }
             }
-            
+
             enterIdleMode() {
                 console.log('[JS] Entering idle mode - ending session');
                 this.isIdle = true;
                 this.idleTimeoutStartTime = null;
-                
+
                 // Hide idle warning
                 const idleWarning = document.getElementById('idleWarning');
                 if (this.idleWarningVisible) {
                     idleWarning.classList.remove('visible');
                     this.idleWarningVisible = false;
                 }
-                
+
                 // Pause scene countdown
                 if (this.sceneCountdownTimer) {
                     clearInterval(this.sceneCountdownTimer);
                     this.sceneCountdownTimer = null;
                 }
-                
+
                 this.pauseSceneSystem();
                 this.loadIdleScene();
             }
-            
+
             exitIdleMode() {
                 console.log('[JS] Exiting idle mode - starting new session');
                 this.isIdle = false;
                 if (this.idleTimer) {
                     clearTimeout(this.idleTimer);
                 }
-                
+
                 this.initializeSceneHandlers();
-                
+
                 // Reset session welcome flag - new session starts
                 this.sessionWelcomeShown = false;
-                
+
                 // Show welcome screen first, then restart scene system
                 this.showWelcomeScreen();
                 this.resetIdleTimer();
-                
+
                 // Restart scene countdown when exiting idle mode
                 setTimeout(() => {
                     this.startSceneCountdown();
                 }, 1000); // Give scene time to load
             }
-            
+
             pauseSceneSystem() {
                 console.log('[JS] Pausing scene system');
                 // Tell the backend to pause scene cycling
@@ -1570,7 +1627,7 @@
                     this.socket.emit('pause_scene_cycling');
                 }
             }
-            
+
             restartSceneSystem() {
                 console.log('[JS] Restarting scene system');
                 // Tell the backend to restart scene cycling
@@ -1578,7 +1635,7 @@
                     this.socket.emit('restart_scene_cycling');
                 }
             }
-            
+
             loadIdleScene() {
                 console.log('[JS] Loading idle scene');
                 const idleScene = {
@@ -1587,9 +1644,10 @@
                     description: 'Screensaver mode - show hands to begin',
                     html_file: 'scenes/idle.html'
                 };
+                this.currentScene = idleScene; // Set current scene
                 this.loadScene(idleScene);
             }
-            
+
             loadWelcomeScene() {
                 console.log('[JS] Loading welcome scene');
                 const welcomeScene = {
@@ -1598,16 +1656,17 @@
                     description: 'Interactive welcome screen',
                     html_file: 'scenes/welcome.html'
                 };
+                this.currentScene = welcomeScene; // Set current scene
                 this.loadScene(welcomeScene);
             }
-            
+
             showWelcomeScreen() {
                 console.log('[JS] Showing welcome screen for new session');
                 this.sessionWelcomeShown = true;
                 this.loadWelcomeScene();
                 this.showHUDForActive();
             }
-            
+
             startProgressUpdater() {
                 setInterval(() => {
                     // Update scene progress (this would be connected to scene manager)
@@ -1615,14 +1674,14 @@
                 }, 1000);
             }
         }
-        
+
         // Global functions for manual controls
         function toggleDebug() {
             const panel = document.getElementById('debugPanel');
             const isVisible = panel.classList.toggle('visible');
             window.app.debugVisible = isVisible;
         }
-        
+
         function nextScene() {
             console.log('Next scene button clicked');
             if (window.app && window.app.socket) {
@@ -1632,7 +1691,7 @@
                 console.error('Socket not available');
             }
         }
-        
+
         function previousScene() {
             console.log('Previous scene button clicked');
             if (window.app && window.app.socket) {
@@ -1642,7 +1701,7 @@
                 console.error('Socket not available');
             }
         }
-        
+
         function toggleAutoCycle() {
             console.log('Toggle auto-cycle button clicked');
             if (window.app && window.app.socket) {
@@ -1652,35 +1711,37 @@
                 console.error('Socket not available');
             }
         }
-        
+
         function toggleVideo() {
             const videoDiv = document.getElementById('debugVideo');
             const isVisible = videoDiv.classList.toggle('visible');
             window.app.videoVisible = isVisible;
-            
+
             // If showing video, refresh the stream
             if (isVisible) {
                 const videoImg = document.getElementById('videoStream');
                 videoImg.src = '/video_feed?' + new Date().getTime();
             }
         }
-        
+
         function toggleDebugPoints() {
             if (window.app) {
                 window.app.toggleDebugPoints();
             }
         }
-        
+
         function toggleControlsHUD() {
             if (window.app) {
                 window.app.toggleControlsHUD();
             }
         }
-        
+
         // Initialize the app when page loads
         document.addEventListener('DOMContentLoaded', () => {
+            console.log("hello")
             window.app = new HandTrackingKiosk();
         });
     </script>
 </body>
+
 </html>
