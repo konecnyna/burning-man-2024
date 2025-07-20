@@ -69,6 +69,7 @@
     color: #00ff41;
     text-shadow: 0 0 20px #00ff41;
     animation: float 8s ease-in-out infinite;
+    z-index: 5;
 }
 
 .logo-text {
@@ -97,6 +98,7 @@
     height: 100%;
     top: 0;
     left: 0;
+    z-index: 1;
 }
 
 .simple-particles {
@@ -292,16 +294,24 @@ class CometParticles {
         const elapsed = Date.now() - particle.startTime;
         if (elapsed < particle.delay) return;
         
-        // Draw trail with rocket SVGs
+        // Draw exhaust trail from bottom of rocket
         for (let i = 0; i < particle.trail.length; i++) {
-            const alpha = (i / particle.trail.length) * 0.4;
-            const size = 0.3 + (i / particle.trail.length) * 0.5;
+            const alpha = (i / particle.trail.length) * 0.6;
+            const size = 3 + (i / particle.trail.length) * 6;
             
-            this.drawRocketSVG(particle.trail[i].x, particle.trail[i].y, size, alpha);
+            // Calculate trail position offset from rocket bottom (now bottom since flipped)
+            const trailY = particle.trail[i].y + 24; // Offset to bottom of flipped rocket
+            
+            this.ctx.beginPath();
+            this.ctx.arc(particle.trail[i].x, trailY, size, 0, Math.PI * 2);
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.3})`; // White exhaust with lower opacity
+            this.ctx.shadowBlur = 8;
+            this.ctx.shadowColor = `rgba(255, 255, 255, ${alpha * 0.3})`;
+            this.ctx.fill();
         }
         
         // Draw main rocket
-        this.drawRocketSVG(particle.x, particle.y, 0.8, 0.8);
+        this.drawRocketSVG(particle.x, particle.y, 1.2, 0.8);
         
         // Reset shadow
         this.ctx.shadowBlur = 0;
@@ -358,7 +368,9 @@ fill="#00ff41" stroke="none">
             const width = 24 * scale;
             const height = 48 * scale;
             
-            this.ctx.drawImage(this.rocketImg, x - width/2, y - height/2, width, height);
+            // Flip the rocket vertically
+            this.ctx.scale(1, -1);
+            this.ctx.drawImage(this.rocketImg, x - width/2, -(y + height/2), width, height);
             this.ctx.restore();
         }
     }
