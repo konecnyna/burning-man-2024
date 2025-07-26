@@ -63,6 +63,13 @@ This is the ATLANTIS Hand Tracking Kiosk project - a Python-based interactive in
 - Documented technical architecture and constraints
 - Set up project management structure with tasks.md
 
+### Session 5 (Architecture Refactoring & Bug Fixes)
+- **Major Refactoring**: Moved scene definitions from SceneManager to ModeManager for better separation of concerns
+- **Fixed Scene Loading**: Resolved multiple scene handler errors and initialization issues
+- **Improved HUD Management**: Fixed HUD visibility in idle mode with proper CSS class handling
+- **Enhanced Error Handling**: Added proper null checks and delegation patterns for scene handlers
+- **Optimized Bloom Effects**: Reduced bloom intensity in fluid simulation for better visual balance
+
 ## Current Project Status
 
 ### Completed Features
@@ -90,10 +97,12 @@ This is the ATLANTIS Hand Tracking Kiosk project - a Python-based interactive in
 ## Debugging Notes
 
 ### Common Issues
-1. **Hand cursor not visible**: Ensure scene handlers are initialized in main app, not iframe
+1. **Hand cursor not visible**: Scene handlers now managed by SceneManager with proper delegation
 2. **Idle timeout not working**: Check JavaScript idle management in index.html
 3. **Scene transitions failing**: Verify WebSocket connection and event handling
 4. **Performance drops**: Monitor MediaPipe processing and frame rate
+5. **Scene handler errors**: Main app delegates to SceneManager for all scene handling
+6. **HUD visibility issues**: Use CSS classes (controls-hud-hidden) for proper HUD control
 
 ### Testing Checklist
 - [ ] Hand tracking responsive at 30+ FPS
@@ -340,3 +349,32 @@ send_notification("Input Required", "Please review the changes and confirm")
 ## Project Constraints
 - All libs must be local and not urls. This project will be run offline
 - All websites/scenes/scripts must work offline. This project will not have internet
+
+## Recent Architectural Changes (Session 5)
+
+### Mode/Scene Management Refactoring
+- **Separation of Concerns**: ModeManager now handles mode-specific scenes (idle, onboarding)
+- **SceneManager Focus**: SceneManager now only handles interactive content cycling (active mode)
+- **Improved Delegation**: Main app delegates all scene handling to SceneManager for consistency
+
+### Scene Handler Architecture
+```
+Main App → SceneManager → Scene Handlers
+- idle: handled by ModeManager.onEnterIdle()
+- onboarding: handled by SceneManager.sceneHandlers.onboarding
+- active scenes: handled by SceneManager for auto-cycling
+```
+
+### HUD Management Improvements
+- **CSS-First Approach**: Use `controls-hud-hidden` class for HUD visibility
+- **Mode-Specific Control**: HUD automatically hidden in idle/onboarding modes
+- **Debug Settings Integration**: Respects user preferences while enforcing mode requirements
+
+### Error Handling Patterns
+- **Null Safety**: Always check object existence before property access
+- **Graceful Degradation**: Fallback mechanisms for scene loading failures
+- **Proper Initialization**: Mode managers initialize current state on startup
+
+### Visual Enhancements
+- **Bloom Optimization**: Reduced bloom intensity from 0.3 to 0.15 for better visual balance
+- **Responsive Design**: Maintains pipboy aesthetic while improving readability

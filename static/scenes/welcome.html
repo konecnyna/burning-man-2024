@@ -508,55 +508,17 @@
 
 <script>
 // Scene-specific interaction logic for onboarding mode
-// Check if we're in the parent window context (with sceneHandlers available)
-if (window.parent && window.parent.sceneHandlers) {
-    // We're in an iframe, register with parent
-    window.parent.sceneHandlers.onboarding = {
-        onInit: function() {
-            console.log('Onboarding scene initialized');
-        },
-        
-        onHandDetected: function(hands) {
-            console.log('Onboarding scene: Hand detected');
-            // Start countdown and transition to active mode after 3 seconds
-            if (window.parent && window.parent.app) {
-                setTimeout(() => {
-                    window.parent.app.exitOnboardingMode();
-                }, 3000);
-            }
-        },
-        
-        onHandMove: function(hands) {
-            // Handle hand movement in onboarding
-        },
-        
-        onHandLost: function() {
-            // Handle hand lost in onboarding
-        }
-    };
-} else if (window.sceneHandlers) {
-    // We're in the same window context
-    window.sceneHandlers.onboarding = {
-        onInit: function() {
-            console.log('Onboarding scene initialized');
-        },
-        
-        onHandDetected: function(hands) {
-            console.log('Onboarding scene: Hand detected');
-        },
-        
-        onHandMove: function(hands) {
-            // Handle hand movement in onboarding
-        },
-        
-        onHandLost: function() {
-            // Handle hand lost in onboarding  
-        }
-    };
-} else {
-    // Standalone mode
-    console.log('Onboarding scene running in standalone mode');
-}
+console.log('Welcome/Onboarding iframe loaded - scene handlers managed by parent');
+
+// Listen for messages from parent window if needed
+window.addEventListener('message', function(event) {
+    if (event.data.type === 'handmove') {
+        // Handle hand movement visualization in iframe if needed
+        console.log('Hand move event received in iframe:', event.data);
+    }
+});
+
+// The hand cursor and interaction logic is now handled by the SceneManager in the parent window
 </script>
 </body>
 </html>

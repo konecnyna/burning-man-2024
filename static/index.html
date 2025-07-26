@@ -911,11 +911,31 @@
         // MODE MANAGER - Handles application mode state machine
         // ============================================================================
         class ModeManager {
-            constructor(appState) {
+            constructor(appState, loadSceneCallback = null) {
                 this.appState = appState;
+                this.loadSceneCallback = loadSceneCallback;
                 this.idleTimer = null;
                 this.idleWarningTimer = null;
                 this.idleWarningVisible = false;
+                
+                // Scene definitions for mode-specific scenes
+                this.idleScene = {
+                    id: 'idle',
+                    name: 'Idle Screen',
+                    description: 'Screensaver mode - show hands to begin',
+                    duration: 0,
+                    html_file: 'scenes/idle.html',
+                    background_color: '#000000'
+                };
+                
+                this.onboardingScene = {
+                    id: 'onboarding',
+                    name: 'Welcome & Instructions',
+                    description: 'Interactive welcome and instructions',
+                    duration: 0,
+                    html_file: 'scenes/welcome.html',
+                    background_color: '#1e3c72'
+                };
                 
                 // Mode definitions
                 this.modes = {
@@ -947,6 +967,20 @@
                 
                 // Subscribe to hand tracking events
                 this.appState.subscribe('hands', (hands) => this.onHandsChanged(hands));
+                
+                // Initialize the current mode (trigger initial mode entry)
+                this.initializeCurrentMode();
+            }
+            
+            // Initialize the current mode by triggering its enter handler
+            initializeCurrentMode() {
+                const currentMode = this.appState.get('currentMode');
+                console.log(`[ModeManager] Initializing current mode: ${currentMode}`);
+                
+                const modeConfig = this.modes[currentMode];
+                if (modeConfig && modeConfig.onEnter) {
+                    modeConfig.onEnter();
+                }
             }
             
             // Transition to a new mode
@@ -1062,6 +1096,11 @@
                     sessionStartTime: null,
                     welcomeShownThisSession: false
                 });
+                
+                // Load idle scene
+                if (this.loadSceneCallback) {
+                    this.loadSceneCallback(this.idleScene);
+                }
             }
             
             onExitIdle() {
@@ -1077,6 +1116,12 @@
                     sessionStartTime: Date.now(),
                     welcomeShownThisSession: true
                 });
+                
+                // Load onboarding scene
+                if (this.loadSceneCallback) {
+                    console.log('[ModeManager] Loading onboarding scene:', this.onboardingScene);
+                    this.loadSceneCallback(this.onboardingScene);
+                }
             }
             
             onExitOnboarding() {
@@ -1270,24 +1315,6 @@
                     }
                 ];
                 
-                // Special scenes
-                this.idleScene = {
-                    id: 'idle',
-                    name: 'Idle Screen',
-                    description: 'Screensaver mode - show hands to begin',
-                    duration: 0,
-                    html_file: 'scenes/idle.html',
-                    background_color: '#000000'
-                };
-                
-                this.onboardingScene = {
-                    id: 'onboarding',
-                    name: 'Welcome & Instructions',
-                    description: 'Interactive welcome and instructions',
-                    duration: 0,
-                    html_file: 'scenes/welcome.html',
-                    background_color: '#1e3c72'
-                };
                 
                 // Subscribe to mode changes
                 this.appState.subscribe('currentMode', (mode) => this.onModeChanged(mode));
@@ -1305,10 +1332,12 @@
                 
                 switch (mode) {
                     case 'idle':
-                        this.loadIdleScene();
+                        // Scene loading is now handled by ModeManager
+                        this.stopSceneCycling();
                         break;
                     case 'onboarding':
-                        this.loadOnboardingScene();
+                        // Scene loading is now handled by ModeManager
+                        this.stopSceneCycling();
                         break;
                     case 'active':
                         this.startSceneCycling();
@@ -1316,17 +1345,15 @@
                 }
             }
             
-            // Load specific scene types
+            // Load specific scene types - these are now handled by ModeManager
             loadIdleScene() {
-                console.log('[SceneManager] Loading idle scene');
+                console.log('[SceneManager] Idle scene loading is now handled by ModeManager');
                 this.stopSceneCycling();
-                this.loadScene(this.idleScene);
             }
             
             loadOnboardingScene() {
-                console.log('[SceneManager] Loading onboarding scene');
+                console.log('[SceneManager] Onboarding scene loading is now handled by ModeManager');
                 this.stopSceneCycling();
-                this.loadScene(this.onboardingScene);
             }
             
             startSceneCycling() {
@@ -1744,7 +1771,7 @@
             constructor() {
                 // Initialize core managers
                 this.appState = new ApplicationState();
-                this.modeManager = new ModeManager(this.appState);
+                this.modeManager = new ModeManager(this.appState, (scene) => this.loadScene(scene));
                 this.sceneManager = new SceneManager(this.appState, this.modeManager);
                 
                 // Socket and connection
@@ -1799,7 +1826,7 @@
                 if (mode === 'idle') {
                     this.hideHUDForIdle();
                 } else {
-                    this.showHUDForActive();
+                    this.showHUD();
                 }
             }
 
@@ -2248,11 +2275,12 @@
                     // Handle mode-specific HUD visibility
                     if (scene.id === 'idle') {
                         this.hideHUDForIdle();
-                    } else if (scene.id === 'onboarding') {
-                        this.hideHUDForIdle(); // Hide HUD during onboarding too
                     } else {
-                        this.showHUDForActive();
+                        this.showHUD();
                     }
+
+                    // Set current scene
+                    this.currentScene = scene;
 
                     // Handle complete HTML page scenes as iframes
                     if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism' || scene.id === 'psychedelic_waves' || scene.id === 'tie_dye' || scene.id === 'orbits' || scene.id === 'idle' || scene.id === 'onboarding') {
@@ -2286,25 +2314,17 @@
             }
 
             callSceneHandler(method, ...args) {
+                // Add safety check for currentScene
+                if (!this.currentScene) {
+                    console.warn('[App] callSceneHandler called but currentScene is undefined');
+                    return;
+                }
 
-                if (this.currentScene && this.sceneHandlers[this.currentScene.id]) {
-                    const handler = this.sceneHandlers[this.currentScene.id][method];
-                    if (typeof handler === 'function') {
-                        handler(...args);
-                    }
-                } else if (this.currentSceneIframe && (this.currentScene.id === 'fluidsim' || this.currentScene.id === 'cosmic_symbolism' || this.currentScene.id === 'psychedelic_waves' || this.currentScene.id === 'tie_dye' || this.currentScene.id === 'orbits' || this.currentScene.id === 'idle' || this.currentScene.id === 'onboarding')) {
-                    // For iframe scenes, send message to iframe
-                    const messageType = method.replace('on', '').toLowerCase();
-                    let data = {};
-
-                    if (args.length > 0) {
-                        data = args[0];
-                    }
-
-                    this.currentSceneIframe.postMessage({
-                        type: messageType,
-                        data: data
-                    }, '*');
+                // Delegate to SceneManager's callSceneHandler method
+                if (this.sceneManager && this.sceneManager.callSceneHandler) {
+                    this.sceneManager.callSceneHandler(method, ...args);
+                } else {
+                    console.warn('[App] SceneManager not available for scene handler calls');
                 }
             }
 
@@ -2572,6 +2592,11 @@
             hideHUDForIdle() {
                 console.log('[App] Hiding HUD for idle mode');
                 // Hide ALL HUD elements during idle mode for clean screensaver
+                const appContainer = document.querySelector('.app-container');
+                if (appContainer) {
+                    appContainer.classList.add('controls-hud-hidden');
+                }
+                
                 const elementsToHide = [
                     'status-bar',
                     'debug-toggle', 
@@ -2596,9 +2621,14 @@
                 }
             }
 
-            showHUDForActive() {
-                console.log('[App] Showing HUD for active mode');
-                // Show HUD elements when not in idle mode
+            showHUD() {
+                console.log('[App] Showing HUD');
+                // Show HUD elements when not in idle mode, but respect debug settings
+                const appContainer = document.querySelector('.app-container');
+                if (appContainer && this.appState.get('controlsHUDVisible') !== false) {
+                    appContainer.classList.remove('controls-hud-hidden');
+                }
+                
                 const elementsToShow = [
                     'status-bar',
                     'debug-toggle',
@@ -2698,28 +2728,15 @@
                 }
             }
 
+            // These methods are now handled by ModeManager
             loadIdleScene() {
-                console.log('[JS] Loading idle scene');
-                const idleScene = {
-                    id: 'idle',
-                    name: 'Idle Screen',
-                    description: 'Screensaver mode - show hands to begin',
-                    html_file: 'scenes/idle.html'
-                };
-                this.currentScene = idleScene; // Set current scene
-                this.loadScene(idleScene);
+                console.log('[JS] Loading idle scene - delegating to ModeManager');
+                this.modeManager.transitionTo('idle');
             }
 
             loadOnboardingScene() {
-                console.log('[JS] Loading onboarding scene');
-                const onboardingScene = {
-                    id: 'onboarding',
-                    name: 'Onboarding Screen',
-                    description: 'Interactive welcome and instructions',
-                    html_file: 'scenes/welcome.html'
-                };
-                this.currentScene = onboardingScene; // Set current scene
-                this.loadScene(onboardingScene);
+                console.log('[JS] Loading onboarding scene - delegating to ModeManager');
+                this.modeManager.transitionTo('onboarding');
             }
 
             loadWelcomeScene() {
@@ -2739,7 +2756,7 @@
                 console.log('[JS] Showing onboarding screen for new session');
                 this.sessionWelcomeShown = true;
                 this.loadOnboardingScene();
-                this.showHUDForActive();
+                this.showHUD();
             }
 
             exitOnboardingMode() {
@@ -2754,7 +2771,7 @@
                 console.log('[JS] Showing welcome screen for new session');
                 this.sessionWelcomeShown = true;
                 this.loadWelcomeScene();
-                this.showHUDForActive();
+                this.showHUD();
             }
 
             startProgressUpdater() {
