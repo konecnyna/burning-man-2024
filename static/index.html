@@ -516,6 +516,137 @@
             z-index: 1;
         }
 
+        /* Glitch transition overlay */
+        .glitch-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.1s ease;
+            pointer-events: none;
+        }
+
+        .glitch-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            animation: glitchEffect 0.8s ease-in-out;
+        }
+
+        @keyframes glitchEffect {
+            0% {
+                opacity: 0;
+                filter: hue-rotate(0deg) saturate(1);
+                transform: translateX(0);
+            }
+            10% {
+                opacity: 1;
+                filter: hue-rotate(90deg) saturate(3);
+                transform: translateX(-2px);
+                box-shadow: 2px 0 0 #ff0040, -2px 0 0 #00ff40;
+            }
+            20% {
+                opacity: 0.8;
+                filter: hue-rotate(180deg) saturate(2);
+                transform: translateX(2px);
+                box-shadow: -2px 0 0 #ff0040, 2px 0 0 #0040ff;
+            }
+            30% {
+                opacity: 1;
+                filter: hue-rotate(270deg) saturate(4);
+                transform: translateX(-1px);
+                box-shadow: 1px 0 0 #40ff00, -1px 0 0 #ff4000;
+            }
+            40% {
+                opacity: 0.6;
+                filter: hue-rotate(45deg) saturate(1.5);
+                transform: translateX(1px);
+            }
+            50% {
+                opacity: 1;
+                filter: hue-rotate(135deg) saturate(2.5);
+                transform: translateX(0);
+                box-shadow: 0 0 10px #00ff41;
+            }
+            60% {
+                opacity: 0.4;
+                filter: hue-rotate(225deg) saturate(1.8);
+                transform: translateX(-1px);
+            }
+            70% {
+                opacity: 0.9;
+                filter: hue-rotate(315deg) saturate(3.2);
+                transform: translateX(1px);
+            }
+            80% {
+                opacity: 0.3;
+                filter: hue-rotate(60deg) saturate(1.2);
+                transform: translateX(0);
+            }
+            90% {
+                opacity: 0.7;
+                filter: hue-rotate(120deg) saturate(2.8);
+                transform: translateX(-0.5px);
+            }
+            100% {
+                opacity: 0;
+                filter: hue-rotate(0deg) saturate(1);
+                transform: translateX(0);
+            }
+        }
+
+        /* Additional glitch effects for scene container */
+        .scene-container.glitching {
+            animation: sceneGlitch 0.8s ease-in-out;
+        }
+
+        @keyframes sceneGlitch {
+            0%, 100% {
+                transform: translateX(0);
+                filter: contrast(1) brightness(1);
+            }
+            10% {
+                transform: translateX(-2px);
+                filter: contrast(1.2) brightness(1.1) hue-rotate(90deg);
+            }
+            20% {
+                transform: translateX(2px);
+                filter: contrast(0.8) brightness(0.9) hue-rotate(180deg);
+            }
+            30% {
+                transform: translateX(-1px);
+                filter: contrast(1.5) brightness(1.2) hue-rotate(270deg);
+            }
+            40% {
+                transform: translateX(1px);
+                filter: contrast(0.9) brightness(0.8) hue-rotate(45deg);
+            }
+            50% {
+                transform: translateX(0);
+                filter: contrast(1.3) brightness(1.3) hue-rotate(135deg);
+            }
+            60% {
+                transform: translateX(-0.5px);
+                filter: contrast(0.7) brightness(0.7) hue-rotate(225deg);
+            }
+            70% {
+                transform: translateX(0.5px);
+                filter: contrast(1.4) brightness(1.4) hue-rotate(315deg);
+            }
+            80% {
+                transform: translateX(0);
+                filter: contrast(1.1) brightness(1.1) hue-rotate(60deg);
+            }
+            90% {
+                transform: translateX(-0.2px);
+                filter: contrast(0.95) brightness(0.95) hue-rotate(120deg);
+            }
+        }
+
         /* .status-bar,
         .debug-panel,
         .manual-controls,
@@ -542,6 +673,9 @@
         <div class="scene-container active" id="scene-container">
             <!-- Current scene content will be loaded here -->
         </div>
+
+        <!-- Glitch transition overlay -->
+        <div class="glitch-overlay" id="glitchOverlay"></div>
 
         <!-- Parent overlay for scene transitions -->
         <div class="parent-overlay" id="parentOverlay">
@@ -637,83 +771,1056 @@
 
     <script src="/static/socket.io.js"></script>
     <script>
+        // ============================================================================
+        // APPLICATION STATE - Global state container (similar to Android Application)
+        // ============================================================================
+        class ApplicationState {
+            constructor() {
+                this.state = {
+                    // Core application state
+                    isConnected: false,
+                    fps: 0,
+                    eventCount: 0,
+                    
+                    // Mode state
+                    currentMode: 'idle', // idle, onboarding, active, transitioning
+                    previousMode: null,
+                    modeStartTime: Date.now(),
+                    
+                    // Session state
+                    sessionActive: false,
+                    sessionStartTime: null,
+                    welcomeShownThisSession: false,
+                    
+                    // Hand tracking state
+                    hands: [],
+                    handsDetected: false,
+                    lastHandDetectedTime: null,
+                    
+                    // Scene state
+                    currentScene: null,
+                    sceneStartTime: null,
+                    sceneIndex: 0,
+                    totalScenes: 0,
+                    
+                    // Idle management
+                    idleTimeoutMs: 15000,
+                    idleTimeoutStartTime: null,
+                    
+                    // Debug state
+                    debugVisible: false,
+                    debugPointsVisible: false,
+                    controlsHUDVisible: true
+                };
+                
+                this.listeners = new Map();
+                this.stateHistory = [];
+                this.maxHistorySize = 100;
+            }
+            
+            // Get current state (read-only)
+            getState() {
+                return { ...this.state };
+            }
+            
+            // Get specific state value
+            get(key) {
+                return this.state[key];
+            }
+            
+            // Update state and notify listeners
+            setState(updates) {
+                const oldState = { ...this.state };
+                this.state = { ...this.state, ...updates };
+                
+                // Add to history
+                this.stateHistory.push({
+                    timestamp: Date.now(),
+                    changes: updates,
+                    oldState: oldState,
+                    newState: { ...this.state }
+                });
+                
+                // Trim history
+                if (this.stateHistory.length > this.maxHistorySize) {
+                    this.stateHistory.shift();
+                }
+                
+                // Notify listeners
+                Object.keys(updates).forEach(key => {
+                    if (this.listeners.has(key)) {
+                        this.listeners.get(key).forEach(callback => {
+                            callback(this.state[key], oldState[key], this.state);
+                        });
+                    }
+                });
+                
+                // Notify global listeners
+                if (this.listeners.has('*')) {
+                    this.listeners.get('*').forEach(callback => {
+                        callback(this.state, oldState, updates);
+                    });
+                }
+            }
+            
+            // Subscribe to state changes
+            subscribe(key, callback) {
+                if (!this.listeners.has(key)) {
+                    this.listeners.set(key, []);
+                }
+                this.listeners.get(key).push(callback);
+                
+                // Return unsubscribe function
+                return () => {
+                    const callbacks = this.listeners.get(key);
+                    if (callbacks) {
+                        const index = callbacks.indexOf(callback);
+                        if (index > -1) {
+                            callbacks.splice(index, 1);
+                        }
+                    }
+                };
+            }
+            
+            // Get state history for debugging
+            getHistory() {
+                return [...this.stateHistory];
+            }
+            
+            // Reset state to initial values
+            reset() {
+                this.setState({
+                    currentMode: 'idle',
+                    previousMode: null,
+                    modeStartTime: Date.now(),
+                    sessionActive: false,
+                    sessionStartTime: null,
+                    welcomeShownThisSession: false,
+                    hands: [],
+                    handsDetected: false,
+                    lastHandDetectedTime: null,
+                    currentScene: null,
+                    sceneStartTime: null,
+                    sceneIndex: 0,
+                    idleTimeoutStartTime: null
+                });
+            }
+        }
+        
+        // ============================================================================
+        // MODE MANAGER - Handles application mode state machine
+        // ============================================================================
+        class ModeManager {
+            constructor(appState) {
+                this.appState = appState;
+                this.idleTimer = null;
+                this.idleWarningTimer = null;
+                this.idleWarningVisible = false;
+                
+                // Mode definitions
+                this.modes = {
+                    idle: {
+                        name: 'Idle',
+                        allowTransitions: ['onboarding'],
+                        onEnter: () => this.onEnterIdle(),
+                        onExit: () => this.onExitIdle()
+                    },
+                    onboarding: {
+                        name: 'Onboarding',
+                        allowTransitions: ['active', 'idle'],
+                        onEnter: () => this.onEnterOnboarding(),
+                        onExit: () => this.onExitOnboarding()
+                    },
+                    active: {
+                        name: 'Active',
+                        allowTransitions: ['idle'],
+                        onEnter: () => this.onEnterActive(),
+                        onExit: () => this.onExitActive()
+                    },
+                    transitioning: {
+                        name: 'Transitioning',
+                        allowTransitions: ['idle', 'onboarding', 'active'],
+                        onEnter: () => this.onEnterTransitioning(),
+                        onExit: () => this.onExitTransitioning()
+                    }
+                };
+                
+                // Subscribe to hand tracking events
+                this.appState.subscribe('hands', (hands) => this.onHandsChanged(hands));
+            }
+            
+            // Transition to a new mode
+            transitionTo(newMode) {
+                const currentMode = this.appState.get('currentMode');
+                
+                if (currentMode === newMode) {
+                    console.log(`[ModeManager] Already in ${newMode} mode`);
+                    return;
+                }
+                
+                // Check if transition is allowed
+                if (!this.modes[currentMode].allowTransitions.includes(newMode)) {
+                    console.warn(`[ModeManager] Invalid transition from ${currentMode} to ${newMode}`);
+                    return;
+                }
+                
+                console.log(`[ModeManager] Transitioning from ${currentMode} to ${newMode}`);
+                
+                // Trigger glitch transition effect
+                this.triggerGlitchTransition(() => {
+                    // Exit current mode
+                    if (this.modes[currentMode].onExit) {
+                        this.modes[currentMode].onExit();
+                    }
+                    
+                    // Update state
+                    this.appState.setState({
+                        previousMode: currentMode,
+                        currentMode: newMode,
+                        modeStartTime: Date.now()
+                    });
+                    
+                    // Enter new mode
+                    if (this.modes[newMode].onEnter) {
+                        this.modes[newMode].onEnter();
+                    }
+                });
+            }
+            
+            // Trigger glitch transition animation
+            triggerGlitchTransition(callback) {
+                const glitchOverlay = document.getElementById('glitchOverlay');
+                const sceneContainer = document.getElementById('scene-container');
+                
+                if (glitchOverlay && sceneContainer) {
+                    // Start glitch effects
+                    glitchOverlay.classList.add('active');
+                    sceneContainer.classList.add('glitching');
+                    
+                    // Execute transition in the middle of the glitch
+                    setTimeout(() => {
+                        if (callback) callback();
+                    }, 400); // Middle of 0.8s animation
+                    
+                    // Clean up glitch effects
+                    setTimeout(() => {
+                        glitchOverlay.classList.remove('active');
+                        sceneContainer.classList.remove('glitching');
+                    }, 800); // Full animation duration
+                } else {
+                    // Fallback if elements not found
+                    if (callback) callback();
+                }
+            }
+            
+            // Handle hand detection changes
+            onHandsChanged(hands) {
+                const wasDetected = this.appState.get('handsDetected');
+                const nowDetected = hands.length > 0;
+                
+                // Only update detection-related state, not hands array to avoid recursion
+                if (wasDetected !== nowDetected) {
+                    console.log(`[ModeManager] Hand detection changed: ${wasDetected} -> ${nowDetected}`);
+                    this.appState.setState({ 
+                        handsDetected: nowDetected,
+                        lastHandDetectedTime: nowDetected ? Date.now() : this.appState.get('lastHandDetectedTime')
+                    });
+                    this.onHandDetectionChanged(nowDetected);
+                }
+            }
+            
+            onHandDetectionChanged(detected) {
+                const currentMode = this.appState.get('currentMode');
+                console.log(`[ModeManager] onHandDetectionChanged: detected=${detected}, currentMode=${currentMode}`);
+                
+                if (detected) {
+                    // Hand detected - handle mode transitions
+                    if (currentMode === 'idle') {
+                        console.log('[ModeManager] Hand detected in idle mode, transitioning to onboarding');
+                        this.transitionTo('onboarding');
+                    } else if (currentMode === 'active') {
+                        console.log('[ModeManager] Hand detected in active mode, resetting idle timer');
+                        this.resetIdleTimer();
+                    }
+                    this.hideIdleWarning();
+                } else {
+                    // Hand lost - start idle timer if in active mode
+                    if (currentMode === 'active') {
+                        console.log('[ModeManager] Hand lost in active mode, starting idle timer');
+                        this.startIdleTimer();
+                    }
+                }
+            }
+            
+            // Mode enter/exit handlers
+            onEnterIdle() {
+                console.log('[ModeManager] Entering idle mode');
+                this.clearIdleTimer();
+                this.hideIdleWarning();
+                this.appState.setState({
+                    sessionActive: false,
+                    sessionStartTime: null,
+                    welcomeShownThisSession: false
+                });
+            }
+            
+            onExitIdle() {
+                console.log('[ModeManager] Exiting idle mode');
+            }
+            
+            onEnterOnboarding() {
+                console.log('[ModeManager] Entering onboarding mode');
+                this.clearIdleTimer();
+                this.hideIdleWarning();
+                this.appState.setState({
+                    sessionActive: true,
+                    sessionStartTime: Date.now(),
+                    welcomeShownThisSession: true
+                });
+            }
+            
+            onExitOnboarding() {
+                console.log('[ModeManager] Exiting onboarding mode');
+            }
+            
+            onEnterActive() {
+                console.log('[ModeManager] Entering active mode');
+                this.startIdleTimer();
+            }
+            
+            onExitActive() {
+                console.log('[ModeManager] Exiting active mode');
+                this.clearIdleTimer();
+                this.hideIdleWarning();
+            }
+            
+            onEnterTransitioning() {
+                console.log('[ModeManager] Entering transitioning mode');
+            }
+            
+            onExitTransitioning() {
+                console.log('[ModeManager] Exiting transitioning mode');
+            }
+            
+            // Complete onboarding and move to active mode
+            completeOnboarding() {
+                if (this.appState.get('currentMode') === 'onboarding') {
+                    this.transitionTo('active');
+                }
+            }
+            
+            // Idle timer management
+            startIdleTimer() {
+                this.clearIdleTimer();
+                
+                const idleTimeoutMs = this.appState.get('idleTimeoutMs');
+                this.appState.setState({ idleTimeoutStartTime: Date.now() });
+                
+                console.log(`[ModeManager] Starting idle timer: ${idleTimeoutMs}ms`);
+                
+                this.idleTimer = setTimeout(() => {
+                    console.log('[ModeManager] Idle timeout reached');
+                    this.transitionTo('idle');
+                }, idleTimeoutMs);
+                
+                // Start warning timer (show warning 5 seconds before timeout)
+                const warningTimeMs = Math.max(0, idleTimeoutMs - 5000);
+                this.idleWarningTimer = setTimeout(() => {
+                    this.showIdleWarning();
+                }, warningTimeMs);
+            }
+            
+            resetIdleTimer() {
+                const currentMode = this.appState.get('currentMode');
+                if (currentMode === 'active') {
+                    console.log('[ModeManager] Resetting idle timer');
+                    this.startIdleTimer();
+                }
+            }
+            
+            clearIdleTimer() {
+                if (this.idleTimer) {
+                    clearTimeout(this.idleTimer);
+                    this.idleTimer = null;
+                }
+                if (this.idleWarningTimer) {
+                    clearTimeout(this.idleWarningTimer);
+                    this.idleWarningTimer = null;
+                }
+                this.appState.setState({ idleTimeoutStartTime: null });
+            }
+            
+            // Idle warning management
+            showIdleWarning() {
+                if (!this.idleWarningVisible) {
+                    console.log('[ModeManager] Showing idle warning');
+                    const idleWarning = document.getElementById('idleWarning');
+                    if (idleWarning) {
+                        idleWarning.classList.add('visible');
+                        this.idleWarningVisible = true;
+                        this.updateIdleWarningCountdown();
+                    }
+                }
+            }
+            
+            hideIdleWarning() {
+                if (this.idleWarningVisible) {
+                    console.log('[ModeManager] Hiding idle warning');
+                    const idleWarning = document.getElementById('idleWarning');
+                    if (idleWarning) {
+                        idleWarning.classList.remove('visible');
+                        this.idleWarningVisible = false;
+                    }
+                }
+            }
+            
+            updateIdleWarningCountdown() {
+                if (!this.idleWarningVisible) return;
+                
+                const idleTimeoutStartTime = this.appState.get('idleTimeoutStartTime');
+                const idleTimeoutMs = this.appState.get('idleTimeoutMs');
+                
+                if (idleTimeoutStartTime) {
+                    const elapsed = Date.now() - idleTimeoutStartTime;
+                    const remaining = Math.max(0, (idleTimeoutMs - elapsed) / 1000);
+                    
+                    const warningCountdown = document.getElementById('idleWarningCountdown');
+                    if (warningCountdown) {
+                        warningCountdown.textContent = Math.ceil(remaining);
+                    }
+                    
+                    if (remaining > 0) {
+                        setTimeout(() => this.updateIdleWarningCountdown(), 100);
+                    }
+                }
+            }
+            
+            // Get current mode info
+            getCurrentMode() {
+                return this.appState.get('currentMode');
+            }
+            
+            // Check if in specific mode
+            isIdle() {
+                return this.getCurrentMode() === 'idle';
+            }
+            
+            isOnboarding() {
+                return this.getCurrentMode() === 'onboarding';
+            }
+            
+            isActive() {
+                return this.getCurrentMode() === 'active';
+            }
+        }
+        
+        // ============================================================================
+        // SCENE MANAGER - Handles scene lifecycle and transitions
+        // ============================================================================
+        class SceneManager {
+            constructor(appState, modeManager) {
+                this.appState = appState;
+                this.modeManager = modeManager;
+                this.sceneHandlers = {};
+                this.cycleTimer = null;
+                this.countdownTimer = null;
+                this.currentSceneIframe = null;
+                
+                // Scene configurations
+                this.scenes = [            
+                    {
+                        id: 'fluidsim',
+                        name: 'Fluid Simulation',
+                        description: 'WebGL fluid simulation controlled by hand movements',
+                        duration: 45,
+                        html_file: 'scenes/fluidsim/index.html',
+                        background_color: '#000000'
+                    },
+                    {
+                        id: 'cosmic_symbolism',
+                        name: 'Cosmic Symbolism',
+                        description: 'Navigate through cosmic imagery with hand movements',
+                        duration: 45,
+                        html_file: 'scenes/cosmic-symbolism/index.html',
+                        background_color: '#000000'
+                    },
+                    {
+                        id: 'psychedelic_waves',
+                        name: 'Psychedelic Waves',
+                        description: 'WebGL shader-based wave visualization controlled by hand movements',
+                        duration: 45,
+                        html_file: 'scenes/psychedelic-waves/index.html',
+                        background_color: '#000000'
+                    },
+                    {
+                        id: 'orbits',
+                        name: 'Orbits',
+                        description: 'An interactive flight through attractor orbits using hopalong formula',
+                        duration: 45,
+                        html_file: 'scenes/orbits/index.html',
+                        background_color: '#000000'
+                    },
+                    {
+                        id: 'tie_dye',
+                        name: 'Tie Dye',
+                        description: 'Use your hands to create a tie dye pattern',
+                        duration: 45,
+                        html_file: 'scenes/tie-dye/index.html',
+                        background_color: '#000000'
+                    }
+                ];
+                
+                // Special scenes
+                this.idleScene = {
+                    id: 'idle',
+                    name: 'Idle Screen',
+                    description: 'Screensaver mode - show hands to begin',
+                    duration: 0,
+                    html_file: 'scenes/idle.html',
+                    background_color: '#000000'
+                };
+                
+                this.onboardingScene = {
+                    id: 'onboarding',
+                    name: 'Welcome & Instructions',
+                    description: 'Interactive welcome and instructions',
+                    duration: 0,
+                    html_file: 'scenes/welcome.html',
+                    background_color: '#1e3c72'
+                };
+                
+                // Subscribe to mode changes
+                this.appState.subscribe('currentMode', (mode) => this.onModeChanged(mode));
+                
+                // Initialize scene handlers
+                this.initializeSceneHandlers();
+                
+                // Handle initial mode
+                this.onModeChanged(this.appState.get('currentMode'));
+            }
+            
+            // Handle mode changes
+            onModeChanged(mode) {
+                console.log(`[SceneManager] Mode changed to: ${mode}`);
+                
+                switch (mode) {
+                    case 'idle':
+                        this.loadIdleScene();
+                        break;
+                    case 'onboarding':
+                        this.loadOnboardingScene();
+                        break;
+                    case 'active':
+                        this.startSceneCycling();
+                        break;
+                }
+            }
+            
+            // Load specific scene types
+            loadIdleScene() {
+                console.log('[SceneManager] Loading idle scene');
+                this.stopSceneCycling();
+                this.loadScene(this.idleScene);
+            }
+            
+            loadOnboardingScene() {
+                console.log('[SceneManager] Loading onboarding scene');
+                this.stopSceneCycling();
+                this.loadScene(this.onboardingScene);
+            }
+            
+            startSceneCycling() {
+                console.log('[SceneManager] Starting scene cycling');
+                this.stopSceneCycling();
+                
+                // Start with first scene
+                this.appState.setState({ sceneIndex: 0, totalScenes: this.scenes.length });
+                this.loadScene(this.scenes[0]);
+                this.scheduleNextScene();
+            }
+            
+            stopSceneCycling() {
+                if (this.cycleTimer) {
+                    clearTimeout(this.cycleTimer);
+                    this.cycleTimer = null;
+                }
+                if (this.countdownTimer) {
+                    clearInterval(this.countdownTimer);
+                    this.countdownTimer = null;
+                }
+            }
+            
+            scheduleNextScene() {
+                const currentScene = this.appState.get('currentScene');
+                if (!currentScene || currentScene.duration === 0) return;
+                
+                this.cycleTimer = setTimeout(() => {
+                    this.nextScene();
+                }, currentScene.duration * 1000);
+                
+                // Start countdown timer
+                this.startSceneCountdown();
+            }
+            
+            nextScene() {
+                if (this.modeManager.getCurrentMode() !== 'active') return;
+                
+                const currentIndex = this.appState.get('sceneIndex');
+                const nextIndex = (currentIndex + 1) % this.scenes.length;
+                
+                this.appState.setState({ sceneIndex: nextIndex });
+                this.loadScene(this.scenes[nextIndex]);
+                this.scheduleNextScene();
+            }
+            
+            previousScene() {
+                if (this.modeManager.getCurrentMode() !== 'active') return;
+                
+                const currentIndex = this.appState.get('sceneIndex');
+                const prevIndex = (currentIndex - 1 + this.scenes.length) % this.scenes.length;
+                
+                this.appState.setState({ sceneIndex: prevIndex });
+                this.loadScene(this.scenes[prevIndex]);
+                this.scheduleNextScene();
+            }
+            
+            startSceneCountdown() {
+                if (this.countdownTimer) {
+                    clearInterval(this.countdownTimer);
+                }
+                
+                this.countdownTimer = setInterval(() => {
+                    this.updateSceneCountdown();
+                }, 1000);
+            }
+            
+            updateSceneCountdown() {
+                const currentScene = this.appState.get('currentScene');
+                const sceneStartTime = this.appState.get('sceneStartTime');
+                
+                if (!currentScene || !sceneStartTime || currentScene.duration === 0) {
+                    const countdownElement = document.getElementById('sceneCountdown');
+                    if (countdownElement) {
+                        countdownElement.textContent = 'Next: --';
+                    }
+                    return;
+                }
+                
+                const elapsed = (Date.now() - sceneStartTime) / 1000;
+                const remaining = Math.max(0, currentScene.duration - elapsed);
+                
+                const countdownElement = document.getElementById('sceneCountdown');
+                if (countdownElement) {
+                    if (remaining <= 0) {
+                        countdownElement.textContent = 'Next: Now';
+                    } else {
+                        const minutes = Math.floor(remaining / 60);
+                        const seconds = Math.floor(remaining % 60);
+                        
+                        if (minutes > 0) {
+                            countdownElement.textContent = `Next: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                        } else {
+                            countdownElement.textContent = `Next: ${seconds}s`;
+                        }
+                    }
+                }
+            }
+            
+            // Load a scene
+            async loadScene(scene) {
+                try {
+                    console.log('[SceneManager] Loading scene:', scene.id);
+                    
+                    // Clean up previous scene
+                    if (this.appState.get('currentScene')) {
+                        this.callSceneHandler('onDestroy');
+                    }
+                    
+                    // Update state
+                    this.appState.setState({
+                        currentScene: scene,
+                        sceneStartTime: Date.now()
+                    });
+                    
+                    const container = document.getElementById('scene-container');
+                    
+                    // Handle iframe scenes
+                    if (['fluidsim', 'cosmic_symbolism', 'psychedelic_waves', 'tie_dye', 'orbits', 'idle'].includes(scene.id)) {
+                        container.innerHTML = `<iframe id="scene-iframe" src="/${scene.html_file}" style="width: 100%; height: 100%; border: none;"></iframe>`;
+                        
+                        setTimeout(() => {
+                            const iframe = document.getElementById('scene-iframe');
+                            if (iframe && iframe.contentWindow) {
+                                this.currentSceneIframe = iframe.contentWindow;
+                            }
+                        }, 1000);
+                    } else {
+                        // Load HTML fragment scenes
+                        const response = await fetch(`/${scene.html_file}`);
+                        if (!response.ok) {
+                            throw new Error(`Failed to load scene: ${response.status}`);
+                        }
+                        const html = await response.text();
+                        container.innerHTML = html;
+                        this.currentSceneIframe = null;
+                    }
+                    
+                    // Initialize scene
+                    this.callSceneHandler('onInit');
+                    
+                } catch (error) {
+                    console.error('[SceneManager] Error loading scene:', error);
+                }
+            }
+            
+            // Call scene handler method
+            callSceneHandler(method, ...args) {
+                const currentScene = this.appState.get('currentScene');
+                if (!currentScene) return;
+                
+                // Try main app scene handlers first
+                if (this.sceneHandlers[currentScene.id]) {
+                    const handler = this.sceneHandlers[currentScene.id][method];
+                    if (typeof handler === 'function') {
+                        handler.call(this.sceneHandlers[currentScene.id], ...args);
+                        return;
+                    }
+                }
+                
+                // Try iframe communication for complex scenes
+                if (this.currentSceneIframe) {
+                    const messageType = method.replace('on', '').toLowerCase();
+                    let data = {};
+                    
+                    if (args.length > 0) {
+                        data = args[0];
+                    }
+                    
+                    this.currentSceneIframe.postMessage({
+                        type: messageType,
+                        data: data
+                    }, '*');
+                }
+            }
+            
+            // Initialize scene handlers
+            initializeSceneHandlers() {
+                // Reference to managers for handlers
+                const appState = this.appState;
+                const modeManager = this.modeManager;
+                const sceneManager = this;
+                
+                // Idle scene handler
+                this.sceneHandlers.idle = {
+                    onInit: function () {
+                        console.log('[SceneHandler] Idle scene initialized');
+                    },
+                    onHandDetected: function (hands) {
+                        // Mode manager will handle transition
+                    },
+                    onHandMove: function (hands) {
+                        // No interaction needed
+                    },
+                    onHandLost: function () {
+                        // No action needed
+                    }
+                };
+                
+                // Onboarding scene handler
+                this.sceneHandlers.onboarding = {
+                    handCursor: null,
+                    countdownTimer: null,
+                    countdownStartTime: null,
+                    isHovering: false,
+                    
+                    onInit: function () {
+                        console.log('[SceneHandler] Onboarding scene initialized');
+                        // Create hand cursor
+                        this.handCursor = document.createElement('div');
+                        this.handCursor.className = 'hand-cursor';
+                        this.handCursor.style.cssText = `
+                            position: fixed;
+                            width: 20px;
+                            height: 20px;
+                            border: 2px solid #00ff41;
+                            border-radius: 50%;
+                            background: rgba(0, 255, 65, 0.3);
+                            pointer-events: none;
+                            z-index: 9999;
+                            transition: all 0.1s ease;
+                            box-shadow: 0 0 10px #00ff41;
+                            display: none;
+                        `;
+                        document.body.appendChild(this.handCursor);
+                    },
+                    
+                    onHandMove: function (hands) {
+                        if (hands.length > 0) {
+                            const hand = hands[0];
+                            const palmX = hand.palm_center.x;
+                            const palmY = hand.palm_center.y;
+                            
+                            // Show and position cursor
+                            if (this.handCursor) {
+                                this.handCursor.style.display = 'block';
+                                this.handCursor.style.left = (palmX * window.innerWidth) + 'px';
+                                this.handCursor.style.top = (palmY * window.innerHeight) + 'px';
+                            }
+                            
+                            // Highlight instruction modules
+                            const modules = document.querySelectorAll('.instruction-module');
+                            modules.forEach(module => module.classList.remove('active'));
+                            
+                            if (palmY > 0.3 && palmY < 0.8) {
+                                if (palmX < 0.33) {
+                                    const module1 = document.getElementById('instruction1');
+                                    if (module1) module1.classList.add('active');
+                                } else if (palmX < 0.66) {
+                                    const module2 = document.getElementById('instruction2');
+                                    if (module2) module2.classList.add('active');
+                                } else {
+                                    const module3 = document.getElementById('instruction3');
+                                    if (module3) module3.classList.add('active');
+                                }
+                            }
+                            
+                            // Check hover over begin text
+                            const beginText = document.getElementById('beginText');
+                            if (beginText) {
+                                const rect = beginText.getBoundingClientRect();
+                                const screenX = palmX * window.innerWidth;
+                                const screenY = palmY * window.innerHeight;
+                                
+                                const expandedRect = {
+                                    left: rect.left - 50,
+                                    right: rect.right + 50,
+                                    top: rect.top - 50,
+                                    bottom: rect.bottom + 50
+                                };
+                                
+                                const isOverBeginText = screenX >= expandedRect.left && screenX <= expandedRect.right &&
+                                    screenY >= expandedRect.top && screenY <= expandedRect.bottom;
+                                
+                                if (isOverBeginText && !this.isHovering) {
+                                    this.startCountdown();
+                                } else if (!isOverBeginText && this.isHovering) {
+                                    this.stopCountdown();
+                                }
+                            }
+                        } else {
+                            if (this.handCursor) {
+                                this.handCursor.style.display = 'none';
+                            }
+                            this.stopCountdown();
+                        }
+                    },
+                    
+                    startCountdown: function () {
+                        if (this.isHovering) return;
+                        
+                        console.log('[SceneHandler] Starting onboarding countdown');
+                        this.isHovering = true;
+                        this.countdownStartTime = Date.now();
+                        
+                        const overlay = document.getElementById('countdownOverlay');
+                        if (overlay) {
+                            overlay.classList.add('visible');
+                        }
+                        
+                        if (this.handCursor) {
+                            this.handCursor.style.background = 'rgba(0, 255, 65, 0.6)';
+                            this.handCursor.style.transform = 'scale(1.5)';
+                            this.handCursor.style.boxShadow = '0 0 20px #00ff41';
+                        }
+                        
+                        this.updateCountdown();
+                    },
+                    
+                    updateCountdown: function () {
+                        if (!this.isHovering) return;
+                        
+                        const elapsed = (Date.now() - this.countdownStartTime) / 1000;
+                        const remaining = Math.max(0, 3 - elapsed);
+                        const progress = (elapsed / 3) * 220;
+                        
+                        const countdownNumber = document.getElementById('countdownNumber');
+                        if (countdownNumber) {
+                            countdownNumber.textContent = Math.ceil(remaining);
+                        }
+                        
+                        const progressRing = document.getElementById('countdownRing');
+                        if (progressRing) {
+                            progressRing.style.strokeDashoffset = 220 - progress;
+                        }
+                        
+                        if (remaining > 0) {
+                            this.countdownTimer = setTimeout(() => this.updateCountdown(), 50);
+                        } else {
+                            this.completeCountdown();
+                        }
+                    },
+                    
+                    completeCountdown: function () {
+                        console.log('[SceneHandler] Onboarding countdown complete');
+                        this.stopCountdown();
+                        // Trigger transition to active mode
+                        modeManager.completeOnboarding();
+                    },
+                    
+                    stopCountdown: function () {
+                        if (!this.isHovering) return;
+                        
+                        this.isHovering = false;
+                        
+                        if (this.countdownTimer) {
+                            clearTimeout(this.countdownTimer);
+                            this.countdownTimer = null;
+                        }
+                        
+                        const overlay = document.getElementById('countdownOverlay');
+                        if (overlay) {
+                            overlay.classList.remove('visible');
+                        }
+                        
+                        if (this.handCursor) {
+                            this.handCursor.style.background = 'rgba(0, 255, 65, 0.3)';
+                            this.handCursor.style.transform = 'scale(1)';
+                            this.handCursor.style.boxShadow = '0 0 10px #00ff41';
+                        }
+                        
+                        const countdownNumber = document.getElementById('countdownNumber');
+                        if (countdownNumber) {
+                            countdownNumber.textContent = '3';
+                        }
+                        
+                        const progressRing = document.getElementById('countdownRing');
+                        if (progressRing) {
+                            progressRing.style.strokeDashoffset = '220';
+                        }
+                    },
+                    
+                    onHandDetected: function (hands) {
+                        const signalText = document.querySelector('.signal-text');
+                        if (signalText) {
+                            signalText.textContent = 'TRACKING ACTIVE';
+                        }
+                    },
+                    
+                    onHandLost: function () {
+                        document.querySelectorAll('.instruction-module').forEach(module => {
+                            module.classList.remove('active');
+                        });
+                        
+                        const signalText = document.querySelector('.signal-text');
+                        if (signalText) {
+                            signalText.textContent = 'SIGNAL DETECTED';
+                        }
+                        
+                        if (this.handCursor) {
+                            this.handCursor.style.display = 'none';
+                        }
+                        this.stopCountdown();
+                    },
+                    
+                    onDestroy: function () {
+                        if (this.handCursor) {
+                            this.handCursor.remove();
+                            this.handCursor = null;
+                        }
+                        this.stopCountdown();
+                        
+                        // Clean up any remaining cursors
+                        const existingCursors = document.querySelectorAll('.hand-cursor');
+                        existingCursors.forEach(cursor => cursor.remove());
+                    }
+                };
+            }
+        }
+        
+        // ============================================================================
+        // MAIN APPLICATION CLASS (Simplified)
+        // ============================================================================
         class HandTrackingKiosk {
             constructor() {
+                // Initialize core managers
+                this.appState = new ApplicationState();
+                this.modeManager = new ModeManager(this.appState);
+                this.sceneManager = new SceneManager(this.appState, this.modeManager);
+                
+                // Socket and connection
                 this.socket = io();
-                this.isConnected = false;
-                this.currentScene = null;
-                this.scenes = [];
-                this.hands = [];
-                this.fps = 0;
-                this.eventCount = 0;
-                this.debugVisible = false;
-                this.videoVisible = false;
-                this.debugPointsVisible = false;
-                this.controlsHUDVisible = true;
-                this.overlayVisible = false;
-                this.sceneHandlers = {};
-                this.overlayTimer = null;
-                this.currentSceneIframe = null;
-                this.debugSettings = {
-                    showDebugPoints: false,
-                    showControlsHUD: true
-                };
-                this.handColorAssignments = new Map(); // Track hand ID to color assignments
+                
+                // UI state
+                this.handColorAssignments = new Map();
                 this.nextColorIndex = 0;
-
-                // Mode management
-                this.mode = 'idle';  // Start in idle mode (idle/onboarding/active)
-                this.idleTimeout = 10000; // 15 seconds in milliseconds
-                this.idleTimer = null;
-                this.normalScenes = []; // Will store non-idle scenes
-                this.idleTimeoutStartTime = null; // Track when idle countdown started
-                this.idleWarningVisible = false; // Track if warning is showing
-                this.sessionWelcomeShown = false; // Track if welcome was shown this session
-
-                // Scene timing
-                this.sceneStartTime = null;
-                this.sceneCountdownTimer = null;
-
-                // Make scene handlers available globally
-                window.sceneHandlers = this.sceneHandlers;
-
-                // Initialize scene handlers
-
+                this.debugPoints = {};
+                
+                // Subscribe to application state changes
+                this.setupStateSubscriptions();
+                
+                // Initialize components
                 this.initializeSocket();
                 this.initializeDebugPoints();
-                // this.initializeKeyboardShortcuts();
-                // this.loadDebugSettings();
-                // this.startProgressUpdater();
-                this.startInIdleMode();
+                
+                // Start in idle mode
+                console.log('[App] Starting application in idle mode');
             }
 
-            // Backward compatibility getter
-            get isIdle() {
-                return this.mode === 'idle';
+            // Setup subscriptions to state changes
+            setupStateSubscriptions() {
+                // Subscribe to connection state
+                this.appState.subscribe('isConnected', (connected) => {
+                    this.updateConnectionStatus(connected);
+                });
+                
+                // Subscribe to hands state
+                this.appState.subscribe('hands', (hands) => {
+                    this.updateHandVisualization(hands);
+                });
+                
+                // Subscribe to scene state
+                this.appState.subscribe('currentScene', (scene) => {
+                    this.updateStatusBar();
+                });
+                
+                // Subscribe to FPS updates
+                this.appState.subscribe('fps', () => {
+                    this.updateStatusBar();
+                });
+                
+                // Subscribe to mode changes for HUD visibility
+                this.appState.subscribe('currentMode', (mode) => {
+                    this.updateHUDVisibility(mode);
+                });
+            }
+            
+            // Update HUD visibility based on mode
+            updateHUDVisibility(mode) {
+                if (mode === 'idle') {
+                    this.hideHUDForIdle();
+                } else {
+                    this.showHUDForActive();
+                }
             }
 
             initializeSocket() {
                 this.socket.on('connect', () => {
-                    console.log('Connected to server');
-                    this.isConnected = true;
-                    this.updateConnectionStatus();
+                    console.log('[App] Connected to server');
+                    this.appState.setState({ isConnected: true });
 
-                    // Subscribe to all events
+                    // Subscribe only to hand tracking events (no scene events)
                     const eventsToSubscribe = [
-                        'hand_moved', 'hand_detected', 'hand_lost', 'frame_processed',
-                        'scene_changed', 'scene_transition_start', 'scene_transition_end',
-                        'system_idle', 'system_active'
+                        'hand_moved', 'hand_detected', 'hand_lost', 'frame_processed'
                     ];
-                    console.log('[JS] Subscribing to events:', eventsToSubscribe);
+                    console.log('[App] Subscribing to events:', eventsToSubscribe);
                     this.socket.emit('subscribe', {
                         events: eventsToSubscribe
                     });
                 });
 
                 this.socket.on('disconnect', () => {
-                    console.log('Disconnected from server');
-                    this.isConnected = false;
-                    this.updateConnectionStatus();
+                    console.log('[App] Disconnected from server');
+                    this.appState.setState({ isConnected: false });
                 });
 
                 this.socket.on('event', (event) => {
@@ -722,88 +1829,41 @@
             }
 
             handleEvent(event) {
-                this.eventCount++;
+                // Update event count
+                this.appState.setState({ 
+                    eventCount: this.appState.get('eventCount') + 1 
+                });
+                
                 switch (event.type) {
                     case 'hand_moved':
-                        console.log('hand_moved ', event);
-                        this.updateHands(event.data.hands);
-
-                        if (this.isIdle) {
-                            this.exitIdleMode();
-                        } else {
-                            // Only reset timer if not in idle mode
-                            this.resetIdleTimer();
-                        }
+                        this.processHandEvent(event.data.hands);
+                        this.sceneManager.callSceneHandler('onHandMove', event.data.hands);
                         break;
+                        
                     case 'hand_detected':
-                        console.log('[JS] Hand detected event received, current scene:', this.currentScene?.id);
-                        this.updateHands(event.data.hands);
-
-                        if (this.isIdle) {
-                            this.exitIdleMode();
-                        } else {
-                            // Only reset timer if not in idle mode
-                            this.resetIdleTimer();
-                        }
-
-                        this.callSceneHandler('onHandDetected', event.data.hands);
+                        console.log('[App] Hand detected event received');
+                        this.processHandEvent(event.data.hands);
+                        this.sceneManager.callSceneHandler('onHandDetected', event.data.hands);
                         break;
+                        
                     case 'hand_lost':
-                        console.log('[JS] Hand lost event received, current scene:', this.currentScene?.id);
-                        this.updateHands(event.data.hands);
-                        this.callSceneHandler('onHandLost');
+                        console.log('[App] Hand lost event received');
+                        this.processHandEvent(event.data.hands);
+                        this.sceneManager.callSceneHandler('onHandLost');
                         break;
+                        
                     case 'frame_processed':
-                        this.fps = Math.round(event.data.fps);
-                        this.updateStatusBar();
-                        break;
-                    case 'scene_transition_start':
-                        this.showOverlay(event.data.to_scene);
-                        break;
-                    case 'scene_changed':
-
-                        // If we're in idle or onboarding mode, ignore scene changes from backend
-                        if ((this.mode === 'idle' || this.mode === 'onboarding') && 
-                            event.data.scene?.id !== 'idle' && event.data.scene?.id !== 'onboarding') {
-                            console.log(`[JS] Ignoring scene change while in ${this.mode} mode`);
-                            return;
-                        }
-
-                        // Check if this is a welcome scene during an active session
-                        if (event.data.scene?.id === 'welcome' && this.sessionWelcomeShown && !this.isIdle) {
-                            console.log('[JS] Skipping welcome scene - already shown this session');
-                            // Tell backend to move to next scene
-                            if (this.socket) {
-                                this.socket.emit('next_scene');
-                            }
-                            return;
-                        }
-
-                        this.currentScene = event.data.scene;
-                        this.currentSceneIndex = event.data.scene_index;
-                        this.totalScenes = event.data.total_scenes;
-                        this.loadScene(event.data.scene);
-                        this.updateStatusBar();
-                        this.updateSceneCounter();
-                        this.startSceneCountdown();
-
-                        // Mark welcome as shown if this is the welcome scene
-                        if (event.data.scene?.id === 'welcome') {
-                            this.sessionWelcomeShown = true;
-                        }
-                        break;
-                    case 'scene_transition_end':
-                        this.hideOverlay();
-                        break;
-                    case 'system_idle':
-                        console.log('[JS] System entered idle mode');
-                        break;
-                    case 'system_active':
-                        console.log('[JS] System entered active mode');
+                        this.appState.setState({ fps: Math.round(event.data.fps) });
                         break;
                 }
-
+                
                 this.updateDebugPanel();
+            }
+            
+            // Process hand tracking data and update state
+            processHandEvent(hands) {
+                // Update hands state - this will trigger ModeManager via subscription
+                this.appState.setState({ hands: hands || [] });
             }
 
             initializeKeyboardShortcuts() {
@@ -1084,11 +2144,10 @@
                 };
             }
 
-            updateHands(hands) {
-                this.hands = hands;
+            // Update hand visualization (called via state subscription)
+            updateHandVisualization(hands) {
                 this.assignHandColors(hands);
-                this.renderHandVisualization();
-                this.callSceneHandler('onHandMove', hands);
+                this.renderHandVisualization(hands);
             }
 
             assignHandColors(hands) {
@@ -1115,16 +2174,16 @@
                 return this.handColorAssignments.get(handId) || fallbackIndex;
             }
 
-            renderHandVisualization() {
-                // Render debug points
+            renderHandVisualization(hands) {
                 // Always clear debug canvases first
                 Object.values(this.debugPoints).forEach(point => {
                     point.ctx.clearRect(0, 0, point.canvas.width, point.canvas.height);
                 });
 
                 // Only draw debug points if visible and hands exist
-                if (this.debugPointsVisible && this.hands) {
-                    this.hands.forEach((hand, index) => {
+                const debugPointsVisible = this.appState.get('debugPointsVisible');
+                if (debugPointsVisible && hands && hands.length > 0) {
+                    hands.forEach((hand, index) => {
                         // Use consistent color assignment
                         const colorIndex = this.getHandColorIndex(hand, index);
                         const debugKey = `hand_${colorIndex + 1}`;
@@ -1249,11 +2308,11 @@
                 }
             }
 
-            updateConnectionStatus() {
+            updateConnectionStatus(isConnected) {
                 const indicator = document.getElementById('connectionStatus');
                 const text = document.getElementById('connectionText');
 
-                if (this.isConnected) {
+                if (isConnected) {
                     indicator.classList.add('connected');
                     text.textContent = 'Connected';
                 } else {
@@ -1263,12 +2322,12 @@
             }
 
             updateStatusBar() {
-                document.getElementById('fpsCounter').textContent = `FPS: ${this.fps}`;
-                document.getElementById('handCounter').textContent = `Hands: ${this.hands.length}`;
+                const state = this.appState.getState();
+                
+                document.getElementById('fpsCounter').textContent = `FPS: ${state.fps}`;
+                document.getElementById('handCounter').textContent = `Hands: ${state.hands.length}`;
                 document.getElementById('currentScene').textContent =
-                    `Scene: ${this.currentScene ? this.currentScene.name : 'Loading'}`;
-                this.updateSceneCountdown();
-                this.updateIdleWarning();
+                    `Scene: ${state.currentScene ? state.currentScene.name : 'Loading'}`;
             }
 
             updateSceneCounter() {
@@ -1373,16 +2432,19 @@
             }
 
             updateDebugPanel() {
-                if (!this.debugVisible) return;
+                const debugVisible = this.appState.get('debugVisible');
+                if (!debugVisible) return;
 
-                document.getElementById('eventCount').textContent = this.eventCount;
+                const state = this.appState.getState();
+                
+                document.getElementById('eventCount').textContent = state.eventCount;
                 document.getElementById('debugScene').textContent =
-                    this.currentScene ? this.currentScene.id : 'None';
-                document.getElementById('debugHandCount').textContent = this.hands.length;
+                    state.currentScene ? state.currentScene.id : 'None';
+                document.getElementById('debugHandCount').textContent = state.hands.length;
                 document.getElementById('debugPointsStatus').textContent =
-                    this.debugPointsVisible ? 'On' : 'Off';
+                    state.debugPointsVisible ? 'On' : 'Off';
                 document.getElementById('controlsHUDStatus').textContent =
-                    this.controlsHUDVisible ? 'On' : 'Off';
+                    state.controlsHUDVisible ? 'On' : 'Off';
             }
 
             initializeDebugPoints() {
@@ -1430,35 +2492,37 @@
 
 
             toggleDebugPoints() {
-                this.debugPointsVisible = !this.debugPointsVisible;
-                this.debugSettings.showDebugPoints = this.debugPointsVisible;
+                const currentVisible = this.appState.get('debugPointsVisible');
+                const newVisible = !currentVisible;
+                
+                this.appState.setState({ debugPointsVisible: newVisible });
 
                 const debugPointsDiv = document.getElementById('debugPoints');
-                if (this.debugPointsVisible) {
+                if (newVisible) {
                     debugPointsDiv.classList.add('visible');
                 } else {
                     debugPointsDiv.classList.remove('visible');
                 }
 
                 // Force a refresh to clear/show debug points
-                this.renderHandVisualization();
+                this.renderHandVisualization(this.appState.get('hands'));
 
-                this.saveDebugSettings();
                 this.updateDebugPanel();
             }
 
             toggleControlsHUD() {
-                this.controlsHUDVisible = !this.controlsHUDVisible;
-                this.debugSettings.showControlsHUD = this.controlsHUDVisible;
+                const currentVisible = this.appState.get('controlsHUDVisible');
+                const newVisible = !currentVisible;
+                
+                this.appState.setState({ controlsHUDVisible: newVisible });
 
                 const appContainer = document.querySelector('.app-container');
-                if (this.controlsHUDVisible) {
+                if (newVisible) {
                     appContainer.classList.remove('controls-hud-hidden');
                 } else {
                     appContainer.classList.add('controls-hud-hidden');
                 }
 
-                this.saveDebugSettings();
                 this.updateDebugPanel();
             }
 
@@ -1506,14 +2570,16 @@
             }
 
             hideHUDForIdle() {
-                console.log('[JS] Hiding HUD for idle mode');
-                // Hide HUD elements during idle mode
+                console.log('[App] Hiding HUD for idle mode');
+                // Hide ALL HUD elements during idle mode for clean screensaver
                 const elementsToHide = [
                     'status-bar',
-                    'debug-toggle',
+                    'debug-toggle', 
                     'debug-panel',
                     'debug-video',
-                    'manual-controls'
+                    'manual-controls',
+                    'parentOverlay',
+                    'idleWarning'
                 ];
 
                 elementsToHide.forEach(id => {
@@ -1522,43 +2588,38 @@
                         element.style.display = 'none';
                     }
                 });
+                
+                // Also hide debug points during idle
+                const debugPoints = document.getElementById('debugPoints');
+                if (debugPoints) {
+                    debugPoints.style.display = 'none';
+                }
             }
 
             showHUDForActive() {
-                console.log('[JS] Showing HUD for active mode');
+                console.log('[App] Showing HUD for active mode');
                 // Show HUD elements when not in idle mode
                 const elementsToShow = [
-                    { id: 'status-bar', className: 'status-bar' },
-                    { id: 'debug-toggle', className: 'debug-toggle' },
-                    { id: 'debug-panel', className: 'debug-panel' },
-                    { id: 'debug-video', className: 'debug-video' },
-                    { id: 'manual-controls', className: 'manual-controls' }
+                    'status-bar',
+                    'debug-toggle',
+                    'debug-panel', 
+                    'debug-video',
+                    'manual-controls',
+                    'parentOverlay',
+                    'idleWarning'
                 ];
 
-                elementsToShow.forEach(item => {
-                    const element = document.getElementById(item.id) || document.querySelector(`.${item.className}`);
+                elementsToShow.forEach(id => {
+                    const element = document.getElementById(id);
                     if (element) {
                         element.style.display = '';
-
-                        // Special handling for debug panel and video - let CSS handle visibility
-                        if (item.id === 'debug-panel' && !element.classList.contains('visible')) {
-                            element.style.display = '';
-                        }
-                        if (item.id === 'debug-video' && !element.classList.contains('visible')) {
-                            element.style.display = '';
-                        }
                     }
                 });
-
-                // Keep reference for debugging - let CSS handle visibility
-                const debugPanel = document.getElementById('debugPanel');
-                if (debugPanel && !debugPanel.classList.contains('visible')) {
-                    debugPanel.style.display = '';
-                }
-
-                const debugVideo = document.getElementById('debugVideo');
-                if (debugVideo && !debugVideo.classList.contains('visible')) {
-                    debugVideo.style.display = '';
+                
+                // Restore debug points visibility (but still controlled by debug settings)
+                const debugPoints = document.getElementById('debugPoints');
+                if (debugPoints) {
+                    debugPoints.style.display = '';
                 }
             }
 
@@ -1708,26 +2769,24 @@
         function toggleDebug() {
             const panel = document.getElementById('debugPanel');
             const isVisible = panel.classList.toggle('visible');
-            window.app.debugVisible = isVisible;
+            window.app.appState.setState({ debugVisible: isVisible });
         }
 
         function nextScene() {
-            console.log('Next scene button clicked');
-            if (window.app && window.app.socket) {
-                window.app.socket.emit('next_scene');
-                console.log('Emitted next_scene event');
+            console.log('[UI] Next scene button clicked');
+            if (window.app && window.app.sceneManager) {
+                window.app.sceneManager.nextScene();
             } else {
-                console.error('Socket not available');
+                console.error('[UI] SceneManager not available');
             }
         }
 
         function previousScene() {
-            console.log('Previous scene button clicked');
-            if (window.app && window.app.socket) {
-                window.app.socket.emit('previous_scene');
-                console.log('Emitted previous_scene event');
+            console.log('[UI] Previous scene button clicked');
+            if (window.app && window.app.sceneManager) {
+                window.app.sceneManager.previousScene();
             } else {
-                console.error('Socket not available');
+                console.error('[UI] SceneManager not available');
             }
         }
 
@@ -1744,7 +2803,6 @@
         function toggleVideo() {
             const videoDiv = document.getElementById('debugVideo');
             const isVisible = videoDiv.classList.toggle('visible');
-            window.app.videoVisible = isVisible;
 
             // If showing video, refresh the stream
             if (isVisible) {

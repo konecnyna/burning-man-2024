@@ -7,7 +7,6 @@ import os
 from datetime import datetime
 from typing import Dict, Set
 from event_system import Event, EventBus, HandTrackingEvents
-from scene_manager import SceneManager
 
 class WebSocketManager:
     def __init__(self, event_bus: EventBus, socketio: SocketIO):
@@ -59,7 +58,7 @@ class WebSocketManager:
                 self.socketio.emit('event', event.to_dict(), room=client_id)
         return handler
 
-def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand_tracker=None):
+def create_web_app(event_bus: EventBus, hand_tracker=None):
     """Create Flask app with WebSocket support"""
     app = Flask(__name__, static_folder='static')
     app.config['SECRET_KEY'] = 'hand-tracking-secret'
@@ -156,26 +155,6 @@ def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand
         ws_manager.handle_client_connect(client_id)
         emit('connected', {'client_id': client_id})
         
-        # Send current scene state to new client
-        if scene_manager:
-            current_scene = scene_manager.get_current_scene()
-            if current_scene:
-                print(f"Sending initial scene to client {client_id}: {current_scene.id}")
-                emit('event', {
-                    'type': 'scene_changed',
-                    'data': {
-                        'scene': current_scene.to_dict(),
-                        'scene_index': scene_manager.current_scene_index,
-                        'total_scenes': len(scene_manager.scenes)
-                    },
-                    'timestamp': datetime.now().isoformat(),
-                    'source': 'scene_manager'
-                }, room=client_id)
-            else:
-                print(f"No current scene available for client {client_id}")
-        else:
-            print(f"No scene manager available for client {client_id}")
-        
     @socketio.on('disconnect')
     def handle_disconnect():
         client_id = request.sid
@@ -201,52 +180,11 @@ def create_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand
         recent_events = event_bus.get_recent_events(count)
         emit('recent_events', [event.to_dict() for event in recent_events])
         
-    # Scene control endpoints
-    @socketio.on('next_scene')
-    def handle_next_scene():
-        if scene_manager:
-            scene_manager.next_scene()
-            
-    @socketio.on('previous_scene')
-    def handle_previous_scene():
-        if scene_manager:
-            scene_manager.previous_scene()
-            
-    @socketio.on('toggle_auto_cycle')
-    def handle_toggle_auto_cycle():
-        if scene_manager:
-            scene_manager.set_auto_cycle(not scene_manager.auto_cycle)
-            emit('auto_cycle_changed', {'enabled': scene_manager.auto_cycle})
-            
-    @socketio.on('get_scene_info')
-    def handle_get_scene_info():
-        if scene_manager:
-            current_scene = scene_manager.get_current_scene()
-            emit('scene_info', {
-                'current_scene': current_scene.to_dict() if current_scene else None,
-                'scene_index': scene_manager.current_scene_index,
-                'total_scenes': len(scene_manager.scenes),
-                'remaining_time': scene_manager.get_remaining_time(),
-                'auto_cycle': scene_manager.auto_cycle
-            })
-    
-    @socketio.on('pause_scene_cycling')
-    def handle_pause_scene_cycling():
-        if scene_manager:
-            scene_manager.pause_cycling()
-            print("[WebApp] Scene cycling paused")
-    
-    @socketio.on('restart_scene_cycling')
-    def handle_restart_scene_cycling():
-        if scene_manager:
-            scene_manager.restart_cycling()
-            print("[WebApp] Scene cycling restarted")
-        
     return app, socketio
 
-def run_web_app(event_bus: EventBus, scene_manager: SceneManager = None, hand_tracker=None, host: str = 'localhost', port: int = 5000, debug: bool = False):
+def run_web_app(event_bus: EventBus, hand_tracker=None, host: str = 'localhost', port: int = 5000, debug: bool = False):
     """Run the web application"""
-    app, socketio = create_web_app(event_bus, scene_manager, hand_tracker)
+    app, socketio = create_web_app(event_bus, hand_tracker)
     
     def run_server():
         socketio.run(app, host=host, port=port, debug=debug, use_reloader=False, allow_unsafe_werkzeug=True)

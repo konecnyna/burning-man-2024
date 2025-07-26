@@ -8,15 +8,12 @@ from datetime import datetime
 import webview
 from event_system import EventBus, HandTrackingEvents
 from web_app import run_web_app
-from scene_manager import SceneManager
-
 from hand_tracker import HandTracker
 
 class HandTrackingKiosk:
     def __init__(self, headless=False):
         self.event_bus = EventBus()
         self.hand_tracker = HandTracker(self.event_bus)
-        self.scene_manager = SceneManager(self.event_bus)
         self.web_app = None
         self.socketio = None
         self.server_thread = None
@@ -36,7 +33,6 @@ class HandTrackingKiosk:
             print("Starting web server...")
             self.web_app, self.socketio, self.server_thread = run_web_app(
                 self.event_bus, 
-                self.scene_manager,
                 self.hand_tracker,
                 host='localhost', 
                 port=5000, 
@@ -52,10 +48,6 @@ class HandTrackingKiosk:
             
             # Give hand tracking time to initialize
             time.sleep(1)
-            
-            # Start scene manager
-            print("Starting scene manager...")
-            self.scene_manager.start()
             
             # Create webview window (unless headless)
             if not self.headless:
@@ -103,10 +95,6 @@ class HandTrackingKiosk:
             
         print("Stopping Hand Tracking Kiosk...")
         self.running = True
-        
-        # Stop scene manager
-        if self.scene_manager:
-            self.scene_manager.stop()
             
         # Stop hand tracking
         if self.hand_tracker:
