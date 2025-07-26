@@ -12,7 +12,10 @@
         </div>
         
         <div class="idle-message">
-            <div class="message-text">Come peer into the looking glass...</div>            
+            <div class="message-text" id="typingText">
+                <span class="typed-text"></span>
+                <span class="cursor">|</span>
+            </div>            
         </div>
     </div>
 </div>
@@ -31,7 +34,51 @@
     font-size: 4rem;
     color: var(--pipboy-orange);
     text-shadow: 0 0 10px var(--pipboy-orange);
-    animation: pulse-attention 2s ease-in-out infinite;
+    font-family: 'Share Tech Mono', monospace;
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.typed-text {
+    position: relative;
+    display: inline-block;
+}
+
+.cursor {
+    display: inline-block;
+    background-color: var(--pipboy-orange);
+    animation: blink 1s infinite;
+    width: 3px;
+    height: 1em;
+    margin-left: 2px;
+}
+
+.message-text.glitch {
+    animation: glitch 0.3s ease-in-out;
+}
+
+.message-text.glitch::before,
+.message-text.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.message-text.glitch::before {
+    animation: glitch-1 0.3s ease;
+    color: #ff0040;
+    z-index: -1;
+}
+
+.message-text.glitch::after {
+    animation: glitch-2 0.3s ease;
+    color: #00ff9f;
+    z-index: -2;
 }
 
 .idle-scene {
@@ -179,6 +226,113 @@
     }
 }
 
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+@keyframes glitch-1 {
+    0% { 
+        transform: translate(0);
+        opacity: 1;
+    }
+    10% { 
+        transform: translate(-2px, -2px);
+        opacity: 0.8;
+    }
+    20% { 
+        transform: translate(3px, 2px);
+        opacity: 0.9;
+    }
+    30% { 
+        transform: translate(-3px, 3px);
+        opacity: 0.7;
+    }
+    40% { 
+        transform: translate(2px, -1px);
+        opacity: 0.8;
+    }
+    50% { 
+        transform: translate(-1px, 2px);
+        opacity: 0.9;
+    }
+    60% { 
+        transform: translate(-3px, 1px);
+        opacity: 0.7;
+    }
+    70% { 
+        transform: translate(3px, 1px);
+        opacity: 0.8;
+    }
+    80% { 
+        transform: translate(-1px, -1px);
+        opacity: 0.9;
+    }
+    90% { 
+        transform: translate(1px, 2px);
+        opacity: 0.7;
+    }
+    100% { 
+        transform: translate(0);
+        opacity: 1;
+    }
+}
+
+@keyframes glitch-2 {
+    0% { 
+        transform: translate(0);
+        opacity: 1;
+    }
+    10% { 
+        transform: translate(2px, 2px);
+        opacity: 0.8;
+    }
+    20% { 
+        transform: translate(-3px, -2px);
+        opacity: 0.9;
+    }
+    30% { 
+        transform: translate(3px, -3px);
+        opacity: 0.7;
+    }
+    40% { 
+        transform: translate(-2px, 1px);
+        opacity: 0.8;
+    }
+    50% { 
+        transform: translate(1px, -2px);
+        opacity: 0.9;
+    }
+    60% { 
+        transform: translate(3px, -1px);
+        opacity: 0.7;
+    }
+    70% { 
+        transform: translate(-3px, -1px);
+        opacity: 0.8;
+    }
+    80% { 
+        transform: translate(1px, 1px);
+        opacity: 0.9;
+    }
+    90% { 
+        transform: translate(-1px, -2px);
+        opacity: 0.7;
+    }
+    100% { 
+        transform: translate(0);
+        opacity: 1;
+    }
+}
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -411,7 +565,79 @@ class SimpleParticleSystem {
 // Initialize particles when canvas is ready
 let cometParticles;
 let simpleParticles;
+// Typing animation
+class TypingAnimation {
+    constructor(element, text, speed = 100) {
+        this.element = element;
+        this.text = text;
+        this.speed = speed;
+        this.i = 0;
+        this.isDeleting = false;
+        this.currentText = '';
+        this.glitchChance = 0.05; // 5% chance of glitch per character
+        
+        this.type();
+    }
+    
+    type() {
+        const fullText = this.text;
+        
+        if (this.isDeleting) {
+            this.currentText = fullText.substring(0, this.currentText.length - 1);
+        } else {
+            this.currentText = fullText.substring(0, this.i + 1);
+            this.i++;
+        }
+        
+        this.element.textContent = this.currentText;
+        
+        // Random glitch effect
+        if (Math.random() < this.glitchChance) {
+            this.triggerGlitch();
+        }
+        
+        let typeSpeed = this.speed;
+        
+        if (this.isDeleting) {
+            typeSpeed /= 2;
+        }
+        
+        if (!this.isDeleting && this.currentText === fullText) {
+            // Pause at end of text
+            typeSpeed = 3000;
+            this.isDeleting = true;
+        } else if (this.isDeleting && this.currentText === '') {
+            this.isDeleting = false;
+            this.i = 0;
+            typeSpeed = 1000;
+        }
+        
+        setTimeout(() => this.type(), typeSpeed);
+    }
+    
+    triggerGlitch() {
+        const messageText = this.element.parentElement;
+        messageText.setAttribute('data-text', this.currentText);
+        messageText.classList.add('glitch');
+        
+        setTimeout(() => {
+            messageText.classList.remove('glitch');
+        }, 300);
+    }
+}
+
+function initializeTypingAnimation() {
+    const typedTextElement = document.querySelector('.typed-text');
+    if (typedTextElement) {
+        new TypingAnimation(typedTextElement, 'Come peer into the looking glass...', 120);
+        console.log('Typing animation initialized');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize typing animation
+    initializeTypingAnimation();
+    
     // Small delay to ensure canvas is rendered
     setTimeout(() => {
         cometParticles = new CometParticles();
