@@ -661,8 +661,8 @@
                 this.handColorAssignments = new Map(); // Track hand ID to color assignments
                 this.nextColorIndex = 0;
 
-                // Idle management
-                this.isIdle = true;  // Start in idle mode
+                // Mode management
+                this.mode = 'idle';  // Start in idle mode (idle/onboarding/active)
                 this.idleTimeout = 10000; // 15 seconds in milliseconds
                 this.idleTimer = null;
                 this.normalScenes = []; // Will store non-idle scenes
@@ -678,13 +678,18 @@
                 window.sceneHandlers = this.sceneHandlers;
 
                 // Initialize scene handlers
-                
+
                 this.initializeSocket();
                 this.initializeDebugPoints();
                 // this.initializeKeyboardShortcuts();
                 // this.loadDebugSettings();
                 // this.startProgressUpdater();
                 this.startInIdleMode();
+            }
+
+            // Backward compatibility getter
+            get isIdle() {
+                return this.mode === 'idle';
             }
 
             initializeSocket() {
@@ -753,16 +758,14 @@
                         this.updateStatusBar();
                         break;
                     case 'scene_transition_start':
-                        console.log('[JS] Scene transition start:', event.data.to_scene?.id);
                         this.showOverlay(event.data.to_scene);
                         break;
                     case 'scene_changed':
-                        console.log('[JS] Scene changed to:', event.data.scene?.id);
-                        console.log('[JS] Scene data received:', event.data.scene);
 
-                        // If we're in idle mode, ignore non-idle scene changes from backend
-                        if (this.isIdle && event.data.scene?.id !== 'idle') {
-                            console.log('[JS] Ignoring scene change while in idle mode');
+                        // If we're in idle or onboarding mode, ignore scene changes from backend
+                        if ((this.mode === 'idle' || this.mode === 'onboarding') && 
+                            event.data.scene?.id !== 'idle' && event.data.scene?.id !== 'onboarding') {
+                            console.log(`[JS] Ignoring scene change while in ${this.mode} mode`);
                             return;
                         }
 
@@ -816,23 +819,23 @@
             initializeSceneHandlers() {
                 // Store reference to main app for scene handlers
                 const app = this;
-                
+
                 // Idle scene handler
                 this.sceneHandlers.idle = {
-                    onInit: function() {
+                    onInit: function () {
                         console.log('Idle scene initialized');
                     },
-                    
-                    onHandDetected: function(hands) {
+
+                    onHandDetected: function (hands) {
                         console.log('Idle scene: Hand detected, should exit idle mode');
                         // The scene manager will handle exiting idle mode via events
                     },
-                    
-                    onHandMove: function(hands) {
+
+                    onHandMove: function (hands) {
                         // No interaction needed in idle mode - just detect presence
                     },
-                    
-                    onHandLost: function() {
+
+                    onHandLost: function () {
                         console.log('Idle scene: Hand lost');
                     }
                 };
@@ -844,7 +847,7 @@
                     countdownStartTime: null,
                     isHovering: false,
 
-                    onInit: function() {
+                    onInit: function () {
                         console.log('Welcome scene onInit called!');
                         // Create hand cursor
                         app.sceneHandlers.welcome.handCursor = document.createElement('div');
@@ -866,7 +869,7 @@
                         console.log('Welcome scene cursor initialized:', app.sceneHandlers.welcome.handCursor);
                     },
 
-                    onHandMove: function(hands) {
+                    onHandMove: function (hands) {
                         console.log('Welcome scene onHandMove called with hands:', hands.length);
                         // Highlight instruction modules based on hand position
                         const modules = document.querySelectorAll('.instruction-module');
@@ -935,7 +938,7 @@
                         }
                     },
 
-                    startCountdown: function() {
+                    startCountdown: function () {
                         if (app.sceneHandlers.welcome.isHovering) return;
 
                         console.log('Starting countdown...');
@@ -959,7 +962,7 @@
                         app.sceneHandlers.welcome.updateCountdown();
                     },
 
-                    updateCountdown: function() {
+                    updateCountdown: function () {
                         if (!app.sceneHandlers.welcome.isHovering) return;
 
                         const elapsed = (Date.now() - app.sceneHandlers.welcome.countdownStartTime) / 1000;
@@ -985,7 +988,7 @@
                         }
                     },
 
-                    completeCountdown: function() {
+                    completeCountdown: function () {
                         console.log('Countdown complete! Starting scene cycling...');
                         app.sceneHandlers.welcome.stopCountdown();
 
@@ -993,7 +996,7 @@
                         app.restartSceneSystem();
                     },
 
-                    stopCountdown: function() {
+                    stopCountdown: function () {
                         if (!app.sceneHandlers.welcome.isHovering) return;
 
                         console.log('Stopping countdown...');
@@ -1030,7 +1033,7 @@
                         }
                     },
 
-                    onHandDetected: function(hands) {
+                    onHandDetected: function (hands) {
                         console.log('Welcome scene: Hand detected');
                         // Update signal status
                         const signalText = document.querySelector('.signal-text');
@@ -1039,7 +1042,7 @@
                         }
                     },
 
-                    onHandLost: function() {
+                    onHandLost: function () {
                         // Remove all active states
                         document.querySelectorAll('.instruction-module').forEach(module => {
                             module.classList.remove('active');
@@ -1058,7 +1061,7 @@
                         app.sceneHandlers.welcome.stopCountdown();
                     },
 
-                    onDestroy: function() {
+                    onDestroy: function () {
                         // Clean up hand cursor when leaving welcome scene
                         if (app.sceneHandlers.welcome.handCursor) {
                             console.log('Removing welcome scene hand cursor');
@@ -1183,15 +1186,17 @@
 
                     const container = document.getElementById('scene-container');
 
-                    // Handle idle mode HUD visibility
+                    // Handle mode-specific HUD visibility
                     if (scene.id === 'idle') {
                         this.hideHUDForIdle();
+                    } else if (scene.id === 'onboarding') {
+                        this.hideHUDForIdle(); // Hide HUD during onboarding too
                     } else {
                         this.showHUDForActive();
                     }
 
                     // Handle complete HTML page scenes as iframes
-                    if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism' || scene.id === 'psychedelic_waves' || scene.id === 'tie_dye' || scene.id === 'orbits') {
+                    if (scene.id === 'fluidsim' || scene.id === 'cosmic_symbolism' || scene.id === 'psychedelic_waves' || scene.id === 'tie_dye' || scene.id === 'orbits' || scene.id === 'idle' || scene.id === 'onboarding') {
                         container.innerHTML = `<iframe id="scene-iframe" src="/${scene.html_file}" style="width: 100%; height: 100%; border: none;"></iframe>`;
 
                         // Wait for iframe to load, then set up communication
@@ -1228,7 +1233,7 @@
                     if (typeof handler === 'function') {
                         handler(...args);
                     }
-                } else if (this.currentSceneIframe && (this.currentScene.id === 'fluidsim' || this.currentScene.id === 'cosmic_symbolism' || this.currentScene.id === 'psychedelic_waves' || this.currentScene.id === 'tie_dye' || this.currentScene.id === 'orbits')) {
+                } else if (this.currentSceneIframe && (this.currentScene.id === 'fluidsim' || this.currentScene.id === 'cosmic_symbolism' || this.currentScene.id === 'psychedelic_waves' || this.currentScene.id === 'tie_dye' || this.currentScene.id === 'orbits' || this.currentScene.id === 'idle' || this.currentScene.id === 'onboarding')) {
                     // For iframe scenes, send message to iframe
                     const messageType = method.replace('on', '').toLowerCase();
                     let data = {};
@@ -1298,21 +1303,18 @@
 
             updateSceneCountdown() {
                 const countdownElement = document.getElementById('sceneCountdown');
-                
-                console.log("updateSceneCountdown" ,!this.sceneStartTime ,this.isIdle)
-                
-                if (!this.currentScene || !this.sceneStartTime || this.isIdle) {
+                if (!this.currentScene || !this.sceneStartTime || this.mode !== 'active') {
                     countdownElement.textContent = 'Next: --';
                     return;
                 }
 
                 // Get scene duration - should always be specified
                 if (!this.currentScene.duration) {
-                    console.error('[JS] Scene missing duration:', this.currentScene);
+                    throw Error('[JS] Scene missing duration:', this.currentScene);
                     return;
                 }
+
                 const sceneDuration = this.currentScene.duration;
-                console.log('[JS] Scene duration for', this.currentScene.id, ':', sceneDuration, 'seconds');
 
                 // Calculate elapsed time
                 const elapsed = (Date.now() - this.sceneStartTime) / 1000;
@@ -1562,7 +1564,7 @@
 
             startInIdleMode() {
                 console.log('[JS] Starting in idle mode');
-                this.isIdle = true;
+                this.mode = 'idle';
                 this.loadIdleScene();
             }
 
@@ -1582,7 +1584,7 @@
 
             enterIdleMode() {
                 console.log('[JS] Entering idle mode - ending session');
-                this.isIdle = true;
+                this.mode = 'idle';
                 this.idleTimeoutStartTime = null;
 
                 // Hide idle warning
@@ -1603,25 +1605,20 @@
             }
 
             exitIdleMode() {
-                console.log('[JS] Exiting idle mode - starting new session');
-                this.isIdle = false;
+                console.log('[JS] Exiting idle mode - starting onboarding mode');
+                this.mode = 'onboarding';
                 if (this.idleTimer) {
                     clearTimeout(this.idleTimer);
                 }
 
                 this.initializeSceneHandlers();
 
-                // Reset session welcome flag - new session starts
+                // Reset session flag - new session starts  
                 this.sessionWelcomeShown = false;
 
-                // Show welcome screen first, then restart scene system
-                this.showWelcomeScreen();
+                // Show onboarding screen
+                this.showOnboardingScreen();
                 this.resetIdleTimer();
-
-                // Restart scene countdown when exiting idle mode
-                setTimeout(() => {
-                    this.startSceneCountdown();
-                }, 1000); // Give scene time to load
             }
 
             pauseSceneSystem() {
@@ -1652,16 +1649,44 @@
                 this.loadScene(idleScene);
             }
 
+            loadOnboardingScene() {
+                console.log('[JS] Loading onboarding scene');
+                const onboardingScene = {
+                    id: 'onboarding',
+                    name: 'Onboarding Screen',
+                    description: 'Interactive welcome and instructions',
+                    html_file: 'scenes/welcome.html'
+                };
+                this.currentScene = onboardingScene; // Set current scene
+                this.loadScene(onboardingScene);
+            }
+
             loadWelcomeScene() {
                 console.log('[JS] Loading welcome scene');
                 const welcomeScene = {
                     id: 'welcome',
                     name: 'Welcome Scene',
                     description: 'Interactive welcome screen',
-                    html_file: 'scenes/welcome.html'
+                    html_file: 'scenes/welcome.html',
+                    duration: 30,
                 };
                 this.currentScene = welcomeScene; // Set current scene
                 this.loadScene(welcomeScene);
+            }
+
+            showOnboardingScreen() {
+                console.log('[JS] Showing onboarding screen for new session');
+                this.sessionWelcomeShown = true;
+                this.loadOnboardingScene();
+                this.showHUDForActive();
+            }
+
+            exitOnboardingMode() {
+                console.log('[JS] Exiting onboarding mode - starting active mode');
+                this.mode = 'active';
+                
+                // Start the scene system after onboarding
+                this.restartSceneSystem();
             }
 
             showWelcomeScreen() {
@@ -1740,11 +1765,7 @@
             }
         }
 
-        // Initialize the app when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("hello")
-            window.app = new HandTrackingKiosk();
-        });
+        document.addEventListener('DOMContentLoaded', () => { window.app = new HandTrackingKiosk(); });
     </script>
 </body>
 

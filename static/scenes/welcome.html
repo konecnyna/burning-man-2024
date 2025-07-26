@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Onboarding</title>
+</head>
+<body>
 <div class="scene welcome-scene">
     <div class="terminal-frame">
         <div class="terminal-header">
@@ -102,7 +110,7 @@
 </div>
 
 <style>
-@import url('../fonts/fonts.css');
+@import url('/static/fonts/fonts.css');
 
 :root {
     --pipboy-green: #00ff41;
@@ -497,4 +505,59 @@
     }
 }
 </style>
+
+<script>
+// Scene-specific interaction logic for onboarding mode
+// Check if we're in the parent window context (with sceneHandlers available)
+if (window.parent && window.parent.sceneHandlers) {
+    // We're in an iframe, register with parent
+    window.parent.sceneHandlers.onboarding = {
+        onInit: function() {
+            console.log('Onboarding scene initialized');
+        },
+        
+        onHandDetected: function(hands) {
+            console.log('Onboarding scene: Hand detected');
+            // Start countdown and transition to active mode after 3 seconds
+            if (window.parent && window.parent.app) {
+                setTimeout(() => {
+                    window.parent.app.exitOnboardingMode();
+                }, 3000);
+            }
+        },
+        
+        onHandMove: function(hands) {
+            // Handle hand movement in onboarding
+        },
+        
+        onHandLost: function() {
+            // Handle hand lost in onboarding
+        }
+    };
+} else if (window.sceneHandlers) {
+    // We're in the same window context
+    window.sceneHandlers.onboarding = {
+        onInit: function() {
+            console.log('Onboarding scene initialized');
+        },
+        
+        onHandDetected: function(hands) {
+            console.log('Onboarding scene: Hand detected');
+        },
+        
+        onHandMove: function(hands) {
+            // Handle hand movement in onboarding
+        },
+        
+        onHandLost: function() {
+            // Handle hand lost in onboarding  
+        }
+    };
+} else {
+    // Standalone mode
+    console.log('Onboarding scene running in standalone mode');
+}
+</script>
+</body>
+</html>
 

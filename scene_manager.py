@@ -104,10 +104,11 @@ class SceneManager:
         self.is_running = True
         self.scene_start_time = time.time()
         
-        # Start with welcome scene
-        self.change_scene(0)  # Welcome scene is first
+        # Start in paused mode (idle) - don't cycle scenes initially
+        self.cycling_paused = True
+        print("[SceneManager] Started in paused mode (system starts in idle)")
         
-        # Start cycling thread if auto-cycle is enabled
+        # Start cycling thread (but it will be paused)
         if self.auto_cycle:
             self.cycle_thread = threading.Thread(target=self._cycle_scenes)
             self.cycle_thread.daemon = True
