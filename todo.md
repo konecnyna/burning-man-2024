@@ -1,2 +1,3 @@
 1. HUD isn't showing for  welcome
 2. cusor on welcome doesnt work
+3. welcome inst full screen
