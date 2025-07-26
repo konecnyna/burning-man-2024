@@ -1306,8 +1306,12 @@
                     return;
                 }
 
-                // Get scene duration (default to 45 seconds if not specified)
-                const sceneDuration = this.currentScene.duration || 45;
+                // Get scene duration - should always be specified
+                if (!this.currentScene.duration) {
+                    console.error('[JS] Scene missing duration:', this.currentScene);
+                    return;
+                }
+                const sceneDuration = this.currentScene.duration;
                 console.log('[JS] Scene duration for', this.currentScene.id, ':', sceneDuration, 'seconds');
 
                 // Calculate elapsed time

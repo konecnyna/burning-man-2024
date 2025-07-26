@@ -37,6 +37,8 @@ class SceneManager:
         self.scene_start_time = None
         self.auto_cycle = True
         self.cycling_paused = False
+        self.default_duration = 45.0
+        self.welcome_duration = 30.0
         
         # Load default scenes
         self._load_default_scenes()
@@ -48,7 +50,7 @@ class SceneManager:
                 id="welcome",
                 name="Welcome Scene",
                 description="Interactive welcome screen with hand tracking demonstration",
-                duration=30.0,
+                duration=self.welcome_duration,
                 html_file="scenes/welcome.html",
                 background_color="#1e3c72"
             ),
@@ -56,7 +58,7 @@ class SceneManager:
                 id="fluidsim",
                 name="Fluid Simulation",
                 description="WebGL fluid simulation controlled by hand movements",
-                duration=5.0,
+                duration=self.default_duration,
                 html_file="scenes/fluidsim/index.html",
                 background_color="#000000"
             ),
@@ -64,7 +66,7 @@ class SceneManager:
                 id="cosmic_symbolism",
                 name="Cosmic Symbolism",
                 description="Navigate through cosmic imagery with hand movements",
-                duration=5.0,
+                duration=self.default_duration,
                 html_file="scenes/cosmic-symbolism/index.html",
                 background_color="#000000"
             ),
@@ -72,7 +74,7 @@ class SceneManager:
                 id="psychedelic_waves",
                 name="Psychedelic Waves",
                 description="WebGL shader-based wave visualization controlled by hand movements",
-                duration=5.0,
+                duration=self.default_duration,
                 html_file="scenes/psychedelic-waves/index.html",
                 background_color="#000000"
             ),
@@ -80,7 +82,7 @@ class SceneManager:
                 id="orbits",
                 name="Orbits",
                 description="An interactive flight through attractor orbits using hopalong formula.",
-                duration=5.0,
+                duration=self.default_duration,
                 html_file="scenes/orbits/index.html",
                 background_color="#000000"
             ),
@@ -88,7 +90,7 @@ class SceneManager:
                 id="tie_dye",
                 name="Tie Dye",
                 description="Use your hands to create a tie dye pattern",
-                duration=5.0,
+                duration=self.default_duration,
                 html_file="scenes/tie-dye/index.html",
                 background_color="#000000"
             )
@@ -227,7 +229,7 @@ class SceneManager:
                     time.sleep(min(1.0, remaining_time))
             else:
                 # No duration limit, check every 5 seconds
-                time.sleep(5.0)
+                time.sleep(self.default_duration)
                 
     def handle_scene_interaction(self, interaction_data: Dict[str, Any]):
         """Handle interaction within a scene"""
